@@ -402,7 +402,7 @@
       },
       {
         "id": "q_framed",
-        "type": "clue",
+        "type": "suspect",
         "title": "4. 범인이 죄를 뒤집어씌우려 한 인물은 누구인가?",
         "answerId": "suspect2"
       },
