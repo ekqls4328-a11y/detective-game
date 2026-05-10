@@ -5,7 +5,7 @@ import DeductionView from './DeductionView';
 import InventoryModal from './InventoryModal';
 import LocationModal from './LocationModal';
 
-const PlayScreen = ({ scenarioId, onBack }) => {
+const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
   // 💡 1. 로컬스토리지 키 설정 (시나리오별로 독립적인 세이브 파일 생성)
   const SAVE_KEY = `crime_game_progress_${scenarioId}`;
 
@@ -120,21 +120,27 @@ const PlayScreen = ({ scenarioId, onBack }) => {
 
   return (
     <div className="min-h-screen bg-neutral-900 text-gray-100 flex flex-col font-sans">
-      
-      {/* 1. 상단 고정 헤더 */}
       <header className={`sticky top-0 z-20 border-b border-neutral-800 p-3 flex justify-between items-center gap-2 shadow-md transition-colors ${actionPoints === 0 ? 'bg-red-950' : 'bg-neutral-950'}`}>
-        {/* 왼쪽: 철수 버튼 (영역 보존) */}
         <button onClick={onBack} className="text-neutral-400 hover:text-white font-bold text-sm whitespace-nowrap shrink-0">
           &lt; 철수
         </button>
         
-        {/* 중앙: 타이틀 (좁으면 말줄임표 처리) */}
         <h1 className="text-sm font-black truncate flex-1 text-center text-white min-w-0">
           {data.title}
         </h1>
         
-        {/* 우측: 인벤토리 & AP (영역 보존) */}
+        {/* 💡 우측 아이콘 묶음 */}
         <div className="flex items-center gap-2 shrink-0">
+          
+          {/* 💡 1. 톱니바퀴 (설정) 버튼 추가 */}
+          <button 
+            onClick={onOpenSettings} // 💡 위에서 받은 함수를 여기서 실행!
+            className="w-8 h-8 bg-neutral-800 rounded-full border border-neutral-600 flex items-center justify-center hover:bg-neutral-700 active:scale-95 transition-all"
+          >
+            <span className="text-sm">⚙️</span>
+          </button>
+
+          {/* 2. 기존 인벤토리 버튼 */}
           <button 
             onClick={() => setIsGlobalInventoryOpen(true)}
             className="relative w-8 h-8 bg-neutral-800 rounded-full border border-neutral-600 flex items-center justify-center hover:bg-neutral-700 active:scale-95 transition-all"
@@ -147,6 +153,7 @@ const PlayScreen = ({ scenarioId, onBack }) => {
             )}
           </button>
 
+          {/* 3. 기존 AP 숫자 표기 */}
           <div className={`flex items-center gap-1 px-2 py-1 rounded-full border transition-colors ${
             actionPoints <= 1 ? 'bg-red-900/50 border-red-500 animate-pulse text-red-400' : 'bg-neutral-800 border-neutral-700 text-neutral-300'
           }`}>

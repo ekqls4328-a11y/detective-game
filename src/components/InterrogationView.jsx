@@ -1,22 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import TypewriterText from './TypewriterText';
 import InventoryModal from './InventoryModal';
-import InspectionModal from './InspectionModal'; // 💡 100% 분리된 관찰 모달
+import InspectionModal from './InspectionModal';
 
 const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, onClueFound, onMarkAsViewed, onRemoveClue, onPresent, onClose }) => {
   const [isTypingDone, setIsTypingDone] = useState(false);
   const [showQuestionMenu, setShowQuestionMenu] = useState(false);
   const [currentDialog, setCurrentDialog] = useState(suspect.selfIntro);
   
+  // 💡 [핵심 버그 수정] 대화가 바뀔 때마다 컴포넌트를 강제 리렌더링 시킬 키 값
+  const [dialogKey, setDialogKey] = useState(0); 
+  
   // 모달 제어용 상태
   const [isInventoryOpen, setIsInventoryOpen] = useState(false);
-  const [isInspectionOpen, setIsInspectionOpen] = useState(false); // 💡 관찰 모달 띄우는 상태
+  const [isInspectionOpen, setIsInspectionOpen] = useState(false);
 
   // 용의자가 바뀔 때마다 초기화
   useEffect(() => {
     setCurrentDialog(suspect.selfIntro);
     setShowQuestionMenu(false);
     setIsTypingDone(false);
+    setDialogKey(prev => prev + 1); // 💡 용의자 바뀔 때도 타이핑 리셋
   }, [suspect]);
 
   // [질문하기] 실행
@@ -24,6 +28,7 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, onCl
     setShowQuestionMenu(false);
     setIsTypingDone(false);
     setCurrentDialog(question.response); 
+    setDialogKey(prev => prev + 1); // 💡 똑같은 질문이어도 강제로 타이핑 효과 다시 실행!
   };
 
   // [단서 제시] 실행
@@ -37,6 +42,7 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, onCl
     } else {
       setCurrentDialog("그게 이 사건과 무슨 상관이라는 겁니까? 억지 부리지 마시죠.");
     }
+    setDialogKey(prev => prev + 1); // 💡 단서 제시 때도 타이핑 강제 리셋!
     if (onPresent) onPresent();
   };
 
@@ -53,7 +59,6 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, onCl
           &lt; 심문 종료
         </button>
 
-        {/* 💡 관찰 모달 띄우기 버튼 */}
         <button 
           onClick={() => setIsInspectionOpen(true)}
           className="font-bold px-4 py-1.5 rounded-full backdrop-blur-sm bg-neutral-800 border border-neutral-600 text-amber-500 shadow-md flex items-center gap-2 active:scale-95 transition-transform"
@@ -62,7 +67,7 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, onCl
         </button>
       </header>
 
-      {/* 중앙 용의자 일러스트 영역 (배경 포함 심문용 이미지) */}
+      {/* 중앙 용의자 일러스트 영역 */}
       <div className="flex-1 relative flex items-end justify-center overflow-hidden border-b-2 border-neutral-700 bg-black">
         {suspect.illustration?.interrogationUrl ? (
           <img 
@@ -77,7 +82,7 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, onCl
         )}
       </div>
 
-      {/* 비주얼 노벨 스타일 대화창 (하단 고정) */}
+      {/* 비주얼 노벨 스타일 대화창 */}
       <div className="h-2/5 bg-neutral-950 p-4 flex flex-col justify-between relative z-20">
         
         {/* 질문 메뉴 팝업 */}
@@ -111,6 +116,7 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, onCl
           
           <p className="text-gray-100 leading-relaxed text-sm mt-2">
             <TypewriterText 
+              key={dialogKey} // 💡 여기에 key를 넣어주면 값이 바뀔 때마다 컴포넌트가 새로 마운트 됨!
               text={currentDialog} 
               speed={30} 
               onComplete={() => setIsTypingDone(true)} 
@@ -139,7 +145,7 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, onCl
         </div>
       </div>
 
-      {/* 💡 단서 제시 모달 (바텀 시트) */}
+      {/* 단서 제시 모달 */}
       {isInventoryOpen && (
         <InventoryModal 
           inventory={inventory}
@@ -152,7 +158,7 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, onCl
         />
       )}
 
-      {/* 💡 전신 관찰 모달 (풀스크린) */}
+      {/* 전신 관찰 모달 */}
       {isInspectionOpen && (
         <InspectionModal
           suspect={suspect}

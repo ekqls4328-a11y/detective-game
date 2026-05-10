@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import scenarioData from '../data/scenario_list.json';
 
-const MainScreen = ({ onSelectScenario }) => {
+const MainScreen = ({ onSelectScenario, onBack, onOpenSettings }) => {
   const [scenarios, setScenarios] = useState([]);
   const [clearedScenarios, setClearedScenarios] = useState([]);
 
@@ -16,15 +16,28 @@ const MainScreen = ({ onSelectScenario }) => {
   return (
     // 모바일 환경에 맞춰 좌우 패딩을 약간 줄이고(p-4), 하단 여백(pb-10)을 넉넉히 줌
     <div className="min-h-screen bg-neutral-900 text-gray-100 p-4 pb-10 font-sans">
+
+      {/* 💡 우측 상단 설정 버튼 */}
+      <button 
+        onClick={onOpenSettings}
+        className="absolute top-4 right-4 z-20 w-9 h-9 bg-neutral-800 border border-neutral-700 rounded-full flex items-center justify-center text-lg shadow-lg hover:bg-neutral-700 active:scale-95"
+      >
+        ⚙️
+      </button>
       
-      {/* 헤더 영역 (모바일 뷰에 맞춰 간결하게) */}
-      <header className="mt-4 mb-8 pl-1">
-        <h1 className="text-2xl font-black tracking-tight text-white mb-1">
-          사건 파일
-        </h1>
-        <p className="text-neutral-400 text-sm">
-          조사할 사건을 선택해 주십시오.
-        </p>
+      {/* 💡 헤더 영역에 뒤로 가기 버튼 추가 */}
+      <header className="mt-4 mb-8 pl-1 flex items-start gap-3">
+        <button onClick={onBack} className="text-neutral-400 hover:text-white font-bold mt-1 shrink-0">
+          &lt; 뒤로
+        </button>
+        <div>
+          <h1 className="text-2xl font-black tracking-tight text-white mb-1">
+            사건 파일
+          </h1>
+          <p className="text-neutral-400 text-sm">
+            조사할 사건을 선택해 주십시오.
+          </p>
+        </div>
       </header>
 
       {/* 세로 스크롤 사건 리스트 */}

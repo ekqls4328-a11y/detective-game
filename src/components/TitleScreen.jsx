@@ -1,8 +1,15 @@
 import React from 'react';
 
-const TitleScreen = ({ onStartGame, hasSaveData, onContinue }) => {
+const TitleScreen = ({ onStartGame, hasSaveData, onContinue, onOpenSettings }) => {
   return (
     <div className="min-h-screen bg-neutral-950 flex flex-col items-center justify-center p-6 relative overflow-hidden">
+      {/* 💡 우측 상단 설정 버튼 */}
+      <button 
+        onClick={onOpenSettings}
+        className="absolute top-6 right-6 z-20 w-10 h-10 bg-neutral-900/80 backdrop-blur border border-neutral-700 rounded-full flex items-center justify-center text-xl shadow-lg hover:bg-neutral-800 active:scale-95"
+      >
+        ⚙️
+      </button>
       {/* 배경 장식 */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-neutral-800 via-neutral-950 to-black opacity-50" />
       
