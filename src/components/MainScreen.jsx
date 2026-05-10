@@ -48,11 +48,6 @@ const MainScreen = ({ onSelectScenario }) => {
                   SOLVED
                 </div>
               )}
-
-              {/* 난이도 */}
-              <div className="text-yellow-500 text-xs tracking-widest mb-2 font-bold">
-                DIFFICULTY {scenario.level}
-              </div>
               
               {/* 타이틀 */}
               <h2 className="text-lg font-bold leading-snug mb-4 pr-12 text-white">

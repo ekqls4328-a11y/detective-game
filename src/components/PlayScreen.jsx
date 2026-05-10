@@ -121,36 +121,38 @@ const PlayScreen = ({ scenarioId, onBack }) => {
   return (
     <div className="min-h-screen bg-neutral-900 text-gray-100 flex flex-col font-sans">
       
-      {/* 상단 고정 헤더 */}
-      <header className={`sticky top-0 z-20 border-b border-neutral-800 p-4 flex justify-between items-center shadow-md transition-colors ${actionPoints === 0 ? 'bg-red-950' : 'bg-neutral-950'}`}>
-        <button onClick={onBack} className="text-neutral-400 hover:text-white font-bold p-2 -ml-2">
+      {/* 1. 상단 고정 헤더 */}
+      <header className={`sticky top-0 z-20 border-b border-neutral-800 p-3 flex justify-between items-center gap-2 shadow-md transition-colors ${actionPoints === 0 ? 'bg-red-950' : 'bg-neutral-950'}`}>
+        {/* 왼쪽: 철수 버튼 (영역 보존) */}
+        <button onClick={onBack} className="text-neutral-400 hover:text-white font-bold text-sm whitespace-nowrap shrink-0">
           &lt; 철수
         </button>
-        <h1 className="text-sm font-black truncate max-w-[150px] text-center text-white">
+        
+        {/* 중앙: 타이틀 (좁으면 말줄임표 처리) */}
+        <h1 className="text-sm font-black truncate flex-1 text-center text-white min-w-0">
           {data.title}
         </h1>
-        <div className="flex items-center gap-3">
-          
-          {/* 글로벌 인벤토리 열기 버튼 */}
+        
+        {/* 우측: 인벤토리 & AP (영역 보존) */}
+        <div className="flex items-center gap-2 shrink-0">
           <button 
             onClick={() => setIsGlobalInventoryOpen(true)}
-            className="relative w-9 h-9 bg-neutral-800 rounded-full border border-neutral-600 flex items-center justify-center hover:bg-neutral-700 active:scale-95 transition-all"
+            className="relative w-8 h-8 bg-neutral-800 rounded-full border border-neutral-600 flex items-center justify-center hover:bg-neutral-700 active:scale-95 transition-all"
           >
-            <span className="text-lg">💼</span>
+            <span className="text-sm">💼</span>
             {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] font-black w-4 h-4 rounded-full flex items-center justify-center shadow-md animate-bounce">
+              <span className="absolute -top-1 -right-1 bg-red-600 text-white text-[9px] font-black w-3.5 h-3.5 rounded-full flex items-center justify-center shadow-md animate-bounce">
                 {unreadCount}
               </span>
             )}
           </button>
 
-          {/* AP 숫자 표기 */}
-          <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border transition-colors ${
+          <div className={`flex items-center gap-1 px-2 py-1 rounded-full border transition-colors ${
             actionPoints <= 1 ? 'bg-red-900/50 border-red-500 animate-pulse text-red-400' : 'bg-neutral-800 border-neutral-700 text-neutral-300'
           }`}>
-            <span className="text-sm">⚡</span>
-            <span className="text-xs font-black tracking-widest mt-px">
-              {data.maxActionPoints || 3} <span className="text-neutral-500 mx-0.5">/</span> {actionPoints}
+            <span className="text-xs">⚡</span>
+            <span className="text-[11px] font-black tracking-widest mt-px">
+              {actionPoints} <span className="text-neutral-500 mx-0.5">/</span> {data.maxActionPoints || 3}
             </span>
           </div>
         </div>
@@ -168,9 +170,6 @@ const PlayScreen = ({ scenarioId, onBack }) => {
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-neutral-600 font-bold">이미지 준비 중</div>
               )}
-              <div className="absolute bottom-0 left-0 w-full p-4 bg-gradient-to-t from-black/90 to-transparent">
-                <span className="text-xs font-bold bg-red-600 text-white px-2 py-1 rounded">난이도: {data.level}</span>
-              </div>
             </div>
 
             <div>

@@ -47,22 +47,25 @@ const LocationModal = ({
     <div className="fixed inset-0 z-[70] bg-neutral-950 flex flex-col animate-fadeIn overflow-hidden">
       
       {/* 상단 헤더 */}
-      <header className="absolute top-0 w-full z-[80] p-4 flex justify-between items-center bg-gradient-to-b from-black/80 to-transparent">
-        <button onClick={onClose} className="text-white font-bold px-4 py-2 bg-neutral-800/80 rounded-full border border-neutral-600 backdrop-blur-md active:scale-95">
+      <header className="absolute top-0 w-full z-[80] p-3 flex justify-between items-center gap-2 bg-gradient-to-b from-black/80 to-transparent">
+        {/* 왼쪽: 이탈 버튼 */}
+        <button onClick={onClose} className="text-white text-xs font-bold px-3 py-1.5 bg-neutral-800/80 rounded-full border border-neutral-600 backdrop-blur-md active:scale-95 whitespace-nowrap shrink-0">
           &lt; 현장 이탈
         </button>
-        <div className="flex items-center gap-2">
-          {/* 숫자 형태 AP 표시기 */}
-          <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full border backdrop-blur-sm transition-colors ${
+        
+        {/* 오른쪽: AP 및 현장 이름 */}
+        <div className="flex items-center gap-1.5 min-w-0 justify-end flex-1">
+          <div className={`flex items-center gap-1 px-2 py-1 rounded-full border backdrop-blur-sm transition-colors shrink-0 ${
             actionPoints <= 1 ? 'bg-red-900/70 border-red-500 text-red-400 animate-pulse' : 'bg-black/50 border-neutral-700 text-neutral-300'
           }`}>
-            <span className="text-sm">⚡</span>
-            <span className="text-xs font-black tracking-widest mt-px">
+            <span className="text-xs">⚡</span>
+            <span className="text-[10px] font-black tracking-widest mt-px">
               {actionPoints} <span className="text-neutral-500 mx-0.5">/</span> {maxActionPoints || 3}
             </span>
           </div>
 
-          <span className="text-blue-400 font-black bg-black/50 px-3 py-1 rounded-full backdrop-blur-sm text-sm border border-blue-900/50">
+          {/* 구역 이름 (길면 잘리도록 max-w 설정) */}
+          <span className="text-blue-400 font-black bg-black/50 px-2 py-1 rounded-full backdrop-blur-sm text-[11px] border border-blue-900/50 truncate shrink-0 max-w-[110px]">
             {location.name}
           </span>
         </div>
@@ -155,7 +158,7 @@ const LocationModal = ({
           {isScanning ? (
             '탐색 중...'
           ) : actionPoints > 0 ? (
-            <><span>🔍</span> 주변 탐색 (AP -1)</>
+            <><span>🔍</span> 주변 탐색 (⚡ -1)</>
           ) : (
             '탐색 불가 (AP 부족)'
           )}
