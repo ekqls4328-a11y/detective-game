@@ -91,12 +91,14 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, onCl
       {/* 비주얼 노벨 스타일 대화창 */}
       <div className="h-2/5 bg-neutral-950 p-4 flex flex-col justify-between relative z-20">
         
-        {/* 질문 메뉴 오버레이 */}
+        {/* 💡 [수정됨] 시네마틱 질문 오버레이 (모바일 스크롤 & 잘림 방지 최적화) */}
         {showQuestionMenu && (
-          <div className="absolute inset-0 z-40 bg-black/70 backdrop-blur-sm flex flex-col items-center justify-center p-6 animate-fadeIn">
-            <div className="w-full max-w-md flex flex-col gap-3">
+          <div className="absolute inset-0 z-40 bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center p-4 animate-fadeIn">
+            
+            {/* 💡 max-h-[85vh]와 overflow-y-auto를 줘서 화면 밖으로 넘치면 내부 스크롤이 생기게 함 */}
+            <div className="w-full max-w-md flex flex-col gap-3 max-h-[85vh] overflow-y-auto py-4 px-1 pb-10 scrollbar-hide">
               
-              <div className="text-amber-500 font-bold text-sm mb-4 text-center tracking-widest animate-pulse">
+              <div className="text-amber-500 font-bold text-sm mb-2 text-center tracking-widest animate-pulse shrink-0">
                 [ 심문 주제 선택 ]
               </div>
 
@@ -104,7 +106,7 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, onCl
                 <button 
                   key={q.id}
                   onClick={() => handleAskQuestion(q)}
-                  className="group relative w-full overflow-hidden rounded-xl bg-neutral-900 border border-neutral-700 p-4 text-left shadow-lg hover:border-amber-500 hover:shadow-[0_0_15px_rgba(245,158,11,0.4)] transition-all active:scale-[0.98]"
+                  className="group relative w-full overflow-hidden rounded-xl bg-neutral-900 border border-neutral-700 p-4 text-left shadow-lg hover:border-amber-500 hover:shadow-[0_0_15px_rgba(245,158,11,0.4)] transition-all active:scale-[0.98] shrink-0"
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-amber-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                   
@@ -119,10 +121,10 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, onCl
                 </button>
               ))}
 
-              {/* 닫기 버튼 */}
+              {/* 닫기 버튼 (shrink-0을 줘서 찌그러지지 않게 보호) */}
               <button 
                 onClick={() => setShowQuestionMenu(false)}
-                className="mt-6 py-3 px-8 rounded-full bg-neutral-800 text-neutral-400 font-bold hover:bg-neutral-700 hover:text-white transition-all self-center border border-neutral-600 shadow-md"
+                className="mt-6 py-3 px-8 rounded-full bg-neutral-800 text-neutral-400 font-bold hover:bg-neutral-700 hover:text-white transition-all self-center border border-neutral-600 shadow-md shrink-0"
               >
                 닫기
               </button>
