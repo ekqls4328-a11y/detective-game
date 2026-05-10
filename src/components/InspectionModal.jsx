@@ -3,16 +3,12 @@ import React, { useState } from 'react';
 const InspectionModal = ({ suspect, inventory, onClueFound, onClose }) => {
   const [inspectionSide, setInspectionSide] = useState('front');
   const [discoveryText, setDiscoveryText] = useState("화면을 터치해 수상한 곳을 찾아보세요.");
-  
-  // 💡 현재 유저가 터치해서 보고 있는 단서 정보 저장
   const [focusedPoint, setFocusedPoint] = useState(null);
 
   const IS_DEV_MODE = true; 
 
   const handlePointClick = (e, point) => {
-    // 💡 이벤트 버블링 방지 (이미지 클릭과 겹치지 않게)
     e.stopPropagation(); 
-    
     setFocusedPoint(point);
     setDiscoveryText(`[${point.name}] ${point.description}`);
   };
@@ -27,23 +23,24 @@ const InspectionModal = ({ suspect, inventory, onClueFound, onClose }) => {
   const currentImageUrl = inspectionSide === 'front' ? suspect.illustration?.frontFullUrl : suspect.illustration?.backFullUrl;
 
   return (
+    // 💡 전체 구조를 flex-col로 잡아 레이아웃 겹침 방지
     <div className="fixed inset-0 z-[70] bg-neutral-950 flex flex-col animate-fadeIn overflow-hidden">
       
-      {/* 상단 헤더 */}
-      <header className="absolute top-0 w-full z-[80] p-4 flex justify-between items-center bg-gradient-to-b from-black/80 to-transparent">
-        <button onClick={onClose} className="text-white font-bold px-4 py-2 bg-neutral-800/80 rounded-full border border-neutral-600 backdrop-blur-md active:scale-95">
+      {/* 1. 상단 헤더 (shrink-0으로 고정) */}
+      <header className="shrink-0 w-full z-[80] p-4 flex justify-between items-center bg-neutral-950 border-b border-neutral-800 shadow-md">
+        <button onClick={onClose} className="text-white font-bold text-xs px-4 py-2 bg-neutral-800 rounded-full border border-neutral-600 active:scale-95 transition-all">
           &lt; 돌아가기
         </button>
         <div className="flex flex-col items-end">
-          <span className="text-amber-500 font-black bg-black/50 px-3 py-1 rounded-full backdrop-blur-sm text-sm">
+          <span className="text-amber-500 font-black bg-neutral-900 px-3 py-1 rounded-full border border-amber-900/30 text-xs">
             {suspect.name} 관찰 중
           </span>
-          {IS_DEV_MODE && <span className="text-[10px] text-red-500 font-bold mt-1 tracking-tighter">DEBUG MODE ACTIVE</span>}
+          {IS_DEV_MODE && <span className="text-[9px] text-red-500 font-bold mt-1 tracking-tighter">DEBUG MODE ACTIVE</span>}
         </div>
       </header>
 
-      {/* 중앙 전신 이미지 및 히트박스 영역 */}
-      <div className="flex-1 relative flex items-center justify-center pt-16 pb-32">
+      {/* 2. 중앙 전신 이미지 및 히트박스 영역 (flex-1로 가변 공간 확보) */}
+      <div className="flex-1 min-h-0 relative flex items-center justify-center bg-black overflow-hidden">
         <div className="relative w-full h-full max-w-md mx-auto">
           {currentImageUrl ? (
             <img 
@@ -55,7 +52,7 @@ const InspectionModal = ({ suspect, inventory, onClueFound, onClose }) => {
             <div className="w-full h-full flex items-center justify-center text-neutral-600">이미지 없음</div>
           )}
 
-          {/* 💡 히트박스 레이어 (z-index를 높게 설정해서 터치 우선순위 확보) */}
+          {/* 히트박스 레이어 */}
           <div className="absolute inset-0 z-[75]">
             {suspect.inspectionPoints
               ?.filter(point => point.side === inspectionSide)
@@ -72,7 +69,7 @@ const InspectionModal = ({ suspect, inventory, onClueFound, onClose }) => {
                       left: point.left, 
                       width: point.width, 
                       height: point.height,
-                      transform: 'translate(-50%, -50%)' // 좌표 기준점을 중앙으로 맞춤
+                      transform: 'translate(-50%, -50%)'
                     }}
                     className={`absolute rounded-full transition-all duration-300 ${
                       IS_DEV_MODE 
@@ -92,36 +89,40 @@ const InspectionModal = ({ suspect, inventory, onClueFound, onClose }) => {
         </div>
       </div>
 
-      {/* 하단 패널 및 컨트롤러 */}
-      <div className="absolute bottom-0 w-full z-[80] bg-gradient-to-t from-black via-neutral-950/95 to-transparent p-6 flex flex-col gap-4">
+      {/* 3. 하단 패널 및 컨트롤러 (shrink-0으로 영역 고정, 내부 스크롤 적용) */}
+      <div className="shrink-0 w-full z-[80] bg-neutral-950 border-t border-neutral-800 p-4 pb-8 flex flex-col gap-4 shadow-2xl">
         
-        {/* 조사 텍스트 창 + 인벤토리 추가 버튼 */}
-        <div className="bg-neutral-900/90 backdrop-blur-md border border-neutral-700 p-4 rounded-2xl shadow-2xl flex flex-col gap-3">
-          <p className="text-sm leading-relaxed text-white min-h-[3rem]">
-            {discoveryText}
-          </p>
-
-          {/* 💡 수동 인벤토리 추가 버튼: 단서를 선택했고 아직 수집 전일 때만 노출 */}
-          {focusedPoint && !inventory?.includes(focusedPoint.id) && (
-            <button 
-              onClick={handleSaveToInventory}
-              className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-xl shadow-lg shadow-emerald-900/20 active:scale-95 transition-all flex items-center justify-center gap-2"
-            >
-              <span>📌</span> 이 단서를 수첩에 기록하기
-            </button>
-          )}
-
-          {/* 이미 수집한 경우 표시 */}
-          {focusedPoint && inventory?.includes(focusedPoint.id) && (
-            <div className="w-full py-2 text-center text-xs text-emerald-400 font-bold bg-emerald-950/30 rounded-lg border border-emerald-900/50">
-              이미 수집된 단서입니다
-            </div>
-          )}
+        {/* 조사 텍스트 창 (높이 고정 및 내부 스크롤) */}
+        <div className="bg-neutral-900 border border-neutral-700 p-4 rounded-2xl shadow-inner relative flex flex-col h-[110px]">
+          <div className="overflow-y-auto h-full pr-2 pb-2">
+            <p className="text-sm leading-relaxed text-white whitespace-pre-line break-keep select-none">
+              {discoveryText}
+            </p>
+          </div>
+          {/* 스크롤 유도 그라데이션 */}
+          <div className="absolute bottom-1 left-1 right-3 h-5 bg-gradient-to-t from-neutral-900 to-transparent pointer-events-none rounded-b-xl" />
         </div>
+
+        {/* 단서 기록 버튼 */}
+        {focusedPoint && !inventory?.includes(focusedPoint.id) && (
+          <button 
+            onClick={handleSaveToInventory}
+            className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-xl shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2 shrink-0"
+          >
+            <span>📌</span> 이 단서를 수첩에 기록하기
+          </button>
+        )}
+
+        {/* 이미 수집된 상태 표시 */}
+        {focusedPoint && inventory?.includes(focusedPoint.id) && (
+          <div className="w-full py-2.5 text-center text-xs text-emerald-400 font-bold bg-emerald-950/30 rounded-lg border border-emerald-900/50 shrink-0">
+            이미 수집된 단서입니다
+          </div>
+        )}
 
         {/* 앞/뒤 전환 버튼 */}
         {suspect.illustration?.backFullUrl && (
-          <div className="flex bg-neutral-800/50 rounded-2xl p-1.5 border border-neutral-700 backdrop-blur-md mx-auto w-full max-w-xs">
+          <div className="flex bg-neutral-800 rounded-2xl p-1 border border-neutral-700 w-full shrink-0">
             <button 
               onClick={() => { setInspectionSide('front'); setFocusedPoint(null); setDiscoveryText("앞모습을 보고 있습니다."); }} 
               className={`flex-1 py-3 text-xs font-black rounded-xl transition-all ${inspectionSide === 'front' ? 'bg-amber-500 text-black shadow-lg' : 'text-neutral-500'}`}
