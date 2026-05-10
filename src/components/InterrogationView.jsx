@@ -7,9 +7,10 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, onCl
   const [isTypingDone, setIsTypingDone] = useState(false);
   const [showQuestionMenu, setShowQuestionMenu] = useState(false);
   const [currentDialog, setCurrentDialog] = useState(suspect.selfIntro);
-  
-  // 💡 [핵심 버그 수정] 대화가 바뀔 때마다 컴포넌트를 강제 리렌더링 시킬 키 값
   const [dialogKey, setDialogKey] = useState(0); 
+
+  // 💡 강제 스킵 상태 추가
+  const [isSkipping, setIsSkipping] = useState(false);
   
   // 모달 제어용 상태
   const [isInventoryOpen, setIsInventoryOpen] = useState(false);
@@ -20,29 +21,34 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, onCl
     setCurrentDialog(suspect.selfIntro);
     setShowQuestionMenu(false);
     setIsTypingDone(false);
-    setDialogKey(prev => prev + 1); // 💡 용의자 바뀔 때도 타이핑 리셋
+    setIsSkipping(false); // 💡 스킵 상태 리셋
+    setDialogKey(prev => prev + 1); 
   }, [suspect]);
 
   // [질문하기] 실행
   const handleAskQuestion = (question) => {
     setShowQuestionMenu(false);
     setIsTypingDone(false);
+    setIsSkipping(false); // 💡 질문할 때마다 스킵 상태 리셋
     setCurrentDialog(question.response); 
-    setDialogKey(prev => prev + 1); // 💡 똑같은 질문이어도 강제로 타이핑 효과 다시 실행!
+    setDialogKey(prev => prev + 1); 
   };
 
   // [단서 제시] 실행
   const handlePresentEvidence = (evidence) => {
     setIsInventoryOpen(false);
     setIsTypingDone(false);
+    setIsSkipping(false); // 💡 단서 제시할 때마다 스킵 상태 리셋
 
     const defense = suspect.defenses.find(d => d.clueId === evidence.id);
     if (defense) {
       setCurrentDialog(defense.response);
     } else {
-      setCurrentDialog("그게 이 사건과 무슨 상관이라는 겁니까? 억지 부리지 마시죠.");
+      // 💡 [핵심 수정] 하드코딩된 대사 대신 용의자 고유의 반응을 출력. (데이터가 없으면 기본 대사)
+      const fallbackResponse = suspect.wrongEvidenceResponse || "그게 이 사건과 무슨 상관이라는 겁니까? 억지 부리지 마시죠.";
+      setCurrentDialog(fallbackResponse);
     }
-    setDialogKey(prev => prev + 1); // 💡 단서 제시 때도 타이핑 강제 리셋!
+    setDialogKey(prev => prev + 1); 
     if (onPresent) onPresent();
   };
 
@@ -85,40 +91,63 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, onCl
       {/* 비주얼 노벨 스타일 대화창 */}
       <div className="h-2/5 bg-neutral-950 p-4 flex flex-col justify-between relative z-20">
         
-        {/* 질문 메뉴 팝업 */}
+        {/* 질문 메뉴 오버레이 */}
         {showQuestionMenu && (
-          <div className="absolute bottom-[calc(100%-1rem)] left-4 right-4 bg-neutral-800 border border-neutral-600 rounded-xl p-3 flex flex-col gap-2 shadow-2xl z-20 max-h-48 overflow-y-auto">
-            <div className="text-xs text-neutral-400 font-bold mb-1 px-1">무엇을 물어볼까?</div>
-            
-            {suspect.questions.map((q) => (
+          <div className="absolute inset-0 z-40 bg-black/70 backdrop-blur-sm flex flex-col items-center justify-center p-6 animate-fadeIn">
+            <div className="w-full max-w-md flex flex-col gap-3">
+              
+              <div className="text-amber-500 font-bold text-sm mb-4 text-center tracking-widest animate-pulse">
+                [ 심문 주제 선택 ]
+              </div>
+
+              {suspect.questions.map((q, idx) => (
+                <button 
+                  key={q.id}
+                  onClick={() => handleAskQuestion(q)}
+                  className="group relative w-full overflow-hidden rounded-xl bg-neutral-900 border border-neutral-700 p-4 text-left shadow-lg hover:border-amber-500 hover:shadow-[0_0_15px_rgba(245,158,11,0.4)] transition-all active:scale-[0.98]"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-amber-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                  
+                  <div className="relative flex items-center gap-4">
+                    <span className="flex items-center justify-center w-7 h-7 rounded-full bg-neutral-800 text-neutral-500 text-xs font-black group-hover:bg-amber-500 group-hover:text-black transition-colors shrink-0">
+                      {idx + 1}
+                    </span>
+                    <span className="text-gray-300 font-bold group-hover:text-white transition-colors leading-relaxed break-keep">
+                      {q.title}
+                    </span>
+                  </div>
+                </button>
+              ))}
+
+              {/* 닫기 버튼 */}
               <button 
-                key={q.id}
-                onClick={() => handleAskQuestion(q)}
-                className="w-full text-left bg-neutral-700 hover:bg-neutral-600 text-white p-3 rounded-lg text-sm transition-colors border border-neutral-500"
+                onClick={() => setShowQuestionMenu(false)}
+                className="mt-6 py-3 px-8 rounded-full bg-neutral-800 text-neutral-400 font-bold hover:bg-neutral-700 hover:text-white transition-all self-center border border-neutral-600 shadow-md"
               >
-                Q. {q.title}
+                닫기
               </button>
-            ))}
-            <button 
-              onClick={() => setShowQuestionMenu(false)}
-              className="w-full mt-1 p-2 text-neutral-400 hover:text-white text-sm font-bold sticky bottom-0 bg-neutral-800"
-            >
-              취소
-            </button>
+              
+            </div>
           </div>
         )}
 
-        {/* 대화 텍스트 박스 */}
-        <div className="flex-1 bg-neutral-900 border-2 border-neutral-700 rounded-xl p-4 relative shadow-inner">
+        {/* 💡 [대화 텍스트 박스 수정] 클릭 시 강제 스킵 발동 */}
+        <div 
+          onClick={() => {
+            if (!isTypingDone) setIsSkipping(true);
+          }}
+          className="flex-1 bg-neutral-900 border-2 border-neutral-700 rounded-xl p-4 relative shadow-inner cursor-pointer" // 💡 cursor-pointer 추가
+        >
           <div className="absolute -top-3 left-4 bg-neutral-700 text-white font-bold px-3 py-0.5 rounded text-sm border border-neutral-500 shadow-md">
             {suspect.name}
           </div>
           
-          <p className="text-gray-100 leading-relaxed text-sm mt-2">
+          <p className="text-gray-100 leading-relaxed text-sm mt-2 select-none">
             <TypewriterText 
-              key={dialogKey} // 💡 여기에 key를 넣어주면 값이 바뀔 때마다 컴포넌트가 새로 마운트 됨!
+              key={dialogKey} 
               text={currentDialog} 
               speed={30} 
+              forceSkip={isSkipping} // 💡 스킵 상태를 TypewriterText에 전달
               onComplete={() => setIsTypingDone(true)} 
             />
           </p>
@@ -140,7 +169,7 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, onCl
             onClick={() => setIsInventoryOpen(true)}
             className="flex-1 bg-red-800 text-white font-black rounded-lg border border-red-600 shadow-[0_0_10px_rgba(220,38,38,0.5)] hover:bg-red-700 transition-all flex items-center justify-center gap-1"
           >
-            <span className="text-xl">!</span> 단서 제시
+            <span className="text-xl">!</span> 단서 제시 (⚡ -1)
           </button>
         </div>
       </div>

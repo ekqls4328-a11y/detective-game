@@ -1,13 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-const TypewriterText = ({ text, speed = 40, onComplete }) => {
+const TypewriterText = ({ text, speed = 40, onComplete, forceSkip }) => {
   const [displayedText, setDisplayedText] = useState('');
   
   const audioRef = useRef(typeof Audio !== "undefined" ? new Audio('/sounds/blip.mp3') : null);
+  
+  // 💡 스킵 여부와 완료 상태를 안전하게 추적하는 Ref
+  const isDone = useRef(false);
 
   useEffect(() => {
     // 시작할 때 확실하게 빈 문자열로 초기화
     setDisplayedText('');
+    isDone.current = false;
     let currentIndex = 0;
 
     if (audioRef.current) {
@@ -15,11 +19,14 @@ const TypewriterText = ({ text, speed = 40, onComplete }) => {
     }
 
     const typingInterval = setInterval(() => {
+      // 💡 [추가] 스킵이 발동되었거나 완료되었으면 기존 타이머 헛도는 것 방지
+      if (isDone.current) {
+        clearInterval(typingInterval);
+        return;
+      }
+
       if (currentIndex < text.length) {
-        
-        // 🔥 [핵심 수정 포인트] 🔥
-        // 이전 상태(prev)에 더하는 방식 대신, 원본 텍스트에서 0부터 현재 인덱스까지 잘라옴!
-        // 이렇게 하면 StrictMode의 두 번 렌더링 공격을 완벽하게 방어할 수 있음.
+        // 🔥 [기존 핵심 로직 유지] 원본 텍스트에서 잘라오기
         setDisplayedText(text.substring(0, currentIndex + 1));
         
         const currentChar = text[currentIndex];
@@ -34,6 +41,7 @@ const TypewriterText = ({ text, speed = 40, onComplete }) => {
         currentIndex++;
       } else {
         clearInterval(typingInterval);
+        isDone.current = true;
         if (onComplete) onComplete();
       }
     }, speed);
@@ -46,6 +54,22 @@ const TypewriterText = ({ text, speed = 40, onComplete }) => {
         }
     }
   }, [text, speed]);
+
+  // 💡 [추가] 부모 컴포넌트에서 강제 스킵(forceSkip)을 명령했을 때의 로직
+  useEffect(() => {
+    if (forceSkip && !isDone.current) {
+      isDone.current = true;         // 상태 잠금
+      setDisplayedText(text);        // 전체 텍스트 즉시 화면에 출력
+      
+      // 스킵 시 오디오 즉시 정지
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+      }
+      
+      if (onComplete) onComplete();  // 완료 콜백 실행
+    }
+  }, [forceSkip, text, onComplete]);
 
   return <span className="whitespace-pre-line">{displayedText}</span>;
 };
