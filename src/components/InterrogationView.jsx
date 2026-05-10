@@ -91,19 +91,19 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, onCl
       {/* 비주얼 노벨 스타일 대화창 */}
       <div className="h-2/5 bg-neutral-950 p-4 flex flex-col justify-between relative z-20">
         
-        {/* 💡 시네마틱 질문 오버레이 (높이 대폭 확장) */}
+        {/* 💡 시네마틱 질문 오버레이 (타이틀/닫기 완벽 고정, 리스트만 스크롤) */}
         {showQuestionMenu && (
-          <div className="absolute inset-0 z-40 bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center p-4 animate-fadeIn">
+          <div className="absolute inset-0 z-40 bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center p-6 animate-fadeIn">
             
-            {/* 💡 핵심: max-h-full 대신 h-[80vh]를 주어서 화면 세로의 80%를 무조건 차지하도록 강제함 (최대 700px) */}
-            <div className="w-full max-w-md flex flex-col h-[80vh] max-h-[700px] py-2">
+            {/* 전체 래퍼: max-h-full을 줘서 화면 패딩(p-6) 안쪽까지만 꽉 차게 제한 */}
+            <div className="w-full max-w-md flex flex-col max-h-full py-2">
               
-              {/* 1. 고정 타이틀 */}
+              {/* 1. 고정 타이틀 (shrink-0) */}
               <div className="shrink-0 text-amber-500 font-bold text-sm mb-4 text-center tracking-widest animate-pulse">
                 [ 심문 주제 선택 ]
               </div>
 
-              {/* 2. 스크롤 영역 (이제 h-[80vh] 안에서 남은 공간을 시원하게 다 차지함) */}
+              {/* 💡 2. 스크롤 영역 (핵심: flex-1과 함께 min-h-0을 반드시 주어야 내부 스크롤이 작동함!) */}
               <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-3 px-1 scrollbar-hide py-1">
                 {suspect.questions.map((q, idx) => (
                   <button 
@@ -112,6 +112,7 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, onCl
                     className="group relative w-full overflow-hidden rounded-xl bg-neutral-900 border border-neutral-700 p-4 text-left shadow-lg hover:border-amber-500 hover:shadow-[0_0_15px_rgba(245,158,11,0.4)] transition-all active:scale-[0.98] shrink-0"
                   >
                     <div className="absolute inset-0 bg-gradient-to-r from-amber-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                    
                     <div className="relative flex items-center gap-4">
                       <span className="flex items-center justify-center w-7 h-7 rounded-full bg-neutral-800 text-neutral-500 text-xs font-black group-hover:bg-amber-500 group-hover:text-black transition-colors shrink-0">
                         {idx + 1}
@@ -124,7 +125,7 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, onCl
                 ))}
               </div>
 
-              {/* 3. 고정 닫기 버튼 */}
+              {/* 3. 고정 닫기 버튼 영역 (shrink-0으로 밀려나지 않게 꽉 잡아줌) */}
               <div className="shrink-0 pt-5 flex justify-center">
                 <button 
                   onClick={() => setShowQuestionMenu(false)}
