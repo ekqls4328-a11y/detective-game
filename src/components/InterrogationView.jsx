@@ -91,17 +91,20 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, onCl
       {/* 비주얼 노벨 스타일 대화창 */}
       <div className="h-2/5 bg-neutral-950 p-4 flex flex-col justify-between relative z-20">
         
-        {/* 💡 [수정됨] 시네마틱 질문 오버레이 (모바일 스크롤 & 잘림 방지 최적화) */}
-        {showQuestionMenu && (
-          <div className="absolute inset-0 z-40 bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center p-4 animate-fadeIn">
+        {/* 💡 [수정됨] 시네마틱 질문 오버레이 (타이틀/닫기 고정, 리스트만 스크롤) */}
+      {showQuestionMenu && (
+        <div className="absolute inset-0 z-40 bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center p-6 animate-fadeIn">
+          
+          {/* 전체를 감싸는 래퍼: 모바일 화면 높이의 85%까지만 커지도록 제한 */}
+          <div className="w-full max-w-md flex flex-col max-h-[85vh]">
             
-            {/* 💡 max-h-[85vh]와 overflow-y-auto를 줘서 화면 밖으로 넘치면 내부 스크롤이 생기게 함 */}
-            <div className="w-full max-w-md flex flex-col gap-3 max-h-[85vh] overflow-y-auto py-4 px-1 pb-10 scrollbar-hide">
-              
-              <div className="text-amber-500 font-bold text-sm mb-2 text-center tracking-widest animate-pulse shrink-0">
-                [ 심문 주제 선택 ]
-              </div>
+            {/* 1. 고정 타이틀 (shrink-0으로 축소 방지) */}
+            <div className="shrink-0 text-amber-500 font-bold text-sm mb-5 text-center tracking-widest animate-pulse">
+              [ 심문 주제 선택 ]
+            </div>
 
+            {/* 💡 2. 스크롤되는 질문 리스트 영역 (flex-1로 남은 공간 차지, 넘치면 스크롤) */}
+            <div className="flex-1 overflow-y-auto flex flex-col gap-3 px-1 pb-2 scrollbar-hide">
               {suspect.questions.map((q, idx) => (
                 <button 
                   key={q.id}
@@ -120,18 +123,19 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, onCl
                   </div>
                 </button>
               ))}
-
-              {/* 닫기 버튼 (shrink-0을 줘서 찌그러지지 않게 보호) */}
-              <button 
-                onClick={() => setShowQuestionMenu(false)}
-                className="mt-6 py-3 px-8 rounded-full bg-neutral-800 text-neutral-400 font-bold hover:bg-neutral-700 hover:text-white transition-all self-center border border-neutral-600 shadow-md shrink-0"
-              >
-                닫기
-              </button>
-              
             </div>
+
+            {/* 3. 고정 닫기 버튼 (shrink-0으로 축소 방지) */}
+            <button 
+              onClick={() => setShowQuestionMenu(false)}
+              className="shrink-0 mt-5 py-3 px-8 rounded-full bg-neutral-800 text-neutral-400 font-bold hover:bg-neutral-700 hover:text-white transition-all self-center border border-neutral-600 shadow-md"
+            >
+              닫기
+            </button>
+            
           </div>
-        )}
+        </div>
+      )}
 
         {/* 💡 [대화 텍스트 박스 수정] 클릭 시 강제 스킵 발동 */}
         <div 
