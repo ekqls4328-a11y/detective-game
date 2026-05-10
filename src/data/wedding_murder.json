@@ -1,0 +1,383 @@
+{
+  "id": "wedding_murder",
+  "themeId": "realism",
+  "title": "창백한 부케: VIP 신부 대기실 살인사건",
+  "maxActionPoints": 5,
+  "level": "⭐⭐⭐⭐",
+  "briefingImageUrl": "/images/realism/wedding_murder/victim.jpg",
+  "summary": "본식을 30분 앞두고 잠긴 대기실에서 신부가 사망했다. 현장은 외부 침입이 불가능한 완벽한 밀실이었다. (사망 추정 시간: 11:10 ~ 11:20)",
+  "desc": "오전 11시 30분, 호텔 VIP 신부 대기실.\n본식을 불과 30분 앞두고 신부 입장을 준비하려 대기실을 찾은 박플래너. 아무리 문을 두드려도 인기척이 없자 불길함을 느끼고 호텔 보안요원을 호출해 마스터키로 굳게 잠긴 문을 연다.\n\n은은한 조명이 비추는 방 안에는 화려한 레이스 드레스를 입은 신부 '이하늘'이 소파에 깊게 잠든 듯 기대어 쓰러져 있다. \n\n테이블 위에는 크리스탈 샴페인 잔이 쓰러져 액체가 카펫을 적시고 있고, 신부가 안에서 잠그고 있었던 듯 열쇠는 바닥에 덩그러니 떨어져 있다. 외상은 전혀 보이지 않으나 입술이 창백하게 질려 있으며, 소파 구석에는 누군가에게 뜯겨나간 듯한 '큐빅 장식 머리핀'이 덩그러니 떨어져 있다.\n\n가장 축복받아야 할 날, 누가 그녀의 시간을 멈추었는가?",
+  "suspects": [
+    {
+      "id": "suspect1",
+      "name": "김신랑",
+      "role": "예비 신랑",
+      "desc": "완벽해 보이는 벤처 사업가. 본식을 앞두고 극도로 초조해 보인다.",
+      "selfIntro": "안녕하세요, 하늘이의 예비 남편 김신랑입니다... 믿기지가 않네요. \n방금 전까지만 해도 저랑 웃으면서 얘기했는데... 도대체 누가 우리 하늘이에게 이런 짓을 한 겁니다? 제 모든 걸 걸고 범인을 잡을 겁니다.",
+      "illustration": {
+        "interrogationUrl": "/images/wedding_murder/s1_interrogation.jpg",
+        "frontFullUrl": "/images/wedding_murder/s1_front_full.jpg",
+        "backFullUrl": "/images/wedding_murder/s1_back_full.jpg"
+      },
+      "questions": [
+        { "id": "q1_1", "title": "사건 당일의 알리바이", "response": "11시 정각쯤 들어가서 대화하고 나왔어요. 그때 신부가 피곤했는지 샴페인을 한 모금 마시고 흘리며 졸길래, 제 손수건으로 입가를 닦아줬습니다. 그 뒤론 쭉 로비 입구에 서서 하객들을 맞이했습니다." },
+        { "id": "q1_2", "title": "피해자와의 관계", "response": "우리는 서로 사랑하는 사이였습니다. 빚 문제요? 회사를 운영하다 보면 생기는 일시적인 자금 문제입니다. 하늘이도 알고 있었어요!" },
+        { "id": "q1_3", "title": "다른 사람들과의 관계", "response": "이동생은 맨날 돈 사고만 치고 다니는 구제 불능 처남이고, 최베프는 하늘이의 돈줄을 쥐고 있는 쇼핑몰 동업자라 항상 경계 대상이었습니다. 그리고 정전남친 그 찌질이는 왜 여기까지 온 겁니까?" }
+      ],
+      "defenses": [
+        { "clueId": "clue_handkerchief", "response": "하늘이가 샴페인 마시다가 흘리면서 졸길래 닦아준 겁니다! 화장품 성분이 말라서 반짝거리는 거겠죠!" },
+        { "clueId": "clue_reminder", "response": "회사를 운영하다 보면 생기는 일시적인 자금 문제입니다! 하늘이도 알고 있었어요!" },
+        { "clueId": "clue_flowerpen", "response": "저 호텔 공용 볼펜에 자주색 보풀이 묻은 거랑 저랑 무슨 상관입니까? 방명록 탁자 천도 다 자주색이잖아요! 전 저 펜 만진 적 없습니다!" },
+        { "clueId": "clue_perfumebottle", "response": "거봐요! 박플래너 가방에서 나왔잖아! 저 여자가 샴페인 세팅할 때 독 타서 죽인 겁니다!" },
+        { "clueId": "insp_knee_dust", "response": "아까 하객 맞이하다가 어디 카펫에 스쳤나 보죠. 그게 살인이랑 무슨 상관입니까?" }
+      ],
+      "inspectionPoints": [
+        { "id": "insp_knee_dust", "side": "front", "top": "75%", "left": "45%", "width": "15%", "height": "10%", "name": "무릎의 먼지", "description": "오른쪽 무릎 부분에만 짙은 자주색 카펫 섬유가 뭉쳐서 묻어 있다." }
+      ],
+      "hiddenInfo": {
+        "personalDetail": "32세. 겉보기엔 완벽한 스타트업 대표지만, 실상은 투자 실패로 수십억의 사채 빚을 지고 있다. 핸드폰 케이스 안쪽에 '가압류'가 찍힌 붉은색 독촉장을 숨기고 다니며 극도로 초조해한다. 신부의 막대한 재산과 사망 보험금이 절실한 상황이라, 다정한 새신랑 연기를 위해 평소 짙은 남색 실크 손수건을 품에 지니고 다닌다.",
+        "timeline": "10:30 로비에서 하객 맞이 중.\n11:00 대기실 진입. 신부 샴페인 음용.\n11:05 파혼 통보받음.\n11:10 남은 샴페인에 독을 탐. 신부 사망.\n11:15 밖에서 문을 잠그고 문 밑으로 열쇠를 밀어 넣음. 화분에 펜 은닉.\n11:16 로비 의자의 박플래너 가방에 독약 공병 투척.",
+        "secretBackground": "당신이 진범입니다. 11시 5분경 파혼을 통보받았으나, 11시 10분쯤 신부가 수면제 기운에 비몽사몽해지자 맹독을 탔습니다. 손수건으로 입가를 닦아내고 도구를 숨겨 나왔으며, 공용 볼펜으로 문 밑으로 열쇠를 밀어 넣어 밀실을 만들었습니다.",
+        "isKiller": true
+      }
+    },
+    {
+      "id": "suspect2",
+      "name": "박플래너",
+      "role": "웨딩 플래너",
+      "desc": "예식의 모든 것을 총괄하는 베테랑. 감정을 잘 드러내지 않는다.",
+      "selfIntro": "진정하세요. 이번 예식 총괄 박플래너입니다.\n커리어에 이런 끔찍한 오점이 남다니... 저는 밖에서 드레스 이모님이랑 동선 체크하느라 정신이 없었습니다.",
+      "illustration": {
+        "interrogationUrl": "/images/wedding_murder/s2_interrogation.jpg",
+        "frontFullUrl": "/images/wedding_murder/s2_front_full.jpg",
+        "backFullUrl": "/images/wedding_murder/s2_back_full.jpg"      
+      },
+      "questions": [
+        { "id": "q2_1", "title": "사건 당일의 알리바이", "response": "10시 40분쯤 드레스 핏 때문에 뺨을 맞고 비상계단에서 커피를 마셨습니다. 11시쯤 다시 갔다가 기분이 안 좋아 보이시길래 나왔고, 11시 20분쯤엔 2층 연회장에 올라가 뷔페 세팅을 점검했습니다." },
+        { "id": "q2_2", "title": "피해자와의 관계", "response": "학창 시절 동창입니다. 솔직히 저를 돈으로 무시하는 경향이 있었지만, 일은 일이니까요." },
+        { "id": "q2_3", "title": "시신 최초 발견 당시", "response": "하늘이 입장을 시켜야 할 거 아닙니까! 11시 30분이 됐는데도 안 열어주니까 당연히 직원을 불러서 열었죠! 전 발견만 한 겁니다!" }
+      ],
+      "defenses": [
+        { "clueId": "clue_glass", "response": "제가 세팅한 건 맞지만 독은 절대 안 탔습니다! 제가 미쳤다고 제가 준비한 술에 독을 탑니까?!" },
+        { "clueId": "clue_doubleledger", "response": "업계 관행입니다! 제가 고생한 거에 비하면 정당한 수고비예요. 사람 죽인 거랑 무슨 상관입니까?" },
+        { "clueId": "clue_perfumebottle", "response": "이게 왜 내 가방에 있죠?! 맹세코 제 것이 아닙니다! 아까 로비에서 김신랑이 제 근처를 서성였는데 그때 넣은 게 확실합니다!" },
+        { "clueId": "clue_papercup", "response": "네, 뺨 맞고 열받아서 거기서 커피 마셨습니다! 그게 사람 죽인 거랑 무슨 상관이죠?" },
+        { "clueId": "insp_inner_pocket", "response": "개인 수첩입니다. 프라이버시는 존중해주시죠." }
+      ],
+      "inspectionPoints": [
+        { "id": "insp_inner_pocket", "side": "front", "top": "35%", "left": "60%", "width": "12%", "height": "15%", "name": "자켓 안주머니의 윤곽", "description": "타이트한 정장 자켓 안쪽이 두꺼운 수첩을 억지로 쑤셔 넣은 듯 부자연스럽게 불룩하다." }
+      ],
+      "hiddenInfo": {
+        "personalDetail": "30세. 신부의 갑질을 견디며 뒤로는 막대한 리베이트를 챙겨 가죽 수첩에 기록해 둔다. 스트레스를 받을 땐 버건디색 립스틱을 바른 채 비상계단에서 커피를 마신다.",
+        "timeline": "10:30 대기실 샴페인 세팅.\n10:40 뺨 맞고 비상계단에서 휴식.\n10:55 대기실 접근, 이동생 난동 목격.\n11:16 로비 소파로 돌아와 가방 지퍼 열린 것 발견.\n11:20 대기실 잠긴 것 확인 후 2층 이동.\n11:30 보안요원 호출하여 시신 발견.",
+        "secretBackground": "당신은 범인이 아닙니다. 리베이트 장부가 들킬까 봐 신부 가방을 뒤지려 했으나 실패했고, 로비에 방치한 가방에 누군가 독약 공병을 몰래 넣은 피해자입니다.",
+        "isKiller": false
+      }
+    },
+    {
+      "id": "suspect3",
+      "name": "최베프",
+      "role": "신부의 베프",
+      "desc": "피해자와 함께 쇼핑몰을 키운 절친이자 동업자. 매우 슬퍼하고 있다.",
+      "selfIntro": "우리 하늘이가... (오열) 저는 하늘이랑 10년 지기 베프이자 쇼핑몰 공동 대표인 최베프예요.\n대체 누가 우리 불쌍한 하늘이한테 이런 짓을 한 거예요?!",
+      "illustration": {
+        "interrogationUrl": "/images/wedding_murder/s3_interrogation.jpg",
+        "frontFullUrl": "/images/wedding_murder/s3_front_full.jpg",
+        "backFullUrl": "/images/wedding_murder/s3_back_full.jpg"
+      },
+      "questions": [
+        { "id": "q3_1", "title": "사건 당일의 알리바이", "response": "10시 45분쯤 대기실에서 심하게 다투다가 머리채를 잡혀 머리핀이 뜯겼어요. 10시 50분쯤 화장실에서 나왔고, 11시 10분쯤엔 2층 식당으로 올라가려다 정전남친을 봤어요." },
+        { "id": "q3_2", "title": "피해자와의 다툼", "response": "매각 건으로 화가 났던 건 맞아요! 다퉜습니다. 하지만 내 피 같은 회사를 뺏길 순 없어도 10년 지기 친구를 죽이겠어요?!" },
+        { "id": "q3_3", "title": "구겨진 청첩장", "response": "내 인생을 다 바친 회사를 뺏어가려는데 화가 안 납니까? 11시 20분부터 식당에 앉아서 청첩장만 꽉 쥐고 있었습니다!" }
+      ],
+      "defenses": [
+        { "clueId": "clue_pillcan", "response": "솔직히 말할게요! 하늘이 잠 좀 재우고 식 좀 망치려고 수면제 캡슐 으깨서 넣은 건 맞아요! 하지만 독약은 절대 아닙니다! 누군가 제가 탄 수면제에 독을 추가한 거라고요!" },
+        { "clueId": "clue_pill", "response": "네, 제 수면제 알약 맞아요. 식당에서 너무 떨려서 떨어뜨렸나 보네요." },
+        { "clueId": "clue_manda", "response": "이 계약서는 제가 단독 매각을 막으려고 들고 온 겁니다." },
+        { "clueId": "clue_cubic", "response": "아까 10시 45분에 싸울 때 머리핀이 뜯겨나간 겁니다! 씩씩대며 화장실 가다가 로비에 떨어진 거겠죠!" },
+        { "clueId": "insp_nail_powder", "response": "이거 그냥 화장품 가루입니다! 여자들 네일아트 할 때 쓰는 거라고요." }
+      ],
+      "inspectionPoints": [
+        { "id": "insp_nail_powder", "side": "front", "top": "50%", "left": "70%", "width": "10%", "height": "10%", "name": "손톱 밑의 주황색 가루", "description": "화려한 네일아트가 칠해진 손톱 밑에 미세한 주황색 가루가 끼어 있다." }
+      ],
+      "hiddenInfo": {
+        "personalDetail": "30세. 신부가 회사를 단독 매각하려 했다는 사실을 알고 분노해 M&A 계약서를 챙겨 왔다. 불면증 때문에 주황색 캡슐형 수면제를 지니고 다닌다.",
+        "timeline": "10:45 회사 매각 건으로 몸싸움 (머리핀 파손).\n10:48 화장실 이동 (로비에 큐빅 떨어짐).\n10:57 몰래 대기실 진입. 샴페인 잔에 수면제 투입.\n11:00 대기실 퇴실.\n11:10 2층 식당 이동 중 정전남친 목격.",
+        "secretBackground": "당신은 범인이 아닙니다. 10시 57분에 신부가 파우더룸에 간 사이 샴페인 잔에 수면제를 몰래 탔습니다. 결혼식을 망칠 목적이었을 뿐, 독을 탄 것은 다른 사람입니다.",
+        "isKiller": false
+      }
+    },
+    {
+      "id": "suspect4",
+      "name": "정전남친",
+      "role": "전 남친",
+      "desc": "초췌한 행색으로 하객들 틈에 섞여 있는 불청객.",
+      "selfIntro": "...정전남친입니다. 1년 전까지 하늘이랑 만났었습니다. \n초대받은 건 아니고... 마지막 드레스 모습 보고 싶어서 왔습니다. 근데 제가 아주 수상한 놈을 봤습니다.",
+      "illustration": {
+        "interrogationUrl": "/images/wedding_murder/s4_interrogation.jpg",
+        "frontFullUrl": "/images/wedding_murder/s4_front_full.jpg",
+        "backFullUrl": "/images/wedding_murder/s4_back_full.jpg"
+      },
+      "questions": [
+        { "id": "q4_1", "title": "사건 당일의 알리바이", "response": "전 계속 비상계단 쪽에 숨어있었습니다. 중간에 넘어져서 코피가 나는 바람에 고개 숙이고 지혈하느라 문 앞을 계속 뚫어져라 보진 못했어요." },
+        { "id": "q4_2", "title": "11시 15분의 목격담", "response": "코피 지혈하다 고개를 들어보니, 김신랑이 이미 대기실에서 멀어지며 품 속에 무언가를 황급히 숨기는 뒷모습을 봤습니다. 문 잠그는 건 못 봤고요." },
+        { "id": "q4_3", "title": "이동생 목격", "response": "전 11시 18분에 이동생이 문 따려고 철사로 쑤시는 것도 똑똑히 봤습니다!" }
+      ],
+      "defenses": [
+        { "clueId": "clue_potionbottle", "response": "하늘이랑 헤어지고 공황장애 와서 먹는 액체 신경안정제입니다! 독약 아니에요!" },
+        { "clueId": "clue_knife", "response": "얼굴 한 번 보려는데 문이 잠겨있길래 억지로 열어보려고 송곳을 문틈 밑으로 쑤셔본 겁니다! 그때 카펫이 긁혀서 묻은 거겠죠!" },
+        { "clueId": "clue_carpetmarks", "response": "전 그냥 문을 따려다 실패했을 뿐이라고요! 살인자가 아닙니다!" },
+        { "clueId": "clue_recorder", "response": "11시 10분에 코피 날 때 떨어뜨려서 액정이 깨졌길래 밀어둔 겁니다! 저 쇳소리는 김신랑이 밖에서 문을 잠그며 긁은 소리가 확실합니다!" },
+        { "clueId": "clue_victimsphone", "response": "10시 50분에 로비에서 저를 보고 놀라 도망친 뒤 남기려던 문자일 겁니다! 전 방에 안 들어갔어요!" },
+        { "clueId": "insp_pocket_clip", "response": "호신용으로 들고 다니는 작은 공구일 뿐입니다." }
+      ],
+      "inspectionPoints": [
+        { "id": "insp_pocket_clip", "side": "front", "top": "55%", "left": "30%", "width": "10%", "height": "10%", "name": "주머니의 튀어나온 클립", "description": "허름한 코트 주머니 끝에 금속 재질의 다용도 공구 손잡이 일부가 튀어나와 있다." }
+      ],
+      "hiddenInfo": {
+        "personalDetail": "33세. 이별 후유증으로 심한 공황장애를 앓아 투명한 신경안정제를 소지하고 다닌다. 증거 수집용 소형 녹음기와 맥가이버칼을 들고 호텔에 잠입했다.",
+        "timeline": "10:50 식장 잠입. 하늘이와 눈 마주침.\n11:00 김신랑 대기실 진입 목격.\n11:10 소리에 놀라 숨다 넘어져 코피 남. 녹음기 은닉.\n11:15 김신랑이 도구를 숨기며 나오는 뒷모습 목격.\n11:18 이동생이 철사로 문 쑤시는 것 목격.\n11:25 본인의 공구로 문을 억지로 따보려다 실패.",
+        "secretBackground": "당신은 범인이 아닙니다. 11시 25분경 잠긴 문을 억지로 열어보려고 맥가이버칼 송곳을 문 밑에 쑤셔 넣었을 뿐입니다.",
+        "isKiller": false
+      }
+    },
+    {
+      "id": "suspect5",
+      "name": "이동생",
+      "role": "신부의 남동생",
+      "desc": "불안한 눈빛으로 주변을 두리번거리는 철부지 동생.",
+      "selfIntro": "누나가... 우리 누나가 죽다니요! 저 어떡합니까 이제...\n저는 하늘이 누나 친동생 이동생입니다. 누가 감히 우리 가족한테 이런 짓을 한 겁니다!",
+      "illustration": {
+        "interrogationUrl": "/images/wedding_murder/s5_interrogation.jpg",
+        "frontFullUrl": "/images/wedding_murder/s5_front_full.jpg",
+        "backFullUrl": "/images/wedding_murder/s5_back_full.jpg"
+      },
+      "questions": [
+        { "id": "q5_1", "title": "사건 당일의 알리바이", "response": "10시 50분 넘어서 빚 때문에 미칠 것 같아 구걸하러 대기실에 간 건 맞습니다. 근데 누나가 경찰에 신고한다고 소리치길래 10시 56분쯤 홧김에 나와서 2층 연회장에서 깡소주만 마셨습니다." },
+        { "id": "q5_2", "title": "11시 18분 대기실 방문", "response": "11시 18분쯤 잠깐 대기실 문 잠긴 거 확인만 하고 다시 올라갔고요. 제가 밀실을 만든 게 아닙니다!" },
+        { "id": "q5_3", "title": "신체 포기 각서", "response": "돈 없어서 구걸한 건 맞습니다. 근데 누나가 안 준다고 해서 그냥 홧김에 술 마시러 간 거예요!" }
+      ],
+      "defenses": [
+        { "clueId": "clue_glass", "response": "아, 그거 제가 홧김에 마셔버리려고 확 집어 들었다가 누나한테 욕먹고 쾅 내려놔서 지문이 묻은 겁니다!" },
+        { "clueId": "clue_medicinebag", "response": "이건 사채업자 피해 다니면서 밤새려고 먹은 각성제 빈 봉지입니다! 제 약봉지는 독약이랑 상관없어요!" },
+        { "clueId": "clue_weddingbox", "response": "아... 이건! 누나가 결혼 선물로 준 겁니다! 훔친 거 아니에요!" },
+        { "clueId": "clue_wire", "response": "문이 잠겨있길래 반지 돌려주려고 열쇠 구멍 좀 쑤셔본 겁니다! 열리지도 않아서 비상계단에 던져버렸어요!" },
+        { "clueId": "clue_soju", "response": "장기 털리게 생겼는데 밥이 넘어갑니까? 무서워서 깡소주만 깠습니다!" },
+        { "clueId": "insp_bulging_pants", "response": "제 개인 소지품입니다. 형사도 아니면서 왜 남의 몸을 뒤지려 합니까?" }
+      ],
+      "inspectionPoints": [
+        { "id": "insp_bulging_pants", "side": "front", "top": "60%", "left": "40%", "width": "12%", "height": "12%", "name": "불룩한 바지 주머니", "description": "정장 바지 오른쪽 주머니가 작고 네모난 상자 모양으로 툭 튀어나와 있다." }
+      ],
+      "hiddenInfo": {
+        "personalDetail": "28세. 도박 빚으로 신체 포기 각서를 쓴 상태. 불법 각성제 빈 봉지를 지니고 불안에 떨고 있다.",
+        "timeline": "10:50 로비 ATM 출금 실패.\n10:52 대기실 진입. 구걸.\n10:55 샴페인 잔 들었다 내려놓음. 경찰 신고 협박받음.\n10:56 예물 반지 절도 후 2층 이동.\n11:18 반지 반환하러 왔으나 문 잠김. 철사로 구멍 쑤심.",
+        "secretBackground": "당신은 범인이 아닙니다. 10시 56분경 다이아 예물 반지를 몰래 훔쳐서 도망쳤고 죄책감에 11시 18분경 반지를 돌려주려 왔다가 잠긴 문을 철사로 쑤셔봤을 뿐입니다.",
+        "isKiller": false
+      }
+    }
+  ],
+  "locations": [
+    {
+      "id": "loc_victim",
+      "name": "VIP 신부 대기실 (현장)",
+      "backgroundUrl": "/images/realism/wedding_murder/bg_waiting_room.jpg",
+      "clues": [
+        { "id": "clue_glass", "name": "탁자 위의 샴페인 잔", "desc": "가장자리에 주황색 미세한 캡슐 껍질 조각들이 눌어붙어 있고 여러 겹의 지문이 있다.",
+          "top": "70%",
+          "left": "25%",
+          "width": "15%",
+          "height": "10%"},
+        { "id": "clue_weddingbox", "name": "텅 빈 예물 상자", "desc": "다이아몬드 반지 꽂이 부분이 거칠게 파헤쳐져 텅 비어 있다.",
+          "top": "10%",
+          "left": "15%",
+          "width": "15%",
+          "height": "10%"},
+        { "id": "clue_carpetmarks", "name": "문 밑바닥 카펫 자국", "desc": "문 아래쪽 카펫이 짓눌려 있고 은빛 마찰 흔적이 남아 있다.",
+          "top": "30%",
+          "left": "15%",
+          "width": "15%",
+          "height": "10%"},
+        { "id": "clue_victimsphone", "name": "피해자의 핸드폰", "desc": "'정전남친이 여' 까지만 타이핑된 10시 51분 임시저장 메시지가 있다.",
+          "top": "50%",
+          "left": "15%",
+          "width": "15%",
+          "height": "10%"}
+      ]
+    },
+    {
+      "id": "loc_lobby",
+      "name": "호텔 로비 (접수대 및 대기석)",
+      "backgroundUrl": "/images/realism/wedding_murder/bg_lobby.jpg",
+      "clues": [
+        { "id": "clue_ballpointpens", "name": "방명록 탁자의 볼펜 비치대", "desc": "대기실 카펫과 매우 흡사한 자주색 벨벳 상판 위에 공용 볼펜이 있다.", 
+          "top": "10%",
+          "left": "15%",
+          "width": "15%",
+          "height": "10%"},
+        { "id": "clue_trashcan", "name": "접수대 쓰레기통", "desc": "김신랑 명의의 남향 아파트 매매 계약서가 구겨져 있다.",
+          "top": "20%",
+          "left": "15%",
+          "width": "15%",
+          "height": "10%"},
+        { "id": "clue_atmreceipt", "name": "구겨진 ATM 영수증", "desc": "10:50 출력, '잔액 부족' 글씨가 찍혀 있다.", 
+          "top": "30%",
+          "left": "15%",
+          "width": "15%",
+          "height": "10%"},
+        { "id": "clue_cubic", "name": "바닥에 떨어진 큐빅 조각", "desc": "연결 고리가 뜯겨 나간 작은 큐빅 장식.", 
+          "top": "40%",
+          "left": "15%",
+          "width": "15%",
+          "height": "10%"},
+        { "id": "clue_weddingorder", "name": "찢어진 웨딩 식순지", "desc": "식순지 위에 검은 펜으로 거칠게 엑스(X) 자를 그어놓은 흔적이 있다.", 
+          "top": "50%",
+          "left": "15%",
+          "width": "15%",
+          "height": "10%"}
+      ]
+    },
+    {
+      "id": "loc_banquet",
+      "name": "2층 연회장 (하객 식사 구역)",
+      "backgroundUrl": "/images/realism/wedding_murder/bg_banquet.jpg",
+      "clues": [
+        { "id": "clue_pill", "name": "바닥에 굴러다니는 알약", "desc": "정중앙에 분할선이 그어져 있는 독특한 형태의 하얀색 알약.", 
+          "top": "10%",
+          "left": "15%",
+          "width": "15%",
+          "height": "10%"},
+        { "id": "clue_soju", "name": "테이블 위 빈 소주병", "desc": "방금까지 손으로 쥔 듯한 물방울이 맺힌 빈 소주병.", 
+          "top": "10%",
+          "left": "30%",
+          "width": "15%",
+          "height": "10%"},
+        { "id": "clue_invitation", "name": "구겨진 청첩장", "desc": "누군가 꽉 쥐어 짜부라진 종이 뭉치.", 
+          "top": "10%",
+          "left": "50%",
+          "width": "15%",
+          "height": "10%"},
+        { "id": "clue_refundguide", "name": "예약금 환불 안내서", "desc": "여백에 '식장 대관료 리베이트 50% 현금 처리 요망' 글씨가 적혀 있다.", 
+          "top": "10%",
+          "left": "70%",
+          "width": "15%",
+          "height": "10%"}
+      ]
+    },
+    {
+      "id": "loc_corridor",
+      "name": "대기실 앞 복도 및 비상계단",
+      "backgroundUrl": "/images/realism/wedding_murder/bg_corridor.jpg",
+      "clues": [
+        { "id": "clue_recorder", "name": "소화전 뒤 소형 녹음기", "desc": "무언가 얇고 단단한 금속으로 문 밑바닥을 강하게 긁어대는 소리가 녹음되어 있다.", 
+          "top": "10%",
+          "left": "15%",
+          "width": "15%",
+          "height": "10%"},
+        { "id": "clue_flowerpen", "name": "화분 흙에 파묻힌 볼펜", "desc": "펜촉이 약간 휘어 있고 아주 미세한 자주색 카펫 보풀이 엉겨 붙어 있다.", 
+          "top": "30%",
+          "left": "15%",
+          "width": "15%",
+          "height": "10%"},
+        { "id": "clue_wire", "name": "구부러진 얇은 철사", "desc": "끝부분이 좁은 문틈이나 열쇠 구멍에 쑤셔 넣은 듯 코팅이 벗겨져 있다.", 
+          "top": "50%",
+          "left": "15%",
+          "width": "15%",
+          "height": "10%"},
+        { "id": "clue_papercup", "name": "구겨진 종이컵", "desc": "컵 테두리에 진한 버건디색 립스틱 자국이 묻어 있다.", 
+          "top": "70%",
+          "left": "15%",
+          "width": "15%",
+          "height": "10%"}
+      ]
+    },
+    {
+      "id": "loc_groom_item",
+      "name": "김신랑의 소지품",
+      "backgroundUrl": "/images/realism/wedding_murder/bg_inventory.jpg",
+      "clues": [
+        { "id": "clue_handkerchief", "name": "얼룩진 손수건", "desc": "투명 결정체들이 섬유 사이에 촘촘히 박혀 반짝거린다.", "imageUrl": "/images/realism/wedding_murder/handkerchief.jpg" },
+        { "id": "clue_reminder", "name": "붉은색 독촉장", "desc": "'가압류'라는 붉은색 고무 도장이 찍힌 빚 독촉장.", "imageUrl": "/images/realism/wedding_murder/reminder.jpg" }
+      ]
+    },
+    {
+      "id": "loc_planner_item",
+      "name": "박플래너의 소지품",
+      "backgroundUrl": "/images/realism/wedding_murder/bg_inventory.jpg",
+      "clues": [
+        { "id": "clue_perfumebottle", "name": "미니 향수 공병", "desc": "내벽에 하얀색 미세 가루가 눌어붙어 있고 코를 찌르는 씁쓸한 향이 난다.", "imageUrl": "/images/realism/wedding_murder/perfumebottle.jpg" },
+        { "id": "clue_doubleledger", "name": "비밀 이중 장부", "desc": "예식 비용이 다르게 적힌 이중 장부.", "imageUrl": "/images/realism/wedding_murder/doubleledger.jpg" }
+      ]
+    },
+    {
+      "id": "loc_friend_item",
+      "name": "최베프의 소지품",
+      "backgroundUrl": "/images/realism/wedding_murder/bg_inventory.jpg",
+      "clues": [
+        { "id": "clue_pillcan", "name": "텅 빈 주황색 약통", "desc": "잔여 가루조차 없이 완전히 비어 있는 수면제 약통.", "imageUrl": "/images/realism/wedding_murder/pillcan.jpg" },
+        { "id": "clue_manda", "name": "M&A 계약서", "desc": "최베프의 이름이 지워진 매각 계약서.", "imageUrl": "/images/realism/wedding_murder/manda.jpg" }
+      ]
+    },
+    {
+      "id": "loc_ex_item",
+      "name": "정전남친의 소지품",
+      "backgroundUrl": "/images/realism/wedding_murder/bg_inventory.jpg",
+      "clues": [
+        { "id": "clue_potionbottle", "name": "라벨 없는 물약병", "desc": "정체불명의 투명한 액체가 남아 있는 물약병.", "imageUrl": "/images/realism/wedding_murder/potionbottle.jpg" },
+        { "id": "clue_knife", "name": "다용도 공구 (맥가이버칼)", "desc": "송곳 날에 짙은 자주색 카펫 섬유가 박혀 있으나 본체가 두꺼워 문틈에는 들어가지 않는다.", "imageUrl": "/images/realism/wedding_murder/knife.jpg" }
+      ]
+    },
+    {
+      "id": "loc_brother_item",
+      "name": "이동생의 소지품",
+      "backgroundUrl": "/images/realism/wedding_murder/bg_inventory.jpg",
+      "clues": [
+        { "id": "clue_medicinebag", "name": "구겨진 빈 약봉지", "desc": "정체불명의 미세한 하얀 가루가 소량 묻어 있는 비닐 패키지.", "imageUrl": "/images/realism/wedding_murder/medicinebag.jpg" },
+        { "id": "clue_memorandum", "name": "신체 포기 각서", "desc": "핏자국이 묻어 있고 지장이 찍힌 차용증.", "imageUrl": "/images/realism/wedding_murder/memorandum.jpg" }
+      ]
+    }
+  ],
+  "resolution": {
+    "correctAnswers": {
+      "culpritId": "suspect1",
+      "motiveClueId": "clue_reminder",
+      "weaponClueId": "clue_perfumebottle"
+    },
+    "truthStory": "사건의 전말은 이렇습니다.\n\n김신랑은 사채 빚을 청산하기 위해 사망 보험금을 노리고 범행을 계획했습니다. 11시 10분경, 수면제 기운에 취한 신부에게 향수 공병에 담아온 무색무취의 맹독을 타서 마시게 했고 입가에 흘린 독은 손수건으로 닦아냈습니다.\n\n이후 방을 빠져나온 그는 무의식중에 들고 온 로비의 볼펜을 사용하여, 문 밑 카펫 틈새로 열쇠를 강제로 밀어 넣어 완벽한 밀실을 완성했습니다. 그 흔적으로 그의 무릎엔 자주색 카펫 먼지가, 볼펜엔 카펫 보풀이 남게 된 것입니다!"
+  },
+  "solution": {
+    "questions": [
+      {
+        "id": "q_culprit",
+        "type": "suspect",
+        "title": "1. 이 사건의 진범은 누구인가?",
+        "answerId": "suspect1"
+      },
+      {
+        "id": "q_motive",
+        "type": "clue",
+        "title": "2. 범인의 살해 동기를 증명할 단서는?",
+        "answerId": "clue_victimsphone"
+      },
+      {
+        "id": "q_weapon",
+        "type": "clue",
+        "title": "3. 범행에 사용된 결정적 도구는?",
+        "answerId": "clue_victimsphone"
+      }
+    ],
+    "reasoning": "친구는 일기장에 적힌 원한을 품고 깨진 와인잔으로...",
+    "successMessage": "정확합니다. 당신의 예리한 추리 덕분에 진범을 체포했습니다!",
+    "failMessage": "당신의 추리는 빗나갔습니다. 진범은 유유히 현장을 빠져나갔습니다.",
+
+    "crimeTruth": {
+    "illustrationUrl": "/images/wedding_murder/crime_truth.jpg",
+    "title": "사건의 전말: 시들지 않는 증오",
+    "story": [
+      "범인은 피해자가 자신을 배신하고 결혼을 강행했다는 사실에 극심한 질투를 느꼈습니다.",
+      "결혼식 직전, 신부 대기실에 몰래 침입한 범인은 독극물이 든 와인잔을 미리 준비했습니다.",
+      "피해자가 와인을 마신 후 쓰러지자, 깨진 와인잔을 치우려다 자신의 옷에 와인을 묻히는 실수를 저질렀습니다.",
+      "결국 당신이 발견한 '깨진 와인잔의 립스틱'과 '범인의 얼룩진 소매'가 결정적 증거가 되었습니다."
+    ]
+  }
+  }
+}

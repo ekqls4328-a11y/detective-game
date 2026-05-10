@@ -1,0 +1,9 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 전체 배경을 어둡게 (느와르 느낌) */
+body {
+  background-color: #121212;
+  color: #ffffff;
+}
