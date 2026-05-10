@@ -91,51 +91,53 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, onCl
       {/* 비주얼 노벨 스타일 대화창 */}
       <div className="h-2/5 bg-neutral-950 p-4 flex flex-col justify-between relative z-20">
         
-        {/* 💡 [수정됨] 시네마틱 질문 오버레이 (타이틀/닫기 고정, 리스트만 스크롤) */}
-      {showQuestionMenu && (
-        <div className="absolute inset-0 z-40 bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center p-6 animate-fadeIn">
-          
-          {/* 전체를 감싸는 래퍼: 모바일 화면 높이의 85%까지만 커지도록 제한 */}
-          <div className="w-full max-w-md flex flex-col max-h-[85vh]">
+        {/* 💡 시네마틱 질문 오버레이 (타이틀/닫기 완벽 고정, 리스트만 스크롤) */}
+        {showQuestionMenu && (
+          <div className="absolute inset-0 z-40 bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center p-6 animate-fadeIn">
             
-            {/* 1. 고정 타이틀 (shrink-0으로 축소 방지) */}
-            <div className="shrink-0 text-amber-500 font-bold text-sm mb-5 text-center tracking-widest animate-pulse">
-              [ 심문 주제 선택 ]
-            </div>
+            {/* 전체 래퍼: max-h-full을 줘서 화면 패딩(p-6) 안쪽까지만 꽉 차게 제한 */}
+            <div className="w-full max-w-md flex flex-col max-h-full py-2">
+              
+              {/* 1. 고정 타이틀 (shrink-0) */}
+              <div className="shrink-0 text-amber-500 font-bold text-sm mb-4 text-center tracking-widest animate-pulse">
+                [ 심문 주제 선택 ]
+              </div>
 
-            {/* 💡 2. 스크롤되는 질문 리스트 영역 (flex-1로 남은 공간 차지, 넘치면 스크롤) */}
-            <div className="flex-1 overflow-y-auto flex flex-col gap-3 px-1 pb-2 scrollbar-hide">
-              {suspect.questions.map((q, idx) => (
+              {/* 💡 2. 스크롤 영역 (핵심: flex-1과 함께 min-h-0을 반드시 주어야 내부 스크롤이 작동함!) */}
+              <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-3 px-1 scrollbar-hide py-1">
+                {suspect.questions.map((q, idx) => (
+                  <button 
+                    key={q.id}
+                    onClick={() => handleAskQuestion(q)}
+                    className="group relative w-full overflow-hidden rounded-xl bg-neutral-900 border border-neutral-700 p-4 text-left shadow-lg hover:border-amber-500 hover:shadow-[0_0_15px_rgba(245,158,11,0.4)] transition-all active:scale-[0.98] shrink-0"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-amber-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                    
+                    <div className="relative flex items-center gap-4">
+                      <span className="flex items-center justify-center w-7 h-7 rounded-full bg-neutral-800 text-neutral-500 text-xs font-black group-hover:bg-amber-500 group-hover:text-black transition-colors shrink-0">
+                        {idx + 1}
+                      </span>
+                      <span className="text-gray-300 font-bold group-hover:text-white transition-colors leading-relaxed break-keep">
+                        {q.title}
+                      </span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+
+              {/* 3. 고정 닫기 버튼 영역 (shrink-0으로 밀려나지 않게 꽉 잡아줌) */}
+              <div className="shrink-0 pt-5 flex justify-center">
                 <button 
-                  key={q.id}
-                  onClick={() => handleAskQuestion(q)}
-                  className="group relative w-full overflow-hidden rounded-xl bg-neutral-900 border border-neutral-700 p-4 text-left shadow-lg hover:border-amber-500 hover:shadow-[0_0_15px_rgba(245,158,11,0.4)] transition-all active:scale-[0.98] shrink-0"
+                  onClick={() => setShowQuestionMenu(false)}
+                  className="py-3 px-8 rounded-full bg-neutral-800 text-neutral-400 font-bold hover:bg-neutral-700 hover:text-white transition-all border border-neutral-600 shadow-md"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-amber-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                  
-                  <div className="relative flex items-center gap-4">
-                    <span className="flex items-center justify-center w-7 h-7 rounded-full bg-neutral-800 text-neutral-500 text-xs font-black group-hover:bg-amber-500 group-hover:text-black transition-colors shrink-0">
-                      {idx + 1}
-                    </span>
-                    <span className="text-gray-300 font-bold group-hover:text-white transition-colors leading-relaxed break-keep">
-                      {q.title}
-                    </span>
-                  </div>
+                  닫기
                 </button>
-              ))}
+              </div>
+              
             </div>
-
-            {/* 3. 고정 닫기 버튼 (shrink-0으로 축소 방지) */}
-            <button 
-              onClick={() => setShowQuestionMenu(false)}
-              className="shrink-0 mt-5 py-3 px-8 rounded-full bg-neutral-800 text-neutral-400 font-bold hover:bg-neutral-700 hover:text-white transition-all self-center border border-neutral-600 shadow-md"
-            >
-              닫기
-            </button>
-            
           </div>
-        </div>
-      )}
+        )}
 
         {/* 💡 [대화 텍스트 박스 수정] 클릭 시 강제 스킵 발동 */}
         <div 
