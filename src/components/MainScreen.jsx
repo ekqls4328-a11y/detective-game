@@ -120,7 +120,7 @@ const MainScreen = ({ onSelectScenario, onBack, onOpenSettings }) => {
                 `}
               >
                 {scenario.isLocked ? (
-                  '이전 사건 해결 필요'
+                  'COMMING SOON'
                 ) : (
                   <>조사 시작하기 <span className="text-lg">➔</span></>
                 )}
