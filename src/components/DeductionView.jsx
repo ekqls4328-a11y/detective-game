@@ -175,7 +175,7 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
     <div className="animate-fadeIn pb-10">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold flex items-center gap-2">
-          <span className="text-red-500">⚖️</span> 사건 종결
+          <span className="text-red-500">⚖️</span> 사건 종결.
         </h2>
         <div className="flex gap-1 bg-black/30 px-3 py-1.5 rounded-full border border-neutral-800">
         {[...Array(3)].map((_, i) => (
