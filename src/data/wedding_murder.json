@@ -15,7 +15,7 @@
       "selfIntro": "안녕하세요... 하늘이의 예비 남편 김신랑입니다.\n솔직히 아직 상황이 실감이 안 납니다. 조금 전까지 멀쩡히 웃고 있었는데... 갑자기 이런 일이 벌어질 줄 누가 알았겠습니까.\n경찰 조사든 뭐든 협조하겠습니다. 범인은 꼭 잡아야죠.",
       "wrongEvidenceResponse": "지금 장난하자는 겁니까? 제 신부가 죽었는데 그런 말도 안 되는 걸 증거라고 들이미시다니요!",
       "illustration": {
-        "interrogationUrl": "/images/wedding_murder/s1_interrogation.png",
+        "interrogationUrl": "/images/wedding_murder/s1_interrogation.webp",
         "frontFullUrl": "/images/wedding_murder/s1_front_full.jpg",
         "backFullUrl": "/images/wedding_murder/s1_back_full.jpg"
       },
@@ -59,7 +59,7 @@
       "selfIntro": "진정하세요. 이번 예식 총괄 박플래너입니다.\n커리어에 이런 끔찍한 오점이 남다니... 저는 밖에서 드레스 이모님이랑 동선 체크하느라 정신이 없었습니다.",
       "wrongEvidenceResponse": "탐정님, 전 지금 수습해야 할 일이 산더미입니다. 확실한 증거가 아니면 시간 뺏지 말아주시죠.",
       "illustration": {
-        "interrogationUrl": "/images/wedding_murder/s2_interrogation.jpg",
+        "interrogationUrl": "/images/wedding_murder/s2_interrogation.webp",
         "frontFullUrl": "/images/wedding_murder/s2_front_full.jpg",
         "backFullUrl": "/images/wedding_murder/s2_back_full.jpg"      
       },
@@ -104,7 +104,7 @@
       "selfIntro": "우리 하늘이가... (오열) 저는 하늘이랑 10년 지기 베프이자 쇼핑몰 공동 대표인 최베프예요.\n대체 누가 우리 불쌍한 하늘이한테 이런 짓을 한 거예요?!",
       "wrongEvidenceResponse": "네? 그게 대체 무슨 소용인데요... 지금 저를 의심하시는 건가요? (훌쩍)",
       "illustration": {
-        "interrogationUrl": "/images/wedding_murder/s3_interrogation.jpg",
+        "interrogationUrl": "/images/wedding_murder/s3_interrogation.webp",
         "frontFullUrl": "/images/wedding_murder/s3_front_full.jpg",
         "backFullUrl": "/images/wedding_murder/s3_back_full.jpg"
       },
@@ -145,7 +145,7 @@
       "selfIntro": "...정전남친입니다. 1년 전까지 하늘이랑 만났었습니다. \n초대받은 건 아니고... 할 말이 있어서 왔습니다. 하늘이가 절 피해서 숨어다녔거든요. 근데 제가 아주 수상한 놈을 봤습니다.",
       "wrongEvidenceResponse": "",
       "illustration": {
-        "interrogationUrl": "/images/wedding_murder/s4_interrogation.jpg",
+        "interrogationUrl": "/images/wedding_murder/s4_interrogation.webp",
         "frontFullUrl": "/images/wedding_murder/s4_front_full.jpg",
         "backFullUrl": "/images/wedding_murder/s4_back_full.jpg"
       },
@@ -186,7 +186,7 @@
       "selfIntro": "누나가... 우리 누나가 죽다니요! 저 어떡합니까 이제...\n저는 하늘이 누나 친동생 이동생입니다. 누가 감히 우리 가족한테 이런 짓을 한 겁니다!",
       "wrongEvidenceResponse": "",
       "illustration": {
-        "interrogationUrl": "/images/wedding_murder/s5_interrogation.jpg",
+        "interrogationUrl": "/images/wedding_murder/s5_interrogation.webp",
         "frontFullUrl": "/images/wedding_murder/s5_front_full.jpg",
         "backFullUrl": "/images/wedding_murder/s5_back_full.jpg"
       },
