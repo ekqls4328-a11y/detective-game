@@ -3,16 +3,29 @@ import React, { useState } from 'react';
 const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, onFail, onReset }) => {
   const [answers, setAnswers] = useState({});
   const [result, setResult] = useState('none'); // 'none', 'success', 'fail', 'gameover'
+  const [accuracy, setAccuracy] = useState(0);
 
   const questions = scenarioData.solution.questions || [];
   const truth = scenarioData.solution.crimeTruth;
 
-  // 인벤토리 단서 매핑
-  const allClues = [
-    ...(scenarioData.locations?.flatMap(loc => loc.clues || []) || []),
-    ...(scenarioData.suspects?.flatMap(s => s.inspectionPoints || []) || [])
-  ];
-  const myClues = inventory?.map(id => allClues.find(c => c.id === id)).filter(Boolean) || [];
+  // 💡 [수정됨] 인벤토리 물증 매핑 (출처 이름 주입 로직 포함)
+  const myClues = (() => {
+    // 1. 현장 단서에 '장소 이름' 주입
+    const locationClues = scenarioData.locations?.flatMap(loc => 
+      (loc.clues || []).map(clue => ({ ...clue, sourceName: loc.name }))
+    ) || [];
+
+    // 2. 관찰 단서에 '용의자 이름' 주입
+    const inspectionClues = scenarioData.suspects?.flatMap(s => 
+      (s.inspectionPoints || []).map(point => ({ ...point, sourceName: s.name }))
+    ) || [];
+
+    // 3. 물리적 증거(물증)만 합치기
+    const allPhysicalClues = [...locationClues, ...inspectionClues];
+
+    // 4. 내 인벤토리에 있는 ID와 일치하는 물증만 필터링
+    return inventory?.map(id => allPhysicalClues.find(c => c.id === id)).filter(Boolean) || [];
+  })();
 
   const handleSelectAnswer = (questionId, answerId) => {
     setAnswers(prev => ({ ...prev, [questionId]: answerId }));
@@ -25,13 +38,35 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
       return;
     }
     
+    // 정답 개수 계산
+    let correctCount = 0;
+    questions.forEach(q => {
+      if (answers[q.id] === q.answerId) {
+        correctCount++;
+      }
+    });
+
+    // 일치율(퍼센트) 계산 후 상태에 저장
+    const calculatedAccuracy = Math.floor((correctCount / questions.length) * 100);
+    setAccuracy(calculatedAccuracy);
+    
     const nextLife = deductionLife - 1;
     const isAllCorrect = questions.every(q => answers[q.id] === q.answerId);
     
     if (isAllCorrect) {
+      // 💡 [추가] 추리 성공 시 클리어 데이터 저장 로직
+      const savedData = localStorage.getItem('cleared_scenarios');
+      let clearedList = savedData ? JSON.parse(savedData) : [];
+      
+      // 중복 저장 방지하며 현재 시나리오 ID 추가
+      if (!clearedList.includes(scenarioData.id)) {
+        clearedList.push(scenarioData.id);
+        localStorage.setItem('cleared_scenarios', JSON.stringify(clearedList));
+      }
+      
       setResult('success');
     } else {
-      onFail(); // 💡 부모(PlayScreen)의 라이프 차감
+      onFail(); // 부모(PlayScreen)의 라이프 차감
       if (nextLife <= 0) {
         setResult('gameover');
       } else {
@@ -40,12 +75,24 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
     }
   };
 
-  // 💡 [실패 화면 - 기회가 남았을 때]
+  // [실패 화면 - 기회가 남았을 때]
   if (result === 'fail') {
     return (
       <div className="animate-fadeIn flex flex-col items-center justify-center p-10 text-center bg-neutral-900 rounded-3xl border border-red-900/30">
         <div className="text-5xl mb-4">⚠️</div>
-        <h2 className="text-2xl font-black text-white mb-2">추리 틀림!</h2>
+        <h2 className="text-2xl font-black text-white mb-2">추리 실패!</h2>
+
+        <div className="bg-neutral-800 border border-neutral-700 rounded-xl p-5 w-full mb-6 mt-4 shadow-inner">
+          <p className="text-neutral-400 text-sm font-bold mb-2">현재 추리 일치율</p>
+          <div className="text-4xl font-black text-amber-500 mb-3">{accuracy}%</div>
+          <div className="w-full bg-neutral-900 rounded-full h-3 overflow-hidden border border-neutral-700">
+            <div 
+              className="bg-amber-500 h-full rounded-full transition-all duration-1000 ease-out" 
+              style={{ width: `${accuracy}%` }}
+            />
+          </div>
+        </div>
+
         <p className="text-red-400 text-sm font-bold mb-6">
           증거가 불충분하거나 범인을 잘못 지목했습니다.<br/>
           (남은 기회: {deductionLife}번)
@@ -60,7 +107,7 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
     );
   }
 
-  // 💡 [완전 실패 화면 - Bad Ending]
+  // [완전 실패 화면 - Bad Ending]
   if (result === 'gameover') {
     return (
       <div className="animate-fadeIn fixed inset-0 z-[100] bg-black flex flex-col items-center justify-center p-10 text-center">
@@ -71,8 +118,8 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
           이사건은 영원히 해결되지 못한 채 서류 더미 속에 묻혔습니다.
         </p>
         <button 
-            onClick={onReset} // 💡 window.location.reload() 대신 전달받은 리셋 함수 사용
-            className="..."
+            onClick={onReset}
+            className="w-full max-w-xs py-4 bg-red-800 text-white font-black rounded-xl border border-red-600 shadow-[0_0_15px_rgba(220,38,38,0.5)] hover:bg-red-700 active:scale-95 transition-all"
         >
           처음부터 다시 수사하기
         </button>
@@ -80,11 +127,10 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
     );
   }
 
-  // 💡 [성공 화면: 사건의 전말]
+  // [성공 화면: 사건의 전말]
   if (result === 'success') {
     return (
       <div className="animate-fadeIn flex flex-col bg-neutral-900 rounded-3xl overflow-hidden border border-emerald-500/30 shadow-[0_0_50px_rgba(16,185,129,0.1)]">
-        {/* 전말 일러스트 */}
         <div className="w-full h-56 bg-neutral-800 relative">
           {truth.illustrationUrl ? (
             <img src={truth.illustrationUrl} alt="Truth" className="w-full h-full object-cover" />
@@ -98,7 +144,6 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
           </div>
         </div>
 
-        {/* 전말 스토리 */}
         <div className="p-6 space-y-4">
           <div className="bg-emerald-950/20 border border-emerald-900/50 p-5 rounded-2xl">
             <p className="text-emerald-400 font-bold text-sm mb-4 leading-relaxed">
@@ -115,8 +160,8 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
           </div>
 
           <button 
-            onClick={onReset} // 💡 window.location.reload() 대신 전달받은 리셋 함수 사용
-            className="..."
+            onClick={onReset}
+            className="w-full py-4 mt-2 bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-xl shadow-lg active:scale-95 transition-all"
           >
             사건 종료 및 메인으로
           </button>
@@ -125,7 +170,7 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
     );
   }
 
-  // 💡 [추리 입력 화면]
+  // [추리 입력 화면]
   return (
     <div className="animate-fadeIn pb-10">
       <div className="flex justify-between items-center mb-6">
@@ -138,8 +183,8 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
             key={i} 
             className={`text-base transition-all ${
               i < deductionLife 
-                ? 'grayscale-0 drop-shadow-[0_0_8px_rgba(96,165,250,0.8)]' // 활성화: 파란색 네온 빛
-                : 'grayscale opacity-20 scale-75' // 소진: 작아지고 흑백 투명 처리
+                ? 'grayscale-0 drop-shadow-[0_0_8px_rgba(96,165,250,0.8)]' 
+                : 'grayscale opacity-20 scale-75' 
             }`}
           >
             🔍
@@ -186,11 +231,17 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
                 <button
                   key={clue.id}
                   onClick={() => handleSelectAnswer(q.id, clue.id)}
-                  className={`p-2 rounded-xl border-2 flex items-center justify-center min-h-[4.5rem] transition-all active:scale-95 ${
-                    answers[q.id] === clue.id ? 'bg-red-600/10 border-red-600' : 'bg-neutral-800/50 border-neutral-700 hover:bg-neutral-700/50'
+                  className={`p-2 rounded-xl border-2 flex flex-col items-center justify-center min-h-[5.5rem] transition-all active:scale-95 ${
+                    answers[q.id] === clue.id ? 'bg-red-600/10 border-red-600 shadow-[0_0_15px_rgba(220,38,38,0.2)]' : 'bg-neutral-800/50 border-neutral-700 hover:bg-neutral-700/50'
                   }`}
                 >
-                  <span className={`text-[11px] font-bold text-center break-keep leading-tight ${answers[q.id] === clue.id ? 'text-red-400' : 'text-neutral-400'}`}>{clue.name}</span>
+                  {/* 💡 [수정됨] 출처 이름(sourceName)을 작게 표시 */}
+                  <span className={`text-[8px] mb-1 font-bold truncate w-full text-center ${answers[q.id] === clue.id ? 'text-red-400/80' : 'text-neutral-500'}`}>
+                    [{clue.sourceName}]
+                  </span>
+                  <span className={`text-[11px] font-bold text-center break-keep leading-tight ${answers[q.id] === clue.id ? 'text-red-400' : 'text-neutral-300'}`}>
+                    {clue.name}
+                  </span>
                 </button>
               ))}
             </div>
@@ -203,7 +254,7 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
         disabled={Object.keys(answers).length < questions.length}
         className={`w-full py-5 rounded-2xl font-black text-lg transition-all flex items-center justify-center gap-2 ${
           Object.keys(answers).length === questions.length
-            ? 'bg-red-600 hover:bg-red-500 text-white shadow-xl active:scale-[0.98]' 
+            ? 'bg-red-600 hover:bg-red-500 text-white shadow-[0_0_20px_rgba(220,38,38,0.4)] active:scale-[0.98]' 
             : 'bg-neutral-800 text-neutral-600 border border-neutral-700 cursor-not-allowed'
         }`}
       >

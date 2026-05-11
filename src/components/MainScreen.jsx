@@ -57,7 +57,7 @@ const MainScreen = ({ onSelectScenario, onBack, onOpenSettings }) => {
             >
               {/* 해결됨 뱃지 */}
               {isCleared && (
-                <div className="absolute top-4 right-4 bg-red-600 text-white text-[10px] font-black px-2 py-1 rounded shadow-md border border-red-800 tracking-wider">
+                <div className="absolute top-4 right-4 bg-red-600 text-white text-[10px] font-black px-2 py-1 rounded shadow-md border border-red-800 tracking-wider z-10">
                   SOLVED
                 </div>
               )}
@@ -67,18 +67,43 @@ const MainScreen = ({ onSelectScenario, onBack, onOpenSettings }) => {
                 {scenario.title}
               </h2>
               
-              {/* 썸네일 이미지 (모바일 비율에 맞는 높이 설정 h-44) */}
+              {/* 💡 썸네일 이미지 영역 (briefingImageUrl 연동 및 디테일 강화) */}
               <div className="h-44 w-full bg-neutral-950 rounded-xl overflow-hidden border border-neutral-700 mb-5 relative flex items-center justify-center">
-                <span className="text-neutral-600 text-xs font-mono block text-center">
-                  [EVIDENCE PHOTO]<br/>NO DATA
-                </span>
                 
+                {scenario.briefingImageUrl ? (
+                  // 이미지가 있을 때: 꽉 차게 렌더링하고, 잠금 상태면 블러 처리
+                  <img 
+                    src={scenario.briefingImageUrl} 
+                    alt={scenario.title} 
+                    className={`w-full h-full object-cover transition-all duration-500 ${
+                      scenario.isLocked ? 'blur-sm grayscale' : 'opacity-80'
+                    }`}
+                  />
+                ) : (
+                  // 이미지가 없을 때: 기존 NO DATA 표시
+                  <span className="text-neutral-600 text-xs font-mono block text-center">
+                    [EVIDENCE PHOTO]<br/>NO DATA
+                  </span>
+                )}
+
                 {/* 잠금 오버레이 */}
                 {scenario.isLocked && (
-                  <div className="absolute inset-0 bg-black bg-opacity-70 flex flex-col items-center justify-center backdrop-blur-sm">
+                  <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center backdrop-blur-[2px]">
                     <span className="text-3xl mb-2">🔒</span>
-                    <span className="text-red-400 text-xs font-bold tracking-widest">ACCESS DENIED</span>
+                    <span className="text-red-500 text-[10px] font-black tracking-[0.2em] animate-pulse">
+                      ACCESS DENIED
+                    </span>
+                    {scenario.unlockCondition && (
+                      <span className="text-neutral-500 text-[9px] mt-2 font-bold">
+                        {scenario.unlockCondition}
+                      </span>
+                    )}
                   </div>
+                )}
+
+                {/* 잠금 해제 상태일 때 하단 그라데이션 (시각적 깊이감 추가) */}
+                {!scenario.isLocked && (
+                  <div className="absolute inset-0 bg-gradient-to-t from-neutral-950/80 via-transparent to-transparent pointer-events-none" />
                 )}
               </div>
 
@@ -88,7 +113,7 @@ const MainScreen = ({ onSelectScenario, onBack, onOpenSettings }) => {
                 disabled={scenario.isLocked}
                 className={`
                   w-full py-3.5 rounded-xl text-sm font-bold tracking-wide flex items-center justify-center gap-2
-                  transition-colors
+                  transition-colors z-10
                   ${scenario.isLocked 
                     ? 'bg-neutral-700 text-neutral-500 cursor-not-allowed' 
                     : 'bg-white text-black hover:bg-gray-200 active:bg-gray-300 shadow-md'}
