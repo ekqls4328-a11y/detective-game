@@ -13,7 +13,7 @@
       "role": "예비 신랑",
       "desc": "완벽해 보이는 벤처 사업가. 본식을 앞두고 극도로 초조해 보인다.",
       "selfIntro": "안녕하세요... 하늘이의 예비 남편 김신랑입니다.\n솔직히 아직 상황이 실감이 안 납니다. 조금 전까지 멀쩡히 웃고 있었는데... 갑자기 이런 일이 벌어질 줄 누가 알았겠습니까.\n경찰 조사든 뭐든 협조하겠습니다. 범인은 꼭 잡아야죠.",
-      "wrongEvidenceResponse": "지금 장난하자는 겁니까? 제 신부가 죽었는데 그런 말도 안 되는 걸 증거라고 들이미시다니요!",
+      "wrongEvidenceResponse": "그걸 왜 저한테 보여주시는 겁니까?\n전혀 관련 없어 보이는데요.",
       "illustration": {
         "interrogationUrl": "/images/wedding_murder/s1_interrogation.webp",
         "frontFullUrl": "/images/wedding_murder/s1_front_full.webp",
@@ -147,7 +147,7 @@
       "role": "전 남친",
       "desc": "초췌한 행색으로 하객들 틈에 섞여 있는 불청객.",
       "selfIntro": "...정전남친입니다. 1년 전까지 하늘이랑 만났었습니다. \n초대받은 건 아니고... 할 말이 있어서 왔습니다. 하늘이가 절 피해서 숨어다녔거든요. 근데 제가 아주 수상한 놈을 봤습니다.",
-      "wrongEvidenceResponse": "",
+      "wrongEvidenceResponse": "...그런 걸 저한테 왜 보여주시는 겁니까.\n전 처음 봅니다.",
       "illustration": {
         "interrogationUrl": "/images/wedding_murder/s4_interrogation.webp",
         "frontFullUrl": "/images/wedding_murder/s4_front_full.webp",
@@ -186,7 +186,7 @@
       "role": "신부의 남동생",
       "desc": "불안한 눈빛으로 주변을 두리번거리는 철부지 동생.",
       "selfIntro": "누나가... 우리 누나가 죽다니요! 저 어떡합니까 이제...\n저는 하늘이 누나 친동생 이동생입니다. 누가 감히 우리 가족한테 이런 짓을 한 겁니다!",
-      "wrongEvidenceResponse": "",
+      "wrongEvidenceResponse": "아니, 그건 진짜 저랑 상관없습니다!\n왜 자꾸 저만 의심하세요...",
       "illustration": {
         "interrogationUrl": "/images/wedding_murder/s5_interrogation.webp",
         "frontFullUrl": "/images/wedding_murder/s5_front_full.webp",

@@ -45,21 +45,20 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, onCl
 
     const defense = suspect.defenses.find(d => d.clueId === evidence.id);
     if (defense) {
+      // 💡 알맞은 단서를 제시했을 때 답변만 출력
       setCurrentDialog(defense.response);
-      const originalClue = scenarioData.locations?.flatMap(l => l.clues || []).find(c => c.id === evidence.id);
-      const clueName = originalClue ? originalClue.name : '단서';
-      setCurrentStatement({ 
-        id: `def_${suspect.id}_${evidence.id}`, 
-        title: `[${clueName}] 추궁` 
-      });
     } else {
+      // 💡 틀린 단서를 제시했을 때 기본 답변 출력
       const fallbackResponse = suspect.wrongEvidenceResponse || "그게 이 사건과 무슨 상관이라는 겁니까? 억지 부리지 마시죠.";
       setCurrentDialog(fallbackResponse);
-      setCurrentStatement(null);
     }
+    
+    // 💡 [핵심 수정] 단서 제시 결과는 수첩에 기록할 수 없도록 무조건 null 처리!
+    setCurrentStatement(null); 
     setDiscoveryText(null);
     setDialogKey(prev => prev + 1); 
-    if (onPresent) onPresent();
+    
+    if (onPresent) onPresent(); // AP 차감 로직 실행
   };
 
   const handleSaveToInventory = () => {
