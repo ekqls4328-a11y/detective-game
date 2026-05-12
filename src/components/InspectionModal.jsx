@@ -1,16 +1,21 @@
 import React, { useState } from 'react';
+// 💡 추리 노트 모달 임포트
+import ReasoningNoteModal from './ReasoningNoteModal';
 
 const InspectionModal = ({ suspect, inventory, onClueFound, onClose }) => {
   const [inspectionSide, setInspectionSide] = useState('front');
   const [discoveryText, setDiscoveryText] = useState("화면을 터치해 수상한 곳을 찾아보세요.");
   const [focusedPoint, setFocusedPoint] = useState(null);
+  
+  // 💡 추리 노트 상태 추가
+  const [isNoteOpen, setIsNoteOpen] = useState(false);
 
   const IS_DEV_MODE = true; 
 
   const handlePointClick = (e, point) => {
     e.stopPropagation(); 
     setFocusedPoint(point);
-    setDiscoveryText(`[${point.name}] ${point.description}`);
+    setDiscoveryText(`[${point.name}]\n${point.description}`); // 💡 줄바꿈 추가해서 가독성 개선
   };
 
   const handleSaveToInventory = () => {
@@ -23,7 +28,6 @@ const InspectionModal = ({ suspect, inventory, onClueFound, onClose }) => {
   const currentImageUrl = inspectionSide === 'front' ? suspect.illustration?.frontFullUrl : suspect.illustration?.backFullUrl;
 
   return (
-    // 💡 전체 구조를 flex-col로 잡아 레이아웃 겹침 방지
     <div className="fixed inset-0 z-[70] bg-neutral-950 flex flex-col animate-fadeIn overflow-hidden">
       
       {/* 1. 상단 헤더 (shrink-0으로 고정) */}
@@ -31,11 +35,22 @@ const InspectionModal = ({ suspect, inventory, onClueFound, onClose }) => {
         <button onClick={onClose} className="text-white font-bold text-xs px-4 py-2 bg-neutral-800 rounded-full border border-neutral-600 active:scale-95 transition-all">
           &lt; 돌아가기
         </button>
-        <div className="flex flex-col items-end">
-          <span className="text-amber-500 font-black bg-neutral-900 px-3 py-1 rounded-full border border-amber-900/30 text-xs">
-            {suspect.name} 관찰 중
-          </span>
-          {IS_DEV_MODE && <span className="text-[9px] text-red-500 font-bold mt-1 tracking-tighter">DEBUG MODE ACTIVE</span>}
+        
+        <div className="flex items-center gap-3">
+          {/* 💡 [신규] 외형 관찰 화면용 추리 노트 버튼 */}
+          <button 
+            onClick={() => setIsNoteOpen(true)}
+            className="w-8 h-8 rounded-full bg-neutral-800 border border-neutral-600 text-sm shadow-lg flex items-center justify-center active:scale-95 transition-all hover:bg-neutral-700"
+          >
+            📓
+          </button>
+          
+          <div className="flex flex-col items-end">
+            <span className="text-amber-500 font-black bg-neutral-900 px-3 py-1 rounded-full border border-amber-900/30 text-xs">
+              {suspect.name} 관찰 중
+            </span>
+            {IS_DEV_MODE && <span className="text-[9px] text-red-500 font-bold mt-1 tracking-tighter">DEBUG MODE</span>}
+          </div>
         </div>
       </header>
 
@@ -90,12 +105,12 @@ const InspectionModal = ({ suspect, inventory, onClueFound, onClose }) => {
       </div>
 
       {/* 3. 하단 패널 및 컨트롤러 (shrink-0으로 영역 고정, 내부 스크롤 적용) */}
-      <div className="shrink-0 w-full z-[80] bg-neutral-950 border-t border-neutral-800 p-4 pb-8 flex flex-col gap-4 shadow-2xl">
+      <div className="shrink-0 w-full z-[80] bg-neutral-950 border-t border-neutral-800 p-4 pb-8 flex flex-col gap-3 shadow-2xl">
         
         {/* 조사 텍스트 창 (높이 고정 및 내부 스크롤) */}
         <div className="bg-neutral-900 border border-neutral-700 p-4 rounded-2xl shadow-inner relative flex flex-col h-[110px]">
           <div className="overflow-y-auto h-full pr-2 pb-2">
-            <p className="text-sm leading-relaxed text-white whitespace-pre-line break-keep select-none">
+            <p className="text-sm leading-relaxed text-white whitespace-pre-wrap break-keep select-none">
               {discoveryText}
             </p>
           </div>
@@ -103,22 +118,27 @@ const InspectionModal = ({ suspect, inventory, onClueFound, onClose }) => {
           <div className="absolute bottom-1 left-1 right-3 h-5 bg-gradient-to-t from-neutral-900 to-transparent pointer-events-none rounded-b-xl" />
         </div>
 
-        {/* 단서 기록 버튼 */}
-        {focusedPoint && !inventory?.includes(focusedPoint.id) && (
-          <button 
-            onClick={handleSaveToInventory}
-            className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-xl shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2 shrink-0"
-          >
-            <span>📌</span> 이 단서를 수첩에 기록하기
-          </button>
-        )}
-
-        {/* 이미 수집된 상태 표시 */}
-        {focusedPoint && inventory?.includes(focusedPoint.id) && (
-          <div className="w-full py-2.5 text-center text-xs text-emerald-400 font-bold bg-emerald-950/30 rounded-lg border border-emerald-900/50 shrink-0">
-            이미 수집된 단서입니다
-          </div>
-        )}
+        {/* 💡 [핵심] 단서 기록 버튼 영역 높이 52px 고정 (꿀렁거림 완벽 방지) */}
+        <div className="h-[52px] w-full flex items-center justify-center shrink-0">
+          {focusedPoint ? (
+            !inventory?.includes(focusedPoint.id) ? (
+              <button 
+                onClick={handleSaveToInventory}
+                className="w-full h-full bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-xl shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2"
+              >
+                <span>📌</span> 이 단서를 수첩에 기록하기
+              </button>
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-xs text-emerald-400 font-bold bg-emerald-950/30 rounded-xl border border-emerald-900/50">
+                이미 수집된 단서입니다
+              </div>
+            )
+          ) : (
+            <div className="w-full h-full rounded-xl border border-dashed border-neutral-800 flex items-center justify-center text-neutral-600 text-xs font-bold bg-neutral-900/30">
+              수상한 곳을 클릭하세요
+            </div>
+          )}
+        </div>
 
         {/* 앞/뒤 전환 버튼 */}
         {suspect.illustration?.backFullUrl && (
@@ -139,6 +159,8 @@ const InspectionModal = ({ suspect, inventory, onClueFound, onClose }) => {
         )}
       </div>
 
+      {/* 💡 노트 모달 렌더링 */}
+      {isNoteOpen && <ReasoningNoteModal onClose={() => setIsNoteOpen(false)} />}
     </div>
   );
 };

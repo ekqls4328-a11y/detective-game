@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import TypewriterText from './TypewriterText';
 import InventoryModal from './InventoryModal';
 import InspectionModal from './InspectionModal';
+import ReasoningNoteModal from './ReasoningNoteModal';
 
 const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, onClueFound, onMarkAsViewed, onRemoveClue, onPresent, onClose }) => {
   const [isTypingDone, setIsTypingDone] = useState(false);
@@ -15,6 +16,7 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, onCl
 
   const [currentStatement, setCurrentStatement] = useState(null); 
   const [discoveryText, setDiscoveryText] = useState(null);
+  const [isNoteOpen, setIsNoteOpen] = useState(false);
 
   useEffect(() => {
     setCurrentDialog(suspect.selfIntro);
@@ -92,6 +94,13 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, onCl
         <header className="shrink-0 p-4 flex justify-between items-center bg-gradient-to-b from-black/80 to-transparent">
           <button onClick={onClose} className="text-white font-bold px-3 py-1 bg-black/50 rounded-full hover:bg-neutral-700 backdrop-blur-sm border border-neutral-700">
             &lt; 심문 종료
+          </button>
+          {/* 💡 [신규 추가] 추리 노트 버튼 */}
+          <button 
+            onClick={() => setIsNoteOpen(true)}
+            className="w-10 h-10 rounded-full backdrop-blur-md bg-stone-100 border border-stone-300 text-xl shadow-lg flex items-center justify-center active:scale-95 transition-all"
+          >
+            📓
           </button>
           <button onClick={() => setIsInspectionOpen(true)} className="font-bold px-4 py-1.5 rounded-full backdrop-blur-md bg-neutral-900/80 border border-neutral-600 text-amber-500 shadow-lg flex items-center gap-2 active:scale-95 transition-transform">
             <span>🧐</span> 외형 관찰
@@ -177,6 +186,7 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, onCl
 
       {isInventoryOpen && <InventoryModal inventory={inventory} viewedClues={viewedClues} onMarkAsViewed={onMarkAsViewed} scenarioData={scenarioData} onRemoveClue={onRemoveClue} onClose={() => setIsInventoryOpen(false)} onPresent={handlePresentEvidence} />}
       {isInspectionOpen && <InspectionModal suspect={suspect} inventory={inventory} onClueFound={onClueFound} onClose={() => setIsInspectionOpen(false)} />}
+        {isNoteOpen && <ReasoningNoteModal onClose={() => setIsNoteOpen(false)} />}
     </div>
   );
 };

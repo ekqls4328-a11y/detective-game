@@ -16,7 +16,7 @@
       "wrongEvidenceResponse": "지금 장난하자는 겁니까? 제 신부가 죽었는데 그런 말도 안 되는 걸 증거라고 들이미시다니요!",
       "illustration": {
         "interrogationUrl": "/images/wedding_murder/s1_interrogation.webp",
-        "frontFullUrl": "/images/wedding_murder/s1_front_full.jpg",
+        "frontFullUrl": "/images/wedding_murder/s1_front_full.webp",
         "backFullUrl": "/images/wedding_murder/s1_back_full.jpg"
       },
       "questions": [
@@ -42,7 +42,9 @@
         { "clueId": "q5_3", "response": "사채업자들한테 쫓기는 사람이 갑자기 돈 필요해지면 무슨 짓을 할지 누가 압니까." }
       ],
       "inspectionPoints": [
-        { "id": "insp_knee_dust", "side": "front", "top": "75%", "left": "45%", "width": "15%", "height": "10%", "name": "무릎의 먼지", "description": "오른쪽 무릎 부분에만 짙은 자주색 카펫 섬유가 뭉쳐서 묻어 있다." }
+        { "id": "insp_knee_dust", "side": "front", "top": "71%", "left": "57%", "width": "10%", "height": "7%", "name": "무릎의 먼지", "description": "오른쪽 무릎 부분에만 짙은 자주색 카펫 섬유가 뭉쳐서 묻어 있다." },
+        { "id": "clue_handkerchief", "side": "front", "top": "15%", "left": "45%", "width": "15%", "height": "10%", "name": "얼룩진 손수건", "description": "마른 액체 자국 위로 희미한 흰색 가루 흔적이 남아 있다."},
+        { "id": "clue_reminder", "side": "front", "top": "35%", "left": "45%", "width": "15%", "height": "10%", "name": "붉은색 독촉장", "description": "'가압류' 도장이 찍힌 독촉장 사이에 사채 상환 일정 메모가 끼어 있다."}
       ],
       "hiddenInfo": {
         "personalDetail": "32세. 겉보기엔 완벽한 스타트업 대표지만, 실상은 투자 실패로 수십억의 사채 빚을 지고 있다. 핸드폰 케이스 안쪽에 '가압류'가 찍힌 붉은색 독촉장을 숨기고 다니며 극도로 초조해한다. 신부의 막대한 재산과 사망 보험금이 절실한 상황이라, 다정한 새신랑 연기를 위해 평소 짙은 남색 실크 손수건을 품에 지니고 다닌다.",
@@ -186,7 +188,7 @@
       "selfIntro": "누나가... 우리 누나가 죽다니요! 저 어떡합니까 이제...\n저는 하늘이 누나 친동생 이동생입니다. 누가 감히 우리 가족한테 이런 짓을 한 겁니다!",
       "wrongEvidenceResponse": "",
       "illustration": {
-        "interrogationUrl": "/images/wedding_murder/s5_interrogation.png",
+        "interrogationUrl": "/images/wedding_murder/s5_interrogation.webp",
         "frontFullUrl": "/images/wedding_murder/s5_front_full.jpg",
         "backFullUrl": "/images/wedding_murder/s5_back_full.jpg"
       },
@@ -331,23 +333,6 @@
           "left": "15%",
           "width": "15%",
           "height": "10%"}
-      ]
-    },
-    {
-      "id": "loc_groom_item",
-      "name": "김신랑의 소지품",
-      "backgroundUrl": "/images/realism/wedding_murder/bg_inventory.jpg",
-      "clues": [
-        { "id": "clue_handkerchief", "name": "얼룩진 손수건", "desc": "마른 액체 자국 위로 희미한 흰색 가루 흔적이 남아 있다.", 
-          "top": "10%",
-          "left": "15%",
-          "width": "15%",
-          "height": "10%" },
-        { "id": "clue_reminder", "name": "붉은색 독촉장", "desc": "'가압류' 도장이 찍힌 독촉장 사이에 사채 상환 일정 메모가 끼어 있다.", 
-          "top": "30%",
-          "left": "15%",
-          "width": "15%",
-          "height": "10%" }
       ]
     },
     {
