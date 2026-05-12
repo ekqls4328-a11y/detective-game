@@ -17,7 +17,7 @@
       "illustration": {
         "interrogationUrl": "/images/wedding_murder/s1_interrogation.webp",
         "frontFullUrl": "/images/wedding_murder/s1_front_full.webp",
-        "backFullUrl": "/images/wedding_murder/s1_back_full.jpg"
+        "backFullUrl": "/images/wedding_murder/s1_back_full.webp"
       },
       "questions": [
         { "id": "q1_1", "title": "사건 당일의 알리바이", "response": "11시 정각쯤 들어가서 대화하고 나왔어요. 그때 신부가 피곤했는지 샴페인을 한 모금 마시고 흘리며 졸길래, 제 손수건으로 입가를 닦아줬습니다. 그 뒤론 쭉 로비 입구에 서서 하객들을 맞이했습니다." },
@@ -89,7 +89,9 @@
         { "clueId": "q5_3", "response": "솔직히 처음엔 저도 이동생님 의심했습니다.\n근데 진짜 범인이라기보단... 궁지 몰린 사람처럼 보이긴 했어요." }
       ],
       "inspectionPoints": [
-        { "id": "insp_inner_pocket", "side": "front", "top": "35%", "left": "60%", "width": "12%", "height": "15%", "name": "자켓 안주머니의 윤곽", "description": "타이트한 정장 자켓 안쪽이 두꺼운 수첩을 억지로 쑤셔 넣은 듯 부자연스럽게 불룩하다." }
+        { "id": "insp_inner_pocket", "side": "front", "top": "35%", "left": "60%", "width": "12%", "height": "15%", "name": "자켓 안주머니의 윤곽", "description": "타이트한 정장 자켓 안쪽이 두꺼운 수첩을 억지로 쑤셔 넣은 듯 부자연스럽게 불룩하다." },
+        { "id": "clue_pillcan", "side": "front", "top": "35%", "left": "60%", "width": "12%", "height": "15%", "name": "텅 빈 주황색 약통", "description": "잔여 가루조차 없이 완전히 비어 있는 수면제 약통." },
+        { "id": "clue_manda", "side": "front", "top": "35%", "left": "60%", "width": "12%", "height": "15%", "name": "M&A 계약서", "description": "최베프의 이름이 지워진 회사 매각 계약서." }
       ],
       "hiddenInfo": {
         "personalDetail": "30세. 신부의 갑질을 견디며 뒤로는 막대한 리베이트를 챙겨 가죽 수첩에 기록해 둔다. 스트레스를 받을 땐 버건디색 립스틱을 바른 채 비상계단에서 커피를 마신다.",
@@ -346,23 +348,6 @@
           "width": "15%",
           "height": "10%" },
         { "id": "clue_doubleledger", "name": "비밀 이중 장부", "desc": "예식 비용이 다르게 적힌 이중 장부.", 
-          "top": "30%",
-          "left": "15%",
-          "width": "15%",
-          "height": "10%" }
-      ]
-    },
-    {
-      "id": "loc_friend_item",
-      "name": "최베프의 소지품",
-      "backgroundUrl": "/images/realism/wedding_murder/bg_inventory.jpg",
-      "clues": [
-        { "id": "clue_pillcan", "name": "텅 빈 주황색 약통", "desc": "잔여 가루조차 없이 완전히 비어 있는 수면제 약통.", 
-          "top": "10%",
-          "left": "15%",
-          "width": "15%",
-          "height": "10%" },
-        { "id": "clue_manda", "name": "M&A 계약서", "desc": "최베프의 이름이 지워진 매각 계약서.", 
           "top": "30%",
           "left": "15%",
           "width": "15%",
