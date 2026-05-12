@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-// 💡 추리 노트 모달 임포트
 import ReasoningNoteModal from './ReasoningNoteModal';
 
 const InspectionModal = ({ suspect, inventory, onClueFound, onClose }) => {
@@ -7,7 +6,6 @@ const InspectionModal = ({ suspect, inventory, onClueFound, onClose }) => {
   const [discoveryText, setDiscoveryText] = useState("화면을 터치해 수상한 곳을 찾아보세요.");
   const [focusedPoint, setFocusedPoint] = useState(null);
   
-  // 💡 추리 노트 상태 추가
   const [isNoteOpen, setIsNoteOpen] = useState(false);
 
   const IS_DEV_MODE = true; 
@@ -15,7 +13,7 @@ const InspectionModal = ({ suspect, inventory, onClueFound, onClose }) => {
   const handlePointClick = (e, point) => {
     e.stopPropagation(); 
     setFocusedPoint(point);
-    setDiscoveryText(`[${point.name}]\n${point.description}`); // 💡 줄바꿈 추가해서 가독성 개선
+    setDiscoveryText(`[${point.name}]\n${point.description}`);
   };
 
   const handleSaveToInventory = () => {
@@ -30,14 +28,13 @@ const InspectionModal = ({ suspect, inventory, onClueFound, onClose }) => {
   return (
     <div className="fixed inset-0 z-[70] bg-neutral-950 flex flex-col animate-fadeIn overflow-hidden">
       
-      {/* 1. 상단 헤더 (shrink-0으로 고정) */}
+      {/* 1. 상단 헤더 */}
       <header className="shrink-0 w-full z-[80] p-4 flex justify-between items-center bg-neutral-950 border-b border-neutral-800 shadow-md">
-        <button onClick={onClose} className="text-white font-bold text-xs px-4 py-2 bg-neutral-800 rounded-full border border-neutral-600 active:scale-95 transition-all">
+        <button onClick={onClose} className="text-white font-bold text-xs px-4 py-2 bg-neutral-800 rounded-full border border-neutral-600 active:scale-95 transition-all hover:bg-neutral-700">
           &lt; 돌아가기
         </button>
         
         <div className="flex items-center gap-3">
-          {/* 💡 [신규] 외형 관찰 화면용 추리 노트 버튼 */}
           <button 
             onClick={() => setIsNoteOpen(true)}
             className="w-8 h-8 rounded-full bg-neutral-800 border border-neutral-600 text-sm shadow-lg flex items-center justify-center active:scale-95 transition-all hover:bg-neutral-700"
@@ -54,20 +51,22 @@ const InspectionModal = ({ suspect, inventory, onClueFound, onClose }) => {
         </div>
       </header>
 
-      {/* 2. 중앙 전신 이미지 및 히트박스 영역 (flex-1로 가변 공간 확보) */}
-      <div className="flex-1 min-h-0 relative flex items-center justify-center bg-black overflow-hidden">
-        <div className="relative w-full h-full max-w-md mx-auto">
+      {/* 2. 중앙 전신 이미지 및 히트박스 영역 */}
+      <div className="flex-1 min-h-0 flex items-center justify-center bg-black overflow-hidden p-2">
+        {/* 💡 [핵심 해결책] w-full h-full 대신 inline-flex를 사용하여 축소된 이미지 사이즈에 맞게 컨테이너가 쪼그라들게 만듦! */}
+        <div className="relative inline-flex justify-center items-center max-w-full max-h-full">
           {currentImageUrl ? (
             <img 
               src={currentImageUrl} 
               alt="전신" 
-              className="w-full h-full object-contain pointer-events-none select-none" 
+              // 💡 object-contain을 빼고, 원본 비율을 유지하며 부모 영역을 넘지 않게 설정
+              className="max-w-full max-h-full block pointer-events-none select-none" 
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-neutral-600">이미지 없음</div>
+            <div className="w-[300px] h-[500px] flex items-center justify-center text-neutral-600 border border-neutral-800 rounded-xl">이미지 없음</div>
           )}
 
-          {/* 히트박스 레이어 */}
+          {/* 히트박스 레이어 (이제 이미지가 줄어든 만큼 똑같이 쪼그라들어서 위치가 완벽히 일치함) */}
           <div className="absolute inset-0 z-[75]">
             {suspect.inspectionPoints
               ?.filter(point => point.side === inspectionSide)
@@ -88,12 +87,12 @@ const InspectionModal = ({ suspect, inventory, onClueFound, onClose }) => {
                     }}
                     className={`absolute rounded-full transition-all duration-300 ${
                       IS_DEV_MODE 
-                        ? `border-2 ${isFocused ? 'border-blue-400 bg-blue-400/30' : (isFound ? 'border-emerald-500 bg-emerald-500/10' : 'border-red-500 bg-red-500/10')}` 
+                        ? `border-2 ${isFocused ? 'border-blue-400 bg-blue-400/30 shadow-[0_0_15px_rgba(96,165,250,0.5)]' : (isFound ? 'border-emerald-500 bg-emerald-500/10' : 'border-red-500 bg-red-500/10')}` 
                         : 'bg-transparent border-none'
                     }`}
                   >
                     {IS_DEV_MODE && (
-                      <span className="absolute -top-5 left-0 whitespace-nowrap text-[8px] bg-black/70 text-white px-1 rounded">
+                      <span className="absolute -top-5 left-1/2 -translate-x-1/2 whitespace-nowrap text-[9px] font-black bg-black/80 text-white px-1.5 py-0.5 rounded border border-neutral-700">
                         {point.id}
                       </span>
                     )}
@@ -104,21 +103,20 @@ const InspectionModal = ({ suspect, inventory, onClueFound, onClose }) => {
         </div>
       </div>
 
-      {/* 3. 하단 패널 및 컨트롤러 (shrink-0으로 영역 고정, 내부 스크롤 적용) */}
+      {/* 3. 하단 패널 및 컨트롤러 */}
       <div className="shrink-0 w-full z-[80] bg-neutral-950 border-t border-neutral-800 p-4 pb-8 flex flex-col gap-3 shadow-2xl">
         
-        {/* 조사 텍스트 창 (높이 고정 및 내부 스크롤) */}
+        {/* 조사 텍스트 창 */}
         <div className="bg-neutral-900 border border-neutral-700 p-4 rounded-2xl shadow-inner relative flex flex-col h-[110px]">
           <div className="overflow-y-auto h-full pr-2 pb-2">
             <p className="text-sm leading-relaxed text-white whitespace-pre-wrap break-keep select-none">
               {discoveryText}
             </p>
           </div>
-          {/* 스크롤 유도 그라데이션 */}
           <div className="absolute bottom-1 left-1 right-3 h-5 bg-gradient-to-t from-neutral-900 to-transparent pointer-events-none rounded-b-xl" />
         </div>
 
-        {/* 💡 [핵심] 단서 기록 버튼 영역 높이 52px 고정 (꿀렁거림 완벽 방지) */}
+        {/* 단서 기록 버튼 (크기 고정 52px) */}
         <div className="h-[52px] w-full flex items-center justify-center shrink-0">
           {focusedPoint ? (
             !inventory?.includes(focusedPoint.id) ? (
@@ -159,7 +157,6 @@ const InspectionModal = ({ suspect, inventory, onClueFound, onClose }) => {
         )}
       </div>
 
-      {/* 💡 노트 모달 렌더링 */}
       {isNoteOpen && <ReasoningNoteModal onClose={() => setIsNoteOpen(false)} />}
     </div>
   );
