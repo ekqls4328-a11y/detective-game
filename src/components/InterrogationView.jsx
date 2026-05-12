@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import TypewriterText from './TypewriterText';
 import InventoryModal from './InventoryModal';
 import InspectionModal from './InspectionModal';
-import ReasoningNoteModal from './ReasoningNoteModal';
+// 💡 1. ReasoningNoteModal 임포트 삭제됨
 
 const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, onClueFound, onMarkAsViewed, onRemoveClue, onPresent, onClose }) => {
   const [isTypingDone, setIsTypingDone] = useState(false);
@@ -16,7 +16,7 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, onCl
 
   const [currentStatement, setCurrentStatement] = useState(null); 
   const [discoveryText, setDiscoveryText] = useState(null);
-  const [isNoteOpen, setIsNoteOpen] = useState(false);
+  // 💡 2. isNoteOpen 상태 삭제됨
 
   useEffect(() => {
     setCurrentDialog(suspect.selfIntro);
@@ -72,10 +72,8 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, onCl
   if (!suspect) return null;
 
   return (
-    // 💡 전체 컨테이너를 absolute 기반으로 변경
     <div className="fixed inset-0 z-50 bg-black animate-fadeIn overflow-hidden">
       
-      {/* 💡 1. 배경 일러스트 레이어 (화면 전체를 꽉 채움) */}
       <div className="absolute inset-0 z-0">
         {suspect.illustration?.interrogationUrl ? (
           <img src={suspect.illustration.interrogationUrl} alt={`${suspect.name} 심문`} className="w-full h-full object-cover pointer-events-none" />
@@ -83,37 +81,27 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, onCl
           <div className="w-full h-full flex items-center justify-center bg-neutral-900 text-neutral-500 font-bold">심문용 일러스트 준비 중</div>
         )}
         
-        {/* 💡 가독성을 위한 하단 블랙 그라데이션 (대화창 뒷배경을 어둡게 눌러줌) */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent pointer-events-none" />
       </div>
 
-      {/* 💡 2. UI 레이어 (배경 위에 띄워짐) */}
       <div className="relative z-10 flex flex-col h-full">
         
-        {/* 상단 헤더 */}
         <header className="shrink-0 p-4 flex justify-between items-center bg-gradient-to-b from-black/80 to-transparent">
           <button onClick={onClose} className="text-white font-bold px-3 py-1 bg-black/50 rounded-full hover:bg-neutral-700 backdrop-blur-sm border border-neutral-700">
             &lt; 심문 종료
           </button>
-          {/* 💡 [신규 추가] 추리 노트 버튼 */}
-          <button 
-            onClick={() => setIsNoteOpen(true)}
-            className="w-10 h-10 rounded-full backdrop-blur-md bg-stone-100 border border-stone-300 text-xl shadow-lg flex items-center justify-center active:scale-95 transition-all"
-          >
-            📓
-          </button>
+          
+          {/* 💡 3. 추리 노트 버튼(📓) 삭제됨 */}
+          
           <button onClick={() => setIsInspectionOpen(true)} className="font-bold px-4 py-1.5 rounded-full backdrop-blur-md bg-neutral-900/80 border border-neutral-600 text-amber-500 shadow-lg flex items-center gap-2 active:scale-95 transition-transform">
             <span>🧐</span> 외형 관찰
           </button>
         </header>
 
-        {/* 빈 공간 (이미지가 보이는 영역) */}
         <div className="flex-1" />
 
-        {/* 💡 하단 대화 및 컨트롤 영역 */}
         <div className="shrink-0 p-4 pb-8 flex flex-col gap-4 w-full">
           
-          {/* 질문 오버레이 */}
           {showQuestionMenu && (
             <div className="fixed inset-0 z-40 bg-black/80 backdrop-blur-md flex flex-col items-center justify-center p-6 animate-fadeIn">
               <div className="w-full max-w-md flex flex-col max-h-[80vh] py-2">
@@ -138,13 +126,10 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, onCl
             </div>
           )}
 
-          {/* 💡 반투명 대화 텍스트 박스 */}
           <div onClick={() => { if (!isTypingDone) setIsSkipping(true); }} className="bg-black/60 backdrop-blur-md border border-neutral-700/50 rounded-xl p-4 pt-5 relative shadow-2xl cursor-pointer flex flex-col min-h-[110px]">
-            {/* 이름표 */}
             <div className="absolute -top-3 left-4 bg-neutral-800 text-amber-500 font-black px-4 py-1 rounded-md text-sm border border-neutral-600 shadow-lg">
               {suspect.name}
             </div>
-            {/* 💡 높이 고정 및 내부 스크롤 (화면 안 꿀렁거리게) */}
             <div className="overflow-y-auto h-[90px] pr-2 mt-1 scrollbar-hide">
               <p className="text-gray-100 leading-relaxed text-sm select-none break-keep whitespace-pre-wrap text-shadow-sm">
                 <TypewriterText key={dialogKey} text={currentDialog} speed={30} forceSkip={isSkipping} onComplete={() => setIsTypingDone(true)} />
@@ -153,7 +138,6 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, onCl
             {isTypingDone && <div className="absolute bottom-3 right-4 text-amber-500 animate-bounce">▼</div>}
           </div>
 
-          {/* 수첩 기록 버튼 로직 */}
           {isTypingDone && currentStatement && !inventory.includes(currentStatement.id) && (
             <button onClick={handleSaveToInventory} className="w-full py-3.5 bg-emerald-600/90 backdrop-blur-sm hover:bg-emerald-500 text-white font-black rounded-xl shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2 shrink-0 border border-emerald-500/50 animate-fadeIn">
               <span>📌</span> 이 진술을 수첩에 기록하기
@@ -171,7 +155,6 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, onCl
             </div>
           )}
 
-          {/* 액션 버튼 */}
           <div className={`flex gap-3 h-[52px] shrink-0 transition-opacity ${isTypingDone && !showQuestionMenu ? 'opacity-100' : 'opacity-30 pointer-events-none'}`}>
             <button onClick={() => setShowQuestionMenu(true)} className="flex-1 bg-black/60 backdrop-blur-sm text-white font-bold rounded-xl border border-neutral-600 hover:bg-neutral-800 transition-colors flex items-center justify-center gap-2 shadow-lg">
               <span className="text-lg">🗣️</span> 질문하기
@@ -186,7 +169,8 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, onCl
 
       {isInventoryOpen && <InventoryModal inventory={inventory} viewedClues={viewedClues} onMarkAsViewed={onMarkAsViewed} scenarioData={scenarioData} onRemoveClue={onRemoveClue} onClose={() => setIsInventoryOpen(false)} onPresent={handlePresentEvidence} />}
       {isInspectionOpen && <InspectionModal suspect={suspect} inventory={inventory} onClueFound={onClueFound} onClose={() => setIsInspectionOpen(false)} />}
-        {isNoteOpen && <ReasoningNoteModal onClose={() => setIsNoteOpen(false)} />}
+      
+      {/* 💡 4. {isNoteOpen && <ReasoningNoteModal ... />} 삭제됨 */}
     </div>
   );
 };

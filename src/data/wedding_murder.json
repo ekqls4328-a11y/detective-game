@@ -30,6 +30,7 @@
         { "clueId": "clue_flowerpen", "response": "호텔 공용 펜 아닌가요? 하객들도 다 만졌을 텐데요. 저도 방명록 근처는 몇 번 지나갔습니다만, 저 펜까지 기억하진 못하겠습니다." },
         { "clueId": "clue_perfumebottle", "response": "그 물건이 박플래너 가방에서 나왔다면서요. 전 처음 봅니다. 샴페인 세팅도 저 사람이 맡았던 걸로 아는데요." },
         { "clueId": "insp_knee_dust", "response": "아까 하객 맞이하다가 어디 카펫에 스쳤나 보죠. 정신없어서 그런걸 신경쓸 겨를도 없었습니다." },
+        { "clueId": "clue_victimsphone", "response": "그 문자 내용은 사실입니다.\n최근 투자 문제 때문에 다툼이 있었고, 하늘이도 많이 화나 있었습니다.\n하지만 결혼 직전까지 서로 정리하려고 했습니다.\n전 정말... 이렇게 될 줄 몰랐습니다." },
         { "clueId": "q2_1", "response": "결혼 직전인데 감정이 좀 격해질 수도 있는 거 아닙니까?\n잠깐 언성이 높아졌다고 사람을 살인범 취급하시네요." },
         { "clueId": "q2_3", "response": "저도 그때 처음 상황 심각한 줄 알았습니다.\n안에서 쉬고 있는 줄 알았지... 설마 죽어 있을 줄 누가 알았겠습니까." },
         { "clueId": "q3_1", "response": "하늘이랑 제일 크게 싸운 게 저 여자였잖습니까.\n회사 문제로 거의 눈 돌아가 있었어요.\n저도 그날 분위기 보고 솔직히 좀 불안했습니다." },
@@ -49,8 +50,7 @@
       "hiddenInfo": {
         "personalDetail": "32세. 겉보기엔 완벽한 스타트업 대표지만, 실상은 투자 실패로 수십억의 사채 빚을 지고 있다. 핸드폰 케이스 안쪽에 '가압류'가 찍힌 붉은색 독촉장을 숨기고 다니며 극도로 초조해한다. 신부의 막대한 재산과 사망 보험금이 절실한 상황이라, 다정한 새신랑 연기를 위해 평소 짙은 남색 실크 손수건을 품에 지니고 다닌다.",
         "timeline": "10:30 로비에서 하객 맞이 중.\n11:00 대기실 진입. 신부 샴페인 음용.\n11:05 파혼 통보받음.\n11:10 남은 샴페인에 독을 탐. 신부 사망.\n11:15 밖에서 문을 잠그고 문 밑으로 열쇠를 밀어 넣음. 화분에 펜 은닉.\n11:16 로비 의자의 박플래너 가방에 독약 공병 투척.",
-        "secretBackground": "당신이 진범입니다. 11시 5분경 파혼을 통보받았으나, 11시 10분쯤 신부가 수면제 기운에 비몽사몽해지자 맹독을 탔습니다. 손수건으로 입가를 닦아내고 도구를 숨겨 나왔으며, 공용 볼펜으로 문 밑으로 열쇠를 밀어 넣어 밀실을 만들었습니다.",
-        "isKiller": true
+        "secretBackground": "당신이 진범입니다. 11시 5분경 파혼을 통보받았으나, 11시 10분쯤 신부가 수면제 기운에 비몽사몽해지자 맹독을 탔습니다. 손수건으로 입가를 닦아내고 도구를 숨겨 나왔으며, 공용 볼펜으로 문 밑으로 열쇠를 밀어 넣어 밀실을 만들었습니다."
       }
     },
     {
@@ -62,8 +62,8 @@
       "wrongEvidenceResponse": "탐정님, 전 지금 수습해야 할 일이 산더미입니다. 확실한 증거가 아니면 시간 뺏지 말아주시죠.",
       "illustration": {
         "interrogationUrl": "/images/wedding_murder/s2_interrogation.webp",
-        "frontFullUrl": "/images/wedding_murder/s2_front_full.jpg",
-        "backFullUrl": "/images/wedding_murder/s2_back_full.jpg"      
+        "frontFullUrl": "/images/wedding_murder/s2_front_full.webp",
+        "backFullUrl": "/images/wedding_murder/s2_back_full.webp"      
       },
       "questions": [
         { "id": "q2_1", "title": "사건 당일의 알리바이", "response": "10시 40분쯤 비상계단에서 잠깐 쉬고 있었고, 11시쯤 다시 대기실 근처로 갔습니다.\n그때 안 분위기가 굉장히 싸했습니다. 신부님은 울고 계셨고, 김신랑님 표정도 평소랑 많이 달랐어요.\n11시 20분쯤엔 2층 연회장 세팅 확인하러 올라갔습니다." },
@@ -71,7 +71,7 @@
         { "id": "q2_3", "title": "시신 최초 발견 당시", "response": "하.. 하늘이 입장을 시켜야 할 거 아닙니까! 11시 30분이 됐는데도 안 열어주니까 당연히 직원을 불러서 열었습니다. 전 발견만 한 겁니다." }
       ],
       "defenses": [
-        { "clueId": "clue_glass", "response": "샴페인잔을 제가 세팅한 건 맞지만 아무것도 모르겠습니다. 제가 미쳤다고 제가 준비한 술에 무슨 짓을 하겠습니까? 하... 진짜 골치아프네요." },
+        { "clueId": "clue_glass", "response": "샴페인잔을 제가 세팅한 건 맞지만 진짜 아무것도 모르겠습니다. 제가 미쳤다고 제가 준비한 술에 무슨 짓을 하겠습니까? 하... 진짜 골치아프네요." },
         { "clueId": "clue_doubleledger", "response": "업계 관행입니다. 안그래도 골치아픈데 이런걸로 추측하지 마세요. 제가 고생한 거에 비하면 정당한 수고비예요." },
         { "clueId": "clue_perfumebottle", "response": "전 처음 보는 물건입니다. 솔직히 너무 찜찜하네요...\n아까 로비에서 제 가방 근처에 누군가 있었던 기억이 있는거 같은데.. 조금만 더 생각해 볼게요." },
         { "clueId": "clue_papercup", "response": "네, 뺨 맞고 열받아서 거기서 커피 마셨습니다. 그게 사람 죽인 거랑 무슨 상관인지 모르겠네요." },
@@ -89,15 +89,14 @@
         { "clueId": "q5_3", "response": "솔직히 처음엔 저도 이동생님 의심했습니다.\n근데 진짜 범인이라기보단... 궁지 몰린 사람처럼 보이긴 했어요." }
       ],
       "inspectionPoints": [
-        { "id": "insp_inner_pocket", "side": "front", "top": "35%", "left": "60%", "width": "12%", "height": "15%", "name": "자켓 안주머니의 윤곽", "description": "타이트한 정장 자켓 안쪽이 두꺼운 수첩을 억지로 쑤셔 넣은 듯 부자연스럽게 불룩하다." },
-        { "id": "clue_pillcan", "side": "front", "top": "35%", "left": "60%", "width": "12%", "height": "15%", "name": "텅 빈 주황색 약통", "description": "잔여 가루조차 없이 완전히 비어 있는 수면제 약통." },
-        { "id": "clue_manda", "side": "front", "top": "35%", "left": "60%", "width": "12%", "height": "15%", "name": "M&A 계약서", "description": "최베프의 이름이 지워진 회사 매각 계약서." }
+        { "id": "insp_inner_pocket", "side": "front", "top": "41%", "left": "63%", "width": "10%", "height": "5%", "name": "자켓 주머니의 수첩", "description": "타이트한 정장 자켓 주머니에 수첩을 억지로 쑤셔 넣은 듯 하다." },
+        { "id": "clue_perfumebottle", "side": "front", "top": "47%", "left": "39%", "width": "10%", "height": "8%", "name": "미니 향수 공병", "description": "안쪽에 액체를 급하게 비워낸 흔적이 남아 있고, 강한 알코올 향과 낯선 금속성 냄새가 희미하게 남아 있다." },
+        { "id": "clue_doubleledger", "side": "back", "top": "47%", "left": "61%", "width": "10%", "height": "8%", "name": "비밀 이중 장부", "description": "예식 비용이 다르게 적힌 이중 장부." }
       ],
       "hiddenInfo": {
         "personalDetail": "30세. 신부의 갑질을 견디며 뒤로는 막대한 리베이트를 챙겨 가죽 수첩에 기록해 둔다. 스트레스를 받을 땐 버건디색 립스틱을 바른 채 비상계단에서 커피를 마신다.",
         "timeline": "10:30 대기실 샴페인 세팅.\n10:40 뺨 맞고 비상계단에서 휴식.\n10:55 대기실 접근, 이동생 난동 목격.\n11:16 로비 소파로 돌아와 가방 지퍼 열린 것 발견.\n11:20 대기실 잠긴 것 확인 후 2층 이동.\n11:30 보안요원 호출하여 시신 발견.",
-        "secretBackground": "당신은 범인이 아닙니다. 리베이트 장부가 들킬까 봐 신부 가방을 뒤지려 했으나 실패했고, 로비에 방치한 가방에 누군가 독약 공병을 몰래 넣은 피해자입니다.",
-        "isKiller": false
+        "secretBackground": "당신은 범인이 아닙니다. 리베이트 장부가 들킬까 봐 신부 가방을 뒤지려 했으나 실패했고, 로비에 방치한 가방에 누군가 독약 공병을 몰래 넣은 피해자입니다."
       }
     },
     {
@@ -109,8 +108,8 @@
       "wrongEvidenceResponse": "네? 그게 대체 무슨 소용인데요... 지금 저를 의심하시는 건가요? (훌쩍)",
       "illustration": {
         "interrogationUrl": "/images/wedding_murder/s3_interrogation.webp",
-        "frontFullUrl": "/images/wedding_murder/s3_front_full.jpg",
-        "backFullUrl": "/images/wedding_murder/s3_back_full.jpg"
+        "frontFullUrl": "/images/wedding_murder/s3_front_full.webp",
+        "backFullUrl": "/images/wedding_murder/s3_back_full.webp"
       },
       "questions": [
         { "id": "q3_1", "title": "사건 당일의 알리바이", "response": "10시 45분쯤 대기실에서 심하게 다투다가 머리채를 잡혀 머리핀이 뜯겼어요. 10시 50분쯤 화장실에서 나왔고, 11시 10분쯤엔 2층 식당으로 올라가려다 정전남친을 봤어요." },
@@ -132,13 +131,14 @@
         { "clueId": "q5_3", "response": "이동생 철없는 건 맞지만...\n그래도 하늘이 엄청 아끼긴 했어요.\n저렇게까지 무너진 건 처음 봤습니다." }
       ],
       "inspectionPoints": [
-        { "id": "insp_nail_powder", "side": "front", "top": "50%", "left": "70%", "width": "10%", "height": "10%", "name": "손톱 밑의 주황색 가루", "description": "화려한 네일아트가 칠해진 손톱 밑에 미세한 주황색 가루가 끼어 있다." }
+        { "id": "insp_nail_powder", "side": "front", "top": "33%", "left": "82%", "width": "15%", "height": "5%", "name": "손톱 밑의 주황색 가루", "description": "화려한 네일아트가 칠해진 손톱 밑에 미세한 주황색 가루가 끼어 있다." },
+        { "id": "clue_pillcan", "side": "front", "top": "43%", "left": "63%", "width": "7%", "height": "5%", "name": "텅 빈 주황색 약통", "description": "잔여 가루조차 없이 완전히 비어 있는 수면제 약통." },
+        { "id": "clue_manda", "side": "front", "top": "42%", "left": "43%", "width": "8%", "height": "7%", "name": "M&A 계약서", "description": "최베프의 이름이 지워진 회사 매각 계약서." }
       ],
       "hiddenInfo": {
         "personalDetail": "30세. 신부가 회사를 단독 매각하려 했다는 사실을 알고 분노해 M&A 계약서를 챙겨 왔다. 불면증 때문에 주황색 캡슐형 수면제를 지니고 다닌다.",
         "timeline": "10:45 회사 매각 건으로 몸싸움 (머리핀 파손).\n10:48 화장실 이동 (로비에 큐빅 떨어짐).\n10:57 몰래 대기실 진입. 샴페인 잔에 수면제 투입.\n11:00 대기실 퇴실.\n11:10 2층 식당 이동 중 정전남친 목격.",
-        "secretBackground": "당신은 범인이 아닙니다. 10시 57분에 신부가 파우더룸에 간 사이 샴페인 잔에 수면제를 몰래 탔습니다. 결혼식을 망칠 목적이었을 뿐, 독을 탄 것은 다른 사람입니다.",
-        "isKiller": false
+        "secretBackground": "당신은 범인이 아닙니다. 10시 57분에 신부가 파우더룸에 간 사이 샴페인 잔에 수면제를 몰래 탔습니다. 결혼식을 망칠 목적이었을 뿐, 독을 탄 것은 다른 사람입니다."
       }
     },
     {
@@ -150,8 +150,8 @@
       "wrongEvidenceResponse": "",
       "illustration": {
         "interrogationUrl": "/images/wedding_murder/s4_interrogation.webp",
-        "frontFullUrl": "/images/wedding_murder/s4_front_full.jpg",
-        "backFullUrl": "/images/wedding_murder/s4_back_full.jpg"
+        "frontFullUrl": "/images/wedding_murder/s4_front_full.webp",
+        "backFullUrl": "/images/wedding_murder/s4_back_full.webp"
       },
       "questions": [
         { "id": "q4_1", "title": "사건 당일의 알리바이", "response": "전 계속 비상계단 근처에 있었습니다.\n괜히 얼굴 들켰다가 쫓겨날까 봐 숨어 있었고요.\n중간에 계단에서 헛디뎌 넘어지는 바람에 코피까지 나서 한동안 정신이 없었습니다." },
@@ -163,8 +163,6 @@
         { "clueId": "clue_knife", "response": "문이 잠겨 있어서... 안에 무슨 일 있는 줄 알고 송곳 부분으로 문틈을 건드려봤습니다. 그 과정에서 카펫 섬유가 묻은 것 같습니다." },
         { "clueId": "clue_carpetmarks", "response": "제가 문을 억지로 열어보려 했던 건 맞습니다. 하지만 그때는 이미 안에서 아무 반응이 없었습니다." },
         { "clueId": "clue_recorder", "response": "그 녹음기 제 거 맞습니다.\n넘어질 때 떨어뜨렸는데 액정이 깨져서 소화전 뒤로 밀어놨습니다.\n그리고 그 쇳소리... 누가 문 밑을 계속 긁는 소리 같았습니다." },
-        { "clueId": "clue_victimsphone", "response": "10시 50분쯤 로비에서 저랑 마주친 뒤 급하게 올라갔습니다.\n그 문자는 아마 그 직후에 쓰던 거겠죠. 저는 대기실 안까지 들어가진 않았습니다." },
-        { "clueId": "insp_pocket_clip", "response": "원래 공구 같은 걸 들고 다니는 편입니다. 혼자 다니다 보니 습관처럼 챙기게 됐습니다." },
         { "clueId": "q1_1", "response": "전 11시쯤 김신랑이 대기실 들어가는 건 봤습니다.\n근데 나온 뒤에도 한동안 복도 근처를 계속 서성였던 것 같았습니다." },
         { "clueId": "q1_3", "response": "…저 사람은 예전부터 저를 사람 취급 안 했습니다.\n근데 이상한 건, 절 보자마자 너무 과하게 예민해졌다는 겁니다.\n마치 여기 있는 게 들키면 안 되는 사람처럼." },
         { "clueId": "q2_3", "response": "그 전에 이미 안에서 아무 반응이 없었습니다.\n저도 문 근처에서 인기척 들으려고 몇 번 서 있었거든요." },
@@ -173,13 +171,13 @@
         { "clueId": "q5_2", "response": "맞습니다.\n저도 그 사람이 문 앞에서 철사 같은 걸 만지는 걸 봤습니다.\n근데 안에서는 아무 소리도 안 났습니다." }
       ],
       "inspectionPoints": [
-        { "id": "insp_pocket_clip", "side": "front", "top": "55%", "left": "30%", "width": "10%", "height": "10%", "name": "주머니의 튀어나온 클립", "description": "허름한 코트 주머니 끝에 금속 재질의 다용도 공구 손잡이 일부가 튀어나와 있다." }
+        { "id": "clue_potionbottle", "side": "front", "top": "48%", "left": "65%", "width": "9%", "height": "7%", "name": "라벨 없는 물약병", "description": "정체불명의 투명한 액체가 남아 있는 물약병." },
+        { "id": "clue_knife", "side": "front", "top": "45%", "left": "37%", "width": "8%", "height": "7%", "name": "다용도 공구 (맥가이버칼)", "description": "허름한 코트 주머니 끝에 다용도 공구(맥가이버칼). 송곳 날에 짙은 자주색 카펫 섬유가 박혀 있으며 본체가 두껍다." }
       ],
       "hiddenInfo": {
         "personalDetail": "33세. 이별 후유증으로 심한 공황장애를 앓아 투명한 신경안정제를 소지하고 다닌다. 증거 수집용 소형 녹음기와 맥가이버칼을 들고 호텔에 잠입했다.",
         "timeline": "10:50 식장 잠입. 하늘이와 눈 마주침.\n11:00 김신랑 대기실 진입 목격.\n11:10 소리에 놀라 숨다 넘어져 코피 남. 녹음기 은닉.\n11:15 김신랑이 도구를 숨기며 나오는 뒷모습 목격.\n11:18 이동생이 철사로 문 쑤시는 것 목격.\n11:25 본인의 공구로 문을 억지로 따보려다 실패.",
-        "secretBackground": "당신은 범인이 아닙니다. 11시 25분경 잠긴 문을 억지로 열어보려고 맥가이버칼 송곳을 문 밑에 쑤셔 넣었을 뿐입니다.",
-        "isKiller": false
+        "secretBackground": "당신은 범인이 아닙니다. 11시 25분경 잠긴 문을 억지로 열어보려고 맥가이버칼 송곳을 문 밑에 쑤셔 넣었을 뿐입니다."
       }
     },
     {
@@ -191,8 +189,8 @@
       "wrongEvidenceResponse": "",
       "illustration": {
         "interrogationUrl": "/images/wedding_murder/s5_interrogation.webp",
-        "frontFullUrl": "/images/wedding_murder/s5_front_full.jpg",
-        "backFullUrl": "/images/wedding_murder/s5_back_full.jpg"
+        "frontFullUrl": "/images/wedding_murder/s5_front_full.webp",
+        "backFullUrl": "/images/wedding_murder/s5_back_full.webp"
       },
       "questions": [
         { "id": "q5_1", "title": "사건 당일의 알리바이", "response": "10시 50분쯤 누나한테 돈 좀 빌려보려고 대기실에 간 건 맞습니다.\n근데 또 사고쳤냐면서 경찰 부르겠다고 하길래... 열 받아서 그냥 뛰쳐나왔습니다.\n나오면서 홧김에 탁자 위 예물 상자까지 건드렸고요.\n그 뒤로는 2층 연회장 올라가서 혼자 술만 마셨습니다." },
@@ -201,11 +199,11 @@
       ],
       "defenses": [
         { "clueId": "clue_glass", "response": "홧김에 잔 들었던 건 맞습니다.\n그냥 확 마셔버리고 싶었는데 누나가 소리 질러서 다시 내려놨습니다." },
-        { "clueId": "clue_medicinebag", "response": "밤새 도망 다니려고 먹던 각성제 봉지입니다.\n불법인 건 인정하는데, 독약 같은 건 아닙니다." },
         { "clueId": "clue_weddingbox", "response": "…처음엔 훔쳐서라도 돈 만들 생각이었습니다.\n근데 진짜 팔 생각까진 못 했습니다." },
         { "clueId": "clue_wire", "response": "문이 안 열려서 철사로 열쇠 구멍 좀 건드려본 겁니다.\n반지라도 몰래 넣어두고 가려고 했는데 안 됐습니다." },
         { "clueId": "clue_soju", "response": "그 상황에 밥이 넘어가겠습니까.\n머리도 복잡하고 무서워서 술만 들이켰습니다." },
-        { "clueId": "insp_bulging_pants", "response": "…왜 남의 주머니를 그렇게 봅니까?\n됐고, 그건 누나 방에서 가져온 거 맞습니다.\n근데 전 진짜 돌려놓으려고 했습니다." },
+        { "clueId": "insp_bulging_pants", "response": "뭘 그렇게 뒤지는 겁니까...\n됐고, 약봉지 있는 거 맞습니다.\n밤새 도망 다니면서 정신 버티려고 먹던 거예요.\n근데 그거 독약 아닙니다.\n그리고 안에 있던 상자도... 훔친 건 맞는데 다시 돌려놓으려고 했습니다." },
+        { "clueId": "clue_memorandum", "response": "…그거 진짜입니다.\n사채업자들이 돈 안 갚으면 장기 떼간다고 협박해서 억지로 쓴 거예요.\n근데 그렇다고 제가 누나를 죽였다고요?\n전 그냥... 마지막으로 한 번만 도와달라고 했던 겁니다." },
         { "clueId": "q1_3", "response": "그 찌질이요?\n근데 누나는 예전엔 저 형이 훨씬 사람 괜찮다고 했었는데..." },
         { "clueId": "q2_1", "response": "누나 원래 저렇게 우는 사람 아닙니다.\n근데 그날은 진짜 상태 이상했어요.\n제가 돈 얘기 꺼냈을 때도 이미 눈이 엄청 부어 있었고..." },
         { "clueId": "q3_2", "response": "근데 진짜 엄청 싸우긴 했습니다.\n제가 들어갔을 때도 분위기 완전 살벌했거든요.\n누나가 소리까지 질렀습니다." },
@@ -213,13 +211,13 @@
         { "clueId": "q4_3", "response": "맞습니다.\n문이 안 열려서 열쇠 구멍 좀 건드려봤습니다.\n근데 안에서 반응이 전혀 없었습니다." }
       ],
       "inspectionPoints": [
-        { "id": "insp_bulging_pants", "side": "front", "top": "60%", "left": "40%", "width": "12%", "height": "12%", "name": "불룩한 바지 주머니", "description": "정장 바지 오른쪽 주머니가 작고 네모난 상자 모양으로 툭 튀어나와 있다." }
+        { "id": "insp_bulging_pants", "side": "front", "top": "51%", "left": "64%", "width": "12%", "height": "8%", "name": "불룩한 정장 주머니", "description": "주머니 안에 여러 물건이 뒤섞여 들어 있는 듯 불룩하며, 구겨진 비닐 패키지 조각이 살짝 삐져나와 있다." },
+        { "id": "clue_memorandum", "side": "front", "top": "30%", "left": "63%", "width": "8%", "height": "5%", "name": "신체 포기 각서", "description": "손가락을 억지로 찍은 듯 번진 붉은 지장과 오래된 핏자국이 남아 있다." }
       ],
       "hiddenInfo": {
         "personalDetail": "28세. 도박 빚으로 신체 포기 각서를 쓴 상태. 불법 각성제 빈 봉지를 지니고 불안에 떨고 있다.",
         "timeline": "10:50 로비 ATM 출금 실패.\n10:52 대기실 진입. 구걸.\n10:55 샴페인 잔 들었다 내려놓음. 경찰 신고 협박받음.\n10:56 예물 반지 절도 후 2층 이동.\n11:18 반지 반환하러 왔으나 문 잠김. 철사로 구멍 쑤심.",
-        "secretBackground": "당신은 범인이 아닙니다. 10시 56분경 다이아 예물 반지를 몰래 훔쳐서 도망쳤고 죄책감에 11시 18분경 반지를 돌려주려 왔다가 잠긴 문을 철사로 쑤셔봤을 뿐입니다.",
-        "isKiller": false
+        "secretBackground": "당신은 범인이 아닙니다. 10시 56분경 다이아 예물 반지를 몰래 훔쳐서 도망쳤고 죄책감에 11시 18분경 반지를 돌려주려 왔다가 잠긴 문을 철사로 쑤셔봤을 뿐입니다."
       }
     }
   ],
@@ -227,7 +225,7 @@
     {
       "id": "loc_victim",
       "name": "VIP 신부 대기실 (현장)",
-      "backgroundUrl": "/images/realism/wedding_murder/bg_waiting_room.jpg",
+      "backgroundUrl": "/images/wedding_murder/bg_waiting_room.jpg",
       "clues": [
         { "id": "clue_glass", "name": "탁자 위의 샴페인 잔", "desc": "가장자리에 주황색 미세한 캡슐 껍질 조각들이 눌어붙어 있고 여러 겹의 지문이 있다.",
           "top": "70%",
@@ -288,7 +286,7 @@
       "name": "2층 연회장 (하객 식사 구역)",
       "backgroundUrl": "/images/realism/wedding_murder/bg_banquet.jpg",
       "clues": [
-        { "id": "clue_pill", "name": "바닥에 굴러다니는 알약", "desc": "반쯤 녹아 있는 하얀 알약 조각. 주황색 캡슐 파편이 함께 붙어 있다.", 
+        { "id": "clue_pill", "name": "바닥에 굴러다니는 알약", "desc": "반쯤 녹아 있는 하얀 가루와 주황색 캡슐 파편이 함께 붙어 있다.", 
           "top": "10%",
           "left": "15%",
           "width": "15%",
@@ -335,57 +333,6 @@
           "left": "15%",
           "width": "15%",
           "height": "10%"}
-      ]
-    },
-    {
-      "id": "loc_planner_item",
-      "name": "박플래너의 소지품",
-      "backgroundUrl": "/images/realism/wedding_murder/bg_inventory.jpg",
-      "clues": [
-        { "id": "clue_perfumebottle", "name": "미니 향수 공병", "desc": "안쪽에 액체를 급하게 비워낸 흔적이 남아 있고, 강한 알코올 향과 낯선 금속성 냄새가 희미하게 남아 있다.", 
-          "top": "10%",
-          "left": "15%",
-          "width": "15%",
-          "height": "10%" },
-        { "id": "clue_doubleledger", "name": "비밀 이중 장부", "desc": "예식 비용이 다르게 적힌 이중 장부.", 
-          "top": "30%",
-          "left": "15%",
-          "width": "15%",
-          "height": "10%" }
-      ]
-    },
-    {
-      "id": "loc_ex_item",
-      "name": "정전남친의 소지품",
-      "backgroundUrl": "/images/realism/wedding_murder/bg_inventory.jpg",
-      "clues": [
-        { "id": "clue_potionbottle", "name": "라벨 없는 물약병", "desc": "정체불명의 투명한 액체가 남아 있는 물약병.", 
-          "top": "10%",
-          "left": "15%",
-          "width": "15%",
-          "height": "10%" },
-        { "id": "clue_knife", "name": "다용도 공구 (맥가이버칼)", "desc": "송곳 날에 짙은 자주색 카펫 섬유가 박혀 있으나 본체가 두꺼워 문틈에는 들어가지 않는다.", 
-          "top": "30%",
-          "left": "15%",
-          "width": "15%",
-          "height": "10%" }
-      ]
-    },
-    {
-      "id": "loc_brother_item",
-      "name": "이동생의 소지품",
-      "backgroundUrl": "/images/realism/wedding_murder/bg_inventory.jpg",
-      "clues": [
-        { "id": "clue_medicinebag", "name": "구겨진 빈 약봉지", "desc": "정체불명의 미세한 하얀 가루가 소량 묻어 있는 비닐 패키지.", 
-          "top": "10%",
-          "left": "15%",
-          "width": "15%",
-          "height": "10%" },
-        { "id": "clue_memorandum", "name": "신체 포기 각서", "desc": "핏자국이 묻어 있고 지장이 찍힌 차용증.", 
-          "top": "30%",
-          "left": "15%",
-          "width": "15%",
-          "height": "10%" }
       ]
     }
   ],

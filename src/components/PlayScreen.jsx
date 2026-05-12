@@ -4,12 +4,12 @@ import InterrogationView from './InterrogationView';
 import DeductionView from './DeductionView';
 import InventoryModal from './InventoryModal';
 import LocationModal from './LocationModal';
+// 💡 1. 수사 일지 모달 임포트
+import ReasoningNoteModal from './ReasoningNoteModal'; 
 
 const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
-  // 💡 1. 로컬스토리지 키 설정 (시나리오별로 독립적인 세이브 파일 생성)
   const SAVE_KEY = `crime_game_progress_${scenarioId}`;
 
-  // 💡 2. 초기 상태 로드 함수 (로컬스토리지에 데이터가 있으면 가져오고, 없으면 기본값)
   const getInitialState = (key, defaultValue) => {
     try {
       const saved = localStorage.getItem(SAVE_KEY);
@@ -24,23 +24,22 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
 
   const defaultAP = scenarioData.maxActionPoints || 3;
 
-  // 💡 3. 상태 초기화 시 getInitialState를 통해 세이브 데이터 연동
   const [data, setData] = useState(scenarioData); 
   const [activeTab, setActiveTab] = useState(() => getInitialState('activeTab', 'briefing')); 
   const [actionPoints, setActionPoints] = useState(() => getInitialState('actionPoints', defaultAP));
-  const [inventory, setInventory] = useState(() => getInitialState('inventory', [])); // 획득한 단서 ID 배열
+  const [inventory, setInventory] = useState(() => getInitialState('inventory', []));
   const [viewedClues, setViewedClues] = useState(() => getInitialState('viewedClues', []));
   const [deductionLife, setDeductionLife] = useState(() => getInitialState('deductionLife', 3));
 
-  // 저장되지 않는 휘발성 UI 상태 (모달 등)
   const [selectedSuspect, setSelectedSuspect] = useState(null);
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [isGlobalInventoryOpen, setIsGlobalInventoryOpen] = useState(false);
+  
+  // 💡 2. 수사 일지(추리 노트) 모달 상태 추가
+  const [isNoteOpen, setIsNoteOpen] = useState(false);
 
-  // 읽지 않은 단서 개수 계산
   const unreadCount = inventory.filter(id => !viewedClues.includes(id)).length;
 
-  // 💡 4. 상태가 바뀔 때마다 자동으로 로컬스토리지에 저장 (Auto-save)
   useEffect(() => {
     const gameState = {
       activeTab,
@@ -52,7 +51,6 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
     localStorage.setItem(SAVE_KEY, JSON.stringify(gameState));
   }, [activeTab, actionPoints, inventory, viewedClues, deductionLife, SAVE_KEY]);
 
-  // 시나리오 ID가 바뀔 때 초기화 및 세이브 로드
   useEffect(() => {
     setData(scenarioData);
     const saved = localStorage.getItem(SAVE_KEY);
@@ -73,18 +71,17 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
     }
   }, [scenarioId, SAVE_KEY, defaultAP]);
   
-  // AP 소진 시 강제 추리 탭 이동
   useEffect(() => {
     if (data && actionPoints <= 0 && activeTab !== 'deduction') {
       alert("🚨 모든 수사 기회를 소진했습니다! 지금부터 범인을 지목해야 합니다.");
       setSelectedSuspect(null);
       setSelectedLocation(null);
       setIsGlobalInventoryOpen(false); 
+      setIsNoteOpen(false); // 💡 강제 이동 시 수첩도 닫아주기
       setActiveTab('deduction');
     }
   }, [actionPoints, activeTab, data]);
 
-  // 💡 5. 게임오버 또는 사건 종결 시 진행 상황을 초기화하는 함수
   const clearProgress = () => {
     localStorage.removeItem(SAVE_KEY);
     window.location.reload();
@@ -120,6 +117,15 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
 
   return (
     <div className="min-h-screen bg-neutral-900 text-gray-100 flex flex-col font-sans">
+      
+      {/* 💡 [핵심] 전역 플로팅 수첩 버튼 (모든 화면 최상단 고정, z-80) */}
+      <button 
+        onClick={() => setIsNoteOpen(true)}
+        className="fixed top-[72px] right-4 z-[80] w-12 h-12 bg-neutral-800 border border-neutral-600 rounded-full flex items-center justify-center text-xl shadow-[0_4px_15px_rgba(0,0,0,0.5)] active:scale-90 transition-all hover:bg-neutral-700"
+      >
+        📓
+      </button>
+
       <header className={`sticky top-0 z-20 border-b border-neutral-800 p-3 flex justify-between items-center gap-2 shadow-md transition-colors ${actionPoints === 0 ? 'bg-red-950' : 'bg-neutral-950'}`}>
         <button onClick={onBack} className="text-neutral-400 hover:text-white font-bold text-sm whitespace-nowrap shrink-0">
           &lt; 철수
@@ -129,18 +135,17 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
           {data.title}
         </h1>
         
-        {/* 💡 우측 아이콘 묶음 */}
+        {/* 우측 아이콘 묶음 */}
         <div className="flex items-center gap-2 shrink-0">
           
-          {/* 💡 1. 톱니바퀴 (설정) 버튼 추가 */}
           <button 
-            onClick={onOpenSettings} // 💡 위에서 받은 함수를 여기서 실행!
+            onClick={onOpenSettings}
             className="w-8 h-8 bg-neutral-800 rounded-full border border-neutral-600 flex items-center justify-center hover:bg-neutral-700 active:scale-95 transition-all"
           >
             <span className="text-sm">⚙️</span>
           </button>
 
-          {/* 2. 기존 인벤토리 버튼 */}
+          {/* 기존 인벤토리 버튼 */}
           <button 
             onClick={() => setIsGlobalInventoryOpen(true)}
             className="relative w-8 h-8 bg-neutral-800 rounded-full border border-neutral-600 flex items-center justify-center hover:bg-neutral-700 active:scale-95 transition-all"
@@ -153,7 +158,6 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
             )}
           </button>
 
-          {/* 3. 기존 AP 숫자 표기 */}
           <div className={`flex items-center gap-1 px-2 py-1 rounded-full border transition-colors ${
             actionPoints <= 1 ? 'bg-red-900/50 border-red-500 animate-pulse text-red-400' : 'bg-neutral-800 border-neutral-700 text-neutral-300'
           }`}>
@@ -257,7 +261,7 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
             actionPoints={actionPoints}
             deductionLife={deductionLife} 
             onFail={() => setDeductionLife(prev => Math.max(0, prev - 1))} 
-            onReset={clearProgress} // 💡 게임 끝났을 때 세이브 날리는 함수 전달!
+            onReset={clearProgress} 
           />
         )}
       </main>
@@ -322,6 +326,13 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
           onScan={handleScanArea}
           onClose={() => setSelectedLocation(null)}
         />
+      )}
+
+      {/* 💡 4. 글로벌 수사 일지(추리 노트) 모달 렌더링 (최상위 레이어 z-110) */}
+      {isNoteOpen && (
+        <div className="relative z-[110]">
+          <ReasoningNoteModal onClose={() => setIsNoteOpen(false)} />
+        </div>
       )}
     </div>
   );
