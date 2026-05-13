@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import ReasoningNoteModal from './ReasoningNoteModal';
+// 💡 1. 줌 라이브러리 임포트 (수첩 모달 임포트는 삭제!)
+import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 
 const InspectionModal = ({ suspect, inventory, onClueFound, onClose }) => {
   const [inspectionSide, setInspectionSide] = useState('front');
   const [discoveryText, setDiscoveryText] = useState("화면을 터치해 수상한 곳을 찾아보세요.");
   const [focusedPoint, setFocusedPoint] = useState(null);
-  const [isNoteOpen, setIsNoteOpen] = useState(false);
+  
+  // 💡 2. 로컬 수첩 상태(isNoteOpen) 삭제됨 (PlayScreen의 전역 버튼 사용)
 
-  // 💡 [핵심 해결책] 이미지의 원본 비율을 저장할 상태 추가
+  // 이미지의 원본 비율을 저장할 상태
   const [aspectRatio, setAspectRatio] = useState(null);
 
   const IS_DEV_MODE = true; 
@@ -28,7 +30,7 @@ const InspectionModal = ({ suspect, inventory, onClueFound, onClose }) => {
   };
 
   const handlePointClick = (e, point) => {
-    e.stopPropagation(); 
+    e.stopPropagation(); // 💡 드래그와 클릭 충돌 방지
     setFocusedPoint(point);
     setDiscoveryText(`[${point.name}]\n\n${point.description}`);
   };
@@ -49,9 +51,7 @@ const InspectionModal = ({ suspect, inventory, onClueFound, onClose }) => {
           &lt; 돌아가기
         </button>
         <div className="flex items-center gap-3">
-          <button onClick={() => setIsNoteOpen(true)} className="w-8 h-8 rounded-full bg-neutral-800 border border-neutral-600 text-sm shadow-lg flex items-center justify-center active:scale-95 transition-all hover:bg-neutral-700">
-            📓
-          </button>
+          {/* 💡 3. 중복된 로컬 수첩 버튼 삭제됨 */}
           <div className="flex flex-col items-end">
             <span className="text-amber-500 font-black bg-neutral-900 px-3 py-1 rounded-full border border-amber-900/30 text-[11px]">
               {suspect.name} 관찰 중
@@ -61,77 +61,95 @@ const InspectionModal = ({ suspect, inventory, onClueFound, onClose }) => {
         </div>
       </header>
 
-      {/* 2. 중앙 전신 이미지 및 히트박스 영역 */}
-      <div className="flex-1 min-h-0 flex items-center justify-center bg-black overflow-hidden p-3 relative">
-        <div className="w-full h-full flex items-center justify-center">
-          
-          {/* 💡 컨테이너 비율 강제 고정 (Aspect Ratio 박스) */}
-          <div 
-            className="relative"
-            style={{
-              // 이미지가 로드되어 비율을 알면 강제 적용, 모르면 auto
-              aspectRatio: aspectRatio ? `${aspectRatio}` : 'auto',
-              // 부모 공간을 절대 넘지 못하게 가둬둠
-              maxWidth: '100%',
-              maxHeight: '100%',
-              // 너비와 높이를 비율에 맞게 꽉 채우도록 유도
-              height: aspectRatio ? '100%' : 'auto',
-              width: aspectRatio ? 'auto' : 'auto',
-              // 비율이 계산되기 전까진 투명하게 처리 (깜빡임 방지)
-              opacity: aspectRatio ? 1 : 0,
-              transition: 'opacity 0.3s'
-            }}
-          >
-            {currentImageUrl ? (
-              <img 
-                src={currentImageUrl} 
-                alt="전신" 
-                onLoad={handleImageLoad}
-                // 컨테이너가 원본 비율과 일치하므로 object-fill을 써도 절대 찌그러지지 않음
-                className="w-full h-full object-fill block pointer-events-none select-none" 
-              />
-            ) : (
-              <div className="w-[200px] h-[300px] flex items-center justify-center text-neutral-600 border border-neutral-800 rounded-xl text-xs">이미지 없음</div>
-            )}
-
-            {/* 히트박스 레이어 (컨테이너가 비율을 지키므로 절대 위치가 틀어지지 않음) */}
-            {aspectRatio && (
-              <div className="absolute inset-0 z-[75]">
-                {suspect.inspectionPoints?.filter(point => point.side === inspectionSide).map(point => {
-                  const isFound = inventory?.includes(point.id);
-                  const isFocused = focusedPoint?.id === point.id;
-                  return (
-                    <button
-                      key={point.id}
-                      onClick={(e) => handlePointClick(e, point)}
-                      style={{ 
-                        top: point.top, 
-                        left: point.left, 
-                        width: point.width, 
-                        height: point.height, 
-                        transform: 'translate(-50%, -50%)' 
-                      }}
-                      className={`absolute rounded-full transition-all duration-300 ${
-                        IS_DEV_MODE 
-                          ? `border-2 ${isFocused ? 'border-blue-400 bg-blue-400/30' : (isFound ? 'border-emerald-500 bg-emerald-500/10' : 'border-red-500 bg-red-500/10')}` 
-                          : 'bg-transparent border-none'
-                      }`}
-                    >
-                      {IS_DEV_MODE && (
-                        <span className="absolute -top-5 left-1/2 -translate-x-1/2 whitespace-nowrap text-[8px] font-bold bg-black/80 text-white px-1 py-0.5 rounded border border-neutral-700 opacity-60">
-                          {point.id}
-                        </span>
-                      )}
-                    </button>
-                  );
-                })}
+      {/* 💡 4. 중앙 전신 이미지 및 히트박스 영역 (줌 라이브러리 & Shrink-Wrap 적용) */}
+      <div className="flex-1 min-h-0 flex items-center justify-center bg-black overflow-hidden relative">
+        <TransformWrapper
+          initialScale={1}
+          minScale={1}
+          maxScale={4}
+          wheel={{ step: 0.1 }}
+          doubleClick={{ disabled: true }}
+          panning={{ velocityDisabled: true }}
+        >
+          {({ zoomIn, zoomOut, resetTransform }) => (
+            <>
+              {/* 줌 컨트롤러 (좌측 상단 고정) */}
+              <div className="absolute top-4 left-4 z-[90] flex flex-col gap-2 opacity-60 hover:opacity-100 transition-opacity">
+                <button onClick={() => zoomIn()} className="w-8 h-8 bg-neutral-900/80 text-white rounded-full border border-neutral-600 backdrop-blur-sm shadow-lg font-bold">+</button>
+                <button onClick={() => zoomOut()} className="w-8 h-8 bg-neutral-900/80 text-white rounded-full border border-neutral-600 backdrop-blur-sm shadow-lg font-bold">-</button>
+                <button onClick={() => resetTransform()} className="w-8 h-8 bg-neutral-900/80 text-white rounded-full border border-neutral-600 backdrop-blur-sm shadow-lg text-[10px] font-black">R</button>
               </div>
-            )}
-          </div>
-        </div>
+
+              {/* 💡 뷰포트 폭주 방지용 wrapperStyle 적용 */}
+              <TransformComponent 
+                wrapperStyle={{ width: "100%", height: "100%", position: "absolute", top: 0, left: 0 }}
+                contentStyle={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", padding: "12px" }}
+              >
+                {/* 네가 짠 비율 계산(aspectRatio) 로직을 그대로 살려서 히트박스 위치 완벽 보존! */}
+                <div 
+                  className="relative flex items-center justify-center"
+                  style={{
+                    aspectRatio: aspectRatio ? `${aspectRatio}` : 'auto',
+                    maxWidth: '100%',
+                    maxHeight: '100%',
+                    height: aspectRatio ? '100%' : 'auto',
+                    width: aspectRatio ? 'auto' : 'auto',
+                    opacity: aspectRatio ? 1 : 0,
+                    transition: 'opacity 0.3s'
+                  }}
+                >
+                  {currentImageUrl ? (
+                    <img 
+                      src={currentImageUrl} 
+                      alt="전신" 
+                      onLoad={handleImageLoad}
+                      className="w-full h-full object-fill block pointer-events-none select-none" 
+                    />
+                  ) : (
+                    <div className="w-[200px] h-[300px] flex items-center justify-center text-neutral-600 border border-neutral-800 rounded-xl text-xs">이미지 없음</div>
+                  )}
+
+                  {/* 히트박스 레이어 (줌 땡겨도 절대 위치 안 틀어짐!) */}
+                  {aspectRatio && (
+                    <div className="absolute inset-0 z-[75]">
+                      {suspect.inspectionPoints?.filter(point => point.side === inspectionSide).map(point => {
+                        const isFound = inventory?.includes(point.id);
+                        const isFocused = focusedPoint?.id === point.id;
+                        return (
+                          <button
+                            key={point.id}
+                            onClick={(e) => handlePointClick(e, point)}
+                            style={{ 
+                              top: point.top, 
+                              left: point.left, 
+                              width: point.width, 
+                              height: point.height, 
+                              transform: 'translate(-50%, -50%)' 
+                            }}
+                            className={`absolute rounded-full transition-all duration-300 ${
+                              IS_DEV_MODE 
+                                ? `border-2 ${isFocused ? 'border-blue-400 bg-blue-400/30' : (isFound ? 'border-emerald-500 bg-emerald-500/10' : 'border-red-500 bg-red-500/10')}` 
+                                : (isFocused ? 'border-2 border-blue-400 bg-blue-400/30' : 'bg-transparent border-none')
+                            }`}
+                          >
+                            {IS_DEV_MODE && (
+                              <span className="absolute -top-5 left-1/2 -translate-x-1/2 whitespace-nowrap text-[8px] font-bold bg-black/80 text-white px-1 py-0.5 rounded border border-neutral-700 opacity-60 pointer-events-none">
+                                {point.id}
+                              </span>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              </TransformComponent>
+            </>
+          )}
+        </TransformWrapper>
       </div>
 
-      {/* 3. 하단 패널 */}
+      {/* 3. 하단 패널 (높이 고정하여 꿀렁임 원천 차단) */}
       <div className="shrink-0 w-full z-[80] bg-neutral-950 border-t border-neutral-800 p-3 pb-6 flex flex-col gap-2.5 shadow-2xl">
         <div className="bg-neutral-900 border border-neutral-700 px-3 py-2.5 rounded-xl shadow-inner relative flex flex-col h-[80px]">
           <div className="overflow-y-auto h-full pr-1 pb-1">
@@ -161,14 +179,14 @@ const InspectionModal = ({ suspect, inventory, onClueFound, onClose }) => {
         </div>
 
         {suspect.illustration?.backFullUrl && (
-          <div className="flex bg-neutral-800 rounded-xl p-1 border border-neutral-700 w-full shrink-0">
-            <button onClick={() => { setInspectionSide('front'); setFocusedPoint(null); setDiscoveryText("앞모습을 보고 있습니다."); }} className={`flex-1 py-2 text-xs font-black rounded-lg transition-all ${inspectionSide === 'front' ? 'bg-amber-500 text-black shadow-lg' : 'text-neutral-500'}`}>앞모습</button>
-            <button onClick={() => { setInspectionSide('back'); setFocusedPoint(null); setDiscoveryText("뒷모습을 보고 있습니다."); }} className={`flex-1 py-2 text-xs font-black rounded-lg transition-all ${inspectionSide === 'back' ? 'bg-amber-500 text-black shadow-lg' : 'text-neutral-500'}`}>뒷모습</button>
+          <div className="flex bg-neutral-800 rounded-xl p-1 border border-neutral-700 w-full shrink-0 h-[48px]">
+            <button onClick={() => { setInspectionSide('front'); setFocusedPoint(null); setDiscoveryText("앞모습을 보고 있습니다."); }} className={`flex-1 text-xs font-black rounded-lg transition-all ${inspectionSide === 'front' ? 'bg-amber-500 text-black shadow-lg' : 'text-neutral-500 hover:text-neutral-300'}`}>앞모습</button>
+            <button onClick={() => { setInspectionSide('back'); setFocusedPoint(null); setDiscoveryText("뒷모습을 보고 있습니다."); }} className={`flex-1 text-xs font-black rounded-lg transition-all ${inspectionSide === 'back' ? 'bg-amber-500 text-black shadow-lg' : 'text-neutral-500 hover:text-neutral-300'}`}>뒷모습</button>
           </div>
         )}
       </div>
 
-      {isNoteOpen && <ReasoningNoteModal onClose={() => setIsNoteOpen(false)} />}
+      {/* 💡 5. 하단 수첩 모달 렌더링 삭제됨! */}
     </div>
   );
 };
