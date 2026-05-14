@@ -129,7 +129,7 @@ const LocationModal = ({
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-neutral-500 font-bold border border-neutral-800 rounded-xl bg-neutral-900">
-                      [{location.name}] 이미지 없음
+                      [{location.name}] 이미지 없음 
                     </div>
                   )}
 
