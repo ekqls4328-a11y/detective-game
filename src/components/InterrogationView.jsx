@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import TypewriterText from './TypewriterText';
 import InventoryModal from './InventoryModal';
 import InspectionModal from './InspectionModal';
-// 💡 1. ReasoningNoteModal 임포트 삭제됨
 
 const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, onClueFound, onMarkAsViewed, onRemoveClue, onPresent, onClose }) => {
   const [isTypingDone, setIsTypingDone] = useState(false);
@@ -16,7 +15,8 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, onCl
 
   const [currentStatement, setCurrentStatement] = useState(null); 
   const [discoveryText, setDiscoveryText] = useState(null);
-  // 💡 2. isNoteOpen 상태 삭제됨
+
+  const [isImageLoaded, setIsImageLoaded] = useState(false);
 
   useEffect(() => {
     setCurrentDialog(suspect.selfIntro);
@@ -26,6 +26,9 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, onCl
     setCurrentStatement(null); 
     setDiscoveryText(null);
     setDialogKey(prev => prev + 1); 
+    
+    // 용의자가 바뀔 때마다 이미지 로드 상태 초기화
+    setIsImageLoaded(false);
   }, [suspect]);
 
   const handleAskQuestion = (question) => {
@@ -45,20 +48,17 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, onCl
 
     const defense = suspect.defenses.find(d => d.clueId === evidence.id);
     if (defense) {
-      // 💡 알맞은 단서를 제시했을 때 답변만 출력
       setCurrentDialog(defense.response);
     } else {
-      // 💡 틀린 단서를 제시했을 때 기본 답변 출력
       const fallbackResponse = suspect.wrongEvidenceResponse || "그게 이 사건과 무슨 상관이라는 겁니까? 억지 부리지 마시죠.";
       setCurrentDialog(fallbackResponse);
     }
     
-    // 💡 [핵심 수정] 단서 제시 결과는 수첩에 기록할 수 없도록 무조건 null 처리!
     setCurrentStatement(null); 
     setDiscoveryText(null);
     setDialogKey(prev => prev + 1); 
     
-    if (onPresent) onPresent(); // AP 차감 로직 실행
+    if (onPresent) onPresent(); 
   };
 
   const handleSaveToInventory = () => {
@@ -73,12 +73,31 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, onCl
   return (
     <div className="fixed inset-0 z-50 bg-black animate-fadeIn overflow-hidden">
       
+      {/* 배경 이미지 영역 */}
       <div className="absolute inset-0 z-0">
-        {suspect.illustration?.interrogationUrl ? (
-          <img src={suspect.illustration.interrogationUrl} alt={`${suspect.name} 심문`} className="w-full h-full object-cover pointer-events-none" />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center bg-neutral-900 text-neutral-500 font-bold">심문용 일러스트 준비 중</div>
-        )}
+        <div 
+          className="w-full h-full transition-opacity duration-500 ease-in-out"
+          style={{ opacity: isImageLoaded ? 1 : 0 }}
+        >
+          {suspect.illustration?.interrogationUrl ? (
+            <img 
+              key={suspect.id} // 💡 핵심 1: 용의자가 바뀌면 돔(DOM)에서 완전히 새로 그리도록 강제함
+              src={suspect.illustration.interrogationUrl} 
+              alt={`${suspect.name} 심문`} 
+              onLoad={() => {
+                // 💡 핵심 2: 브라우저가 opacity: 0 인 상태를 화면에 먼저 그릴 수 있도록 50ms 딜레이 부여!
+                setTimeout(() => {
+                  setIsImageLoaded(true);
+                }, 50);
+              }}
+              className="w-full h-full object-cover pointer-events-none" 
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-neutral-900 text-neutral-500 font-bold">
+              심문용 일러스트 준비 중
+            </div>
+          )}
+        </div>
         
         <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent pointer-events-none" />
       </div>
@@ -89,8 +108,6 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, onCl
           <button onClick={onClose} className="text-white font-bold px-3 py-1 bg-black/50 rounded-full hover:bg-neutral-700 backdrop-blur-sm border border-neutral-700">
             &lt; 심문 종료
           </button>
-          
-          {/* 💡 3. 추리 노트 버튼(📓) 삭제됨 */}
           
           <button onClick={() => setIsInspectionOpen(true)} className="font-bold px-4 py-1.5 rounded-full backdrop-blur-md bg-neutral-900/80 border border-neutral-600 text-amber-500 shadow-lg flex items-center gap-2 active:scale-95 transition-transform">
             <span>🧐</span> 외형 관찰
@@ -169,7 +186,6 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, onCl
       {isInventoryOpen && <InventoryModal inventory={inventory} viewedClues={viewedClues} onMarkAsViewed={onMarkAsViewed} scenarioData={scenarioData} onRemoveClue={onRemoveClue} onClose={() => setIsInventoryOpen(false)} onPresent={handlePresentEvidence} />}
       {isInspectionOpen && <InspectionModal suspect={suspect} inventory={inventory} onClueFound={onClueFound} onClose={() => setIsInspectionOpen(false)} />}
       
-      {/* 💡 4. {isNoteOpen && <ReasoningNoteModal ... />} 삭제됨 */}
     </div>
   );
 };

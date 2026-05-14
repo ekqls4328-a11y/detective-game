@@ -4,7 +4,6 @@ import InterrogationView from './InterrogationView';
 import DeductionView from './DeductionView';
 import InventoryModal from './InventoryModal';
 import LocationModal from './LocationModal';
-// 💡 1. 수사 일지 모달 임포트
 import ReasoningNoteModal from './ReasoningNoteModal'; 
 
 const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
@@ -35,7 +34,6 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [isGlobalInventoryOpen, setIsGlobalInventoryOpen] = useState(false);
   
-  // 💡 2. 수사 일지(추리 노트) 모달 상태 추가
   const [isNoteOpen, setIsNoteOpen] = useState(false);
 
   const unreadCount = inventory.filter(id => !viewedClues.includes(id)).length;
@@ -77,7 +75,7 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
       setSelectedSuspect(null);
       setSelectedLocation(null);
       setIsGlobalInventoryOpen(false); 
-      setIsNoteOpen(false); // 💡 강제 이동 시 수첩도 닫아주기
+      setIsNoteOpen(false); 
       setActiveTab('deduction');
     }
   }, [actionPoints, activeTab, data]);
@@ -118,7 +116,6 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
   return (
     <div className="min-h-screen bg-neutral-900 text-gray-100 flex flex-col font-sans">
       
-      {/* 💡 [핵심] 전역 플로팅 수첩 버튼 (모든 화면 최상단 고정, z-80) */}
       <button 
         onClick={() => setIsNoteOpen(true)}
         className="fixed top-[72px] right-4 z-[80] w-12 h-12 bg-neutral-800 border border-neutral-600 rounded-full flex items-center justify-center text-xl shadow-[0_4px_15px_rgba(0,0,0,0.5)] active:scale-90 transition-all hover:bg-neutral-700"
@@ -135,7 +132,6 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
           {data.title}
         </h1>
         
-        {/* 우측 아이콘 묶음 */}
         <div className="flex items-center gap-2 shrink-0">
           
           <button 
@@ -145,7 +141,6 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
             <span className="text-sm">⚙️</span>
           </button>
 
-          {/* 기존 인벤토리 버튼 */}
           <button 
             onClick={() => setIsGlobalInventoryOpen(true)}
             className="relative w-8 h-8 bg-neutral-800 rounded-full border border-neutral-600 flex items-center justify-center hover:bg-neutral-700 active:scale-95 transition-all"
@@ -169,10 +164,8 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
         </div>
       </header>
 
-      {/* 중앙 메인 콘텐츠 영역 */}
       <main className="flex-1 overflow-y-auto p-4 pb-24">
         
-        {/* [사건 개요 탭] */}
         {activeTab === 'briefing' && (
           <div className="animate-fadeIn space-y-6">
             <div className="w-full h-48 bg-neutral-800 rounded-xl overflow-hidden border border-neutral-700 relative">
@@ -213,23 +206,33 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
               <span className="text-amber-500">💬</span> 용의자 심문
             </h2>
             <div className="grid grid-cols-1 gap-3">
-              {data.suspects.map(suspect => (
+              {data.suspects.map((suspect, index) => (
                 <button key={suspect.id} onClick={() => setSelectedSuspect(suspect)} className="w-full bg-neutral-800 p-4 rounded-xl flex items-center gap-4 border border-neutral-700 hover:bg-neutral-700 active:scale-[0.98] transition-all">
-                  <div className="w-14 h-14 bg-neutral-900 rounded-full flex items-center justify-center text-xl font-bold text-neutral-600 border border-neutral-600">
-                    {suspect.name.charAt(0)}
+                  
+                  {/* 💡 [핵심] 사진 대신 들어가는 추리물 감성의 '수사 파일 뱃지' */}
+                  <div className="w-14 h-14 shrink-0 bg-neutral-900 rounded-lg border border-neutral-600 flex flex-col items-center justify-center shadow-[inset_0_2px_8px_rgba(0,0,0,0.5)] relative overflow-hidden">
+                    {/* 뱃지 상단 테이프/바인더 느낌 포인트 */}
+                    <div className="absolute top-0 w-full h-1 bg-amber-600/60" />
+                    <span className="text-[8px] text-neutral-500 font-black tracking-widest mt-1 opacity-80">TARGET</span>
+                    <span className="text-xl text-red-600/90 font-black tracking-tighter leading-none mt-0.5">
+                      {String(index + 1).padStart(2, '0')}
+                    </span>
                   </div>
+                  
                   <div className="text-left flex-1">
                     <div className="font-bold text-white text-lg">{suspect.name}</div>
                     <div className="text-xs text-amber-500 font-bold mb-1">{suspect.role}</div>
                     <div className="text-xs text-neutral-400 line-clamp-1">{suspect.desc}</div>
                   </div>
+                  
+                  {/* 화살표 느낌으로 심문하러 가기 유도 */}
+                  <div className="text-neutral-600 text-lg pr-1 opacity-50">&gt;</div>
                 </button>
               ))}
             </div>
           </div>
         )}
 
-        {/* [현장 조사 탭] */}
         {activeTab === 'investigation' && (
           <div className="animate-fadeIn">
             <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
@@ -246,14 +249,13 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
                     <div className="font-bold text-white mb-1">{loc.name}</div>
                     <div className="text-xs text-neutral-400">조사 가능한 단서: {loc.clues.length}개</div>
                   </div>
-                  <div className="text-neutral-500">이동 &gt;</div>
+                  <div className="text-neutral-500">&gt;</div>
                 </button>
               ))}
             </div>
           </div>
         )}
 
-        {/* [최종 추리 탭] */}
         {activeTab === 'deduction' && (
           <DeductionView 
             scenarioData={data} 
@@ -266,7 +268,6 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
         )}
       </main>
 
-      {/* 하단 고정 탭 바 */}
       {actionPoints > 0 && (
         <nav className="fixed bottom-0 w-full bg-neutral-950 border-t border-neutral-800 flex pb-safe z-10">
           <button onClick={() => setActiveTab('briefing')} className={`flex-1 py-4 flex flex-col items-center justify-center gap-1 transition-colors ${activeTab === 'briefing' ? 'text-white bg-neutral-900' : 'text-neutral-500 hover:text-neutral-300'}`}>
@@ -288,7 +289,6 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
         </nav>
       )}
 
-      {/* 용의자 심문 화면 오버레이 */}
       {selectedSuspect && (
         <InterrogationView 
           suspect={selectedSuspect} 
@@ -303,7 +303,6 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
         />
       )}
 
-      {/* 글로벌 인벤토리 모달 렌더링 */}
       {isGlobalInventoryOpen && (
         <InventoryModal 
           inventory={inventory} 
@@ -315,7 +314,6 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
         />
       )}
 
-      {/* 현장 조사 상세 화면 (LocationModal) */}
       {selectedLocation && (
         <LocationModal
           location={selectedLocation}
@@ -328,7 +326,6 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
         />
       )}
 
-      {/* 💡 4. 글로벌 수사 일지(추리 노트) 모달 렌더링 (최상위 레이어 z-110) */}
       {isNoteOpen && (
         <div className="relative z-[110]">
           <ReasoningNoteModal onClose={() => setIsNoteOpen(false)} />
