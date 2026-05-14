@@ -5,6 +5,8 @@ import DeductionView from './DeductionView';
 import InventoryModal from './InventoryModal';
 import LocationModal from './LocationModal';
 import ReasoningNoteModal from './ReasoningNoteModal'; 
+// 💡 정확한 상대 경로로 AudioContext 임포트
+import { useAudio } from '../contexts/AudioContext'; 
 
 const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
   const SAVE_KEY = `crime_game_progress_${scenarioId}`;
@@ -33,8 +35,10 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
   const [selectedSuspect, setSelectedSuspect] = useState(null);
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [isGlobalInventoryOpen, setIsGlobalInventoryOpen] = useState(false);
-  
   const [isNoteOpen, setIsNoteOpen] = useState(false);
+
+  // 💡 BGM 재생 및 효과음 함수 가져오기
+  const { changeAndPlayBgm, playSfx } = useAudio(); 
 
   const unreadCount = inventory.filter(id => !viewedClues.includes(id)).length;
 
@@ -67,7 +71,12 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
       setActiveTab('briefing');
       setDeductionLife(3);
     }
-  }, [scenarioId, SAVE_KEY, defaultAP]);
+
+    // 💡 시나리오 데이터가 로드되면 해당 BGM 재생
+    if (scenarioData && scenarioData.bgmUrl) {
+      changeAndPlayBgm(scenarioData.bgmUrl);
+    }
+  }, [scenarioId, SAVE_KEY, defaultAP, changeAndPlayBgm]);
   
   useEffect(() => {
     if (data && actionPoints <= 0 && activeTab !== 'deduction') {
@@ -116,15 +125,19 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
   return (
     <div className="min-h-screen bg-neutral-900 text-gray-100 flex flex-col font-sans">
       
+      {/* 글로벌 수첩 플로팅 버튼 */}
       <button 
-        onClick={() => setIsNoteOpen(true)}
+        onClick={() => { playSfx(); setIsNoteOpen(true); }} // 💡 클릭음 추가
         className="fixed top-[72px] right-4 z-[80] w-12 h-12 bg-neutral-800 border border-neutral-600 rounded-full flex items-center justify-center text-xl shadow-[0_4px_15px_rgba(0,0,0,0.5)] active:scale-90 transition-all hover:bg-neutral-700"
       >
         📓
       </button>
 
       <header className={`sticky top-0 z-20 border-b border-neutral-800 p-3 flex justify-between items-center gap-2 shadow-md transition-colors ${actionPoints === 0 ? 'bg-red-950' : 'bg-neutral-950'}`}>
-        <button onClick={onBack} className="text-neutral-400 hover:text-white font-bold text-sm whitespace-nowrap shrink-0">
+        <button 
+          onClick={() => { playSfx(); onBack(); }} // 💡 클릭음 추가
+          className="text-neutral-400 hover:text-white font-bold text-sm whitespace-nowrap shrink-0"
+        >
           &lt; 철수
         </button>
         
@@ -133,16 +146,15 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
         </h1>
         
         <div className="flex items-center gap-2 shrink-0">
-          
           <button 
-            onClick={onOpenSettings}
+            onClick={() => { playSfx(); onOpenSettings(); }} // 💡 클릭음 추가
             className="w-8 h-8 bg-neutral-800 rounded-full border border-neutral-600 flex items-center justify-center hover:bg-neutral-700 active:scale-95 transition-all"
           >
             <span className="text-sm">⚙️</span>
           </button>
 
           <button 
-            onClick={() => setIsGlobalInventoryOpen(true)}
+            onClick={() => { playSfx(); setIsGlobalInventoryOpen(true); }} // 💡 클릭음 추가
             className="relative w-8 h-8 bg-neutral-800 rounded-full border border-neutral-600 flex items-center justify-center hover:bg-neutral-700 active:scale-95 transition-all"
           >
             <span className="text-sm">💼</span>
@@ -191,7 +203,7 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
             </div>
 
             <button 
-              onClick={() => setActiveTab('interrogation')}
+              onClick={() => { playSfx(); setActiveTab('interrogation'); }} // 💡 클릭음 추가
               className="w-full py-4 bg-neutral-200 text-black font-black rounded-xl hover:bg-white active:scale-95 transition-all shadow-lg mt-4"
             >
               용의자 심문 시작하기
@@ -199,7 +211,6 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
           </div>
         )}
 
-        {/* [심문 탭] */}
         {activeTab === 'interrogation' && (
           <div className="animate-fadeIn">
             <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
@@ -207,11 +218,12 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
             </h2>
             <div className="grid grid-cols-1 gap-3">
               {data.suspects.map((suspect, index) => (
-                <button key={suspect.id} onClick={() => setSelectedSuspect(suspect)} className="w-full bg-neutral-800 p-4 rounded-xl flex items-center gap-4 border border-neutral-700 hover:bg-neutral-700 active:scale-[0.98] transition-all">
-                  
-                  {/* 💡 [핵심] 사진 대신 들어가는 추리물 감성의 '수사 파일 뱃지' */}
+                <button 
+                  key={suspect.id} 
+                  onClick={() => { playSfx(); setSelectedSuspect(suspect); }} // 💡 클릭음 추가
+                  className="w-full bg-neutral-800 p-4 rounded-xl flex items-center gap-4 border border-neutral-700 hover:bg-neutral-700 active:scale-[0.98] transition-all"
+                >
                   <div className="w-14 h-14 shrink-0 bg-neutral-900 rounded-lg border border-neutral-600 flex flex-col items-center justify-center shadow-[inset_0_2px_8px_rgba(0,0,0,0.5)] relative overflow-hidden">
-                    {/* 뱃지 상단 테이프/바인더 느낌 포인트 */}
                     <div className="absolute top-0 w-full h-1 bg-amber-600/60" />
                     <span className="text-[8px] text-neutral-500 font-black tracking-widest mt-1 opacity-80">TARGET</span>
                     <span className="text-xl text-red-600/90 font-black tracking-tighter leading-none mt-0.5">
@@ -225,7 +237,6 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
                     <div className="text-xs text-neutral-400 line-clamp-1">{suspect.desc}</div>
                   </div>
                   
-                  {/* 화살표 느낌으로 심문하러 가기 유도 */}
                   <div className="text-neutral-600 text-lg pr-1 opacity-50">&gt;</div>
                 </button>
               ))}
@@ -242,7 +253,7 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
               {data.locations.map(loc => (
                 <button 
                   key={loc.id} 
-                  onClick={() => setSelectedLocation(loc)} 
+                  onClick={() => { playSfx(); setSelectedLocation(loc); }} // 💡 클릭음 추가
                   className="w-full bg-neutral-800 p-4 rounded-xl text-left border border-neutral-700 hover:bg-neutral-700 active:scale-[0.98] transition-all flex justify-between items-center"
                 >
                   <div>
@@ -268,21 +279,22 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
         )}
       </main>
 
+      {/* 하단 고정 탭 바 */}
       {actionPoints > 0 && (
         <nav className="fixed bottom-0 w-full bg-neutral-950 border-t border-neutral-800 flex pb-safe z-10">
-          <button onClick={() => setActiveTab('briefing')} className={`flex-1 py-4 flex flex-col items-center justify-center gap-1 transition-colors ${activeTab === 'briefing' ? 'text-white bg-neutral-900' : 'text-neutral-500 hover:text-neutral-300'}`}>
+          <button onClick={() => { playSfx(); setActiveTab('briefing'); }} className={`flex-1 py-4 flex flex-col items-center justify-center gap-1 transition-colors ${activeTab === 'briefing' ? 'text-white bg-neutral-900' : 'text-neutral-500 hover:text-neutral-300'}`}>
               <span className="text-2xl mb-1">📋</span>
               <span className="text-[11px] font-bold tracking-wider">사건 개요</span>
           </button>
-          <button onClick={() => setActiveTab('interrogation')} className={`flex-1 py-4 flex flex-col items-center justify-center gap-1 transition-colors ${activeTab === 'interrogation' ? 'text-amber-400 bg-neutral-900' : 'text-neutral-500 hover:text-neutral-300'}`}>
+          <button onClick={() => { playSfx(); setActiveTab('interrogation'); }} className={`flex-1 py-4 flex flex-col items-center justify-center gap-1 transition-colors ${activeTab === 'interrogation' ? 'text-amber-400 bg-neutral-900' : 'text-neutral-500 hover:text-neutral-300'}`}>
               <span className="text-2xl mb-1">💬</span>
               <span className="text-[11px] font-bold tracking-wider">용의자 심문</span>
           </button>
-          <button onClick={() => setActiveTab('investigation')} className={`flex-1 py-4 flex flex-col items-center justify-center gap-1 transition-colors ${activeTab === 'investigation' ? 'text-blue-400 bg-neutral-900' : 'text-neutral-500 hover:text-neutral-300'}`}>
+          <button onClick={() => { playSfx(); setActiveTab('investigation'); }} className={`flex-1 py-4 flex flex-col items-center justify-center gap-1 transition-colors ${activeTab === 'investigation' ? 'text-blue-400 bg-neutral-900' : 'text-neutral-500 hover:text-neutral-300'}`}>
               <span className="text-2xl mb-1">🔍</span>
               <span className="text-[11px] font-bold tracking-wider">현장 조사</span>
           </button>
-          <button onClick={() => setActiveTab('deduction')} className={`flex-1 py-4 flex flex-col items-center justify-center gap-1 transition-colors ${activeTab === 'deduction' ? 'text-red-500 bg-neutral-900' : 'text-neutral-500 hover:text-neutral-300'}`}>
+          <button onClick={() => { playSfx(); setActiveTab('deduction'); }} className={`flex-1 py-4 flex flex-col items-center justify-center gap-1 transition-colors ${activeTab === 'deduction' ? 'text-red-500 bg-neutral-900' : 'text-neutral-500 hover:text-neutral-300'}`}>
               <span className="text-2xl mb-1">⚖️</span>
               <span className="text-[11px] font-bold tracking-wider">사건 종결</span>
           </button>

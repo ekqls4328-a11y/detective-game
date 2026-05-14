@@ -1,31 +1,42 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+// 💡 AudioContext 임포트 추가
+import { useAudio } from '../contexts/AudioContext';
 
 const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, onFail, onReset }) => {
   const [answers, setAnswers] = useState({});
   const [result, setResult] = useState('none'); // 'none', 'success', 'fail', 'gameover'
   const [accuracy, setAccuracy] = useState(0);
 
+  // 💡 BGM 변경 및 효과음 함수 가져오기
+  const { changeAndPlayBgm, playSfx } = useAudio();
+
   const questions = scenarioData.solution.questions || [];
   const truth = scenarioData.solution.crimeTruth;
 
-  // 💡 [수정됨] 인벤토리 물증 매핑 (출처 이름 주입 로직 포함)
+  // 인벤토리 물증 매핑 (출처 이름 주입 로직 포함)
   const myClues = (() => {
-    // 1. 현장 단서에 '장소 이름' 주입
     const locationClues = scenarioData.locations?.flatMap(loc => 
       (loc.clues || []).map(clue => ({ ...clue, sourceName: loc.name }))
     ) || [];
 
-    // 2. 관찰 단서에 '용의자 이름' 주입
     const inspectionClues = scenarioData.suspects?.flatMap(s => 
       (s.inspectionPoints || []).map(point => ({ ...point, sourceName: s.name }))
     ) || [];
 
-    // 3. 물리적 증거(물증)만 합치기
     const allPhysicalClues = [...locationClues, ...inspectionClues];
-
-    // 4. 내 인벤토리에 있는 ID와 일치하는 물증만 필터링
     return inventory?.map(id => allPhysicalClues.find(c => c.id === id)).filter(Boolean) || [];
   })();
+
+  // 💡 [핵심] 결과창 상태에 따라 엔딩 BGM으로 교체하는 로직
+  useEffect(() => {
+    if (result === 'success') {
+      changeAndPlayBgm('/audio/success_bgm.mp3'); // 성공 시 브금 (경로 수정 필요)
+    } else if (result === 'gameover') {
+      changeAndPlayBgm('/audio/gameover_bgm.mp3'); // 게임오버 시 브금 (경로 수정 필요)
+    } else if (result === 'fail') {
+      // 실패 시 긴장감 있는 브금으로 유지하거나 바꿀 수 있음
+    }
+  }, [result, changeAndPlayBgm]);
 
   const handleSelectAnswer = (questionId, answerId) => {
     setAnswers(prev => ({ ...prev, [questionId]: answerId }));
@@ -54,11 +65,9 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
     const isAllCorrect = questions.every(q => answers[q.id] === q.answerId);
     
     if (isAllCorrect) {
-      // 💡 [추가] 추리 성공 시 클리어 데이터 저장 로직
       const savedData = localStorage.getItem('cleared_scenarios');
       let clearedList = savedData ? JSON.parse(savedData) : [];
       
-      // 중복 저장 방지하며 현재 시나리오 ID 추가
       if (!clearedList.includes(scenarioData.id)) {
         clearedList.push(scenarioData.id);
         localStorage.setItem('cleared_scenarios', JSON.stringify(clearedList));
@@ -66,7 +75,7 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
       
       setResult('success');
     } else {
-      onFail(); // 부모(PlayScreen)의 라이프 차감
+      onFail(); 
       if (nextLife <= 0) {
         setResult('gameover');
       } else {
@@ -98,7 +107,7 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
           (남은 기회: {deductionLife}번)
         </p>
         <button 
-          onClick={() => setResult('none')}
+          onClick={() => { playSfx(); setResult('none'); }} // 💡 클릭음 추가
           className="w-full py-3 bg-neutral-800 text-white font-bold rounded-xl border border-neutral-700 active:scale-95 transition-all"
         >
           다시 검토하기
@@ -115,10 +124,10 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
         <h2 className="text-4xl font-black text-red-600 mb-4">사건 미궁 봉착</h2>
         <p className="text-neutral-400 leading-relaxed mb-10">
           모든 수사 기회를 날렸습니다. 범인은 이미 국외로 도주했고,<br/>
-          이사건은 영원히 해결되지 못한 채 서류 더미 속에 묻혔습니다.
+          이 사건은 영원히 해결되지 못한 채 서류 더미 속에 묻혔습니다.
         </p>
         <button 
-            onClick={onReset}
+            onClick={() => { playSfx(); onReset(); }} // 💡 클릭음 추가
             className="w-full max-w-xs py-4 bg-red-800 text-white font-black rounded-xl border border-red-600 shadow-[0_0_15px_rgba(220,38,38,0.5)] hover:bg-red-700 active:scale-95 transition-all"
         >
           처음부터 다시 수사하기
@@ -160,7 +169,7 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
           </div>
 
           <button 
-            onClick={onReset}
+            onClick={() => { playSfx(); onReset(); }} // 💡 클릭음 추가
             className="w-full py-4 mt-2 bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-xl shadow-lg active:scale-95 transition-all"
           >
             사건 종료 및 메인으로
@@ -211,7 +220,7 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
               {scenarioData.suspects.map(suspect => (
                 <button
                   key={suspect.id}
-                  onClick={() => handleSelectAnswer(q.id, suspect.id)}
+                  onClick={() => { playSfx(); handleSelectAnswer(q.id, suspect.id); }} // 💡 클릭음 추가
                   className={`p-4 rounded-2xl border-2 flex flex-col items-center gap-3 transition-all active:scale-95 ${
                     answers[q.id] === suspect.id ? 'bg-red-600/10 border-red-600 shadow-[0_0_20px_rgba(220,38,38,0.2)]' : 'bg-neutral-800/50 border-neutral-700 hover:bg-neutral-700/50'
                   }`}
@@ -230,12 +239,11 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
               {myClues.map(clue => (
                 <button
                   key={clue.id}
-                  onClick={() => handleSelectAnswer(q.id, clue.id)}
+                  onClick={() => { playSfx(); handleSelectAnswer(q.id, clue.id); }} // 💡 클릭음 추가
                   className={`p-2 rounded-xl border-2 flex flex-col items-center justify-center min-h-[5.5rem] transition-all active:scale-95 ${
                     answers[q.id] === clue.id ? 'bg-red-600/10 border-red-600 shadow-[0_0_15px_rgba(220,38,38,0.2)]' : 'bg-neutral-800/50 border-neutral-700 hover:bg-neutral-700/50'
                   }`}
                 >
-                  {/* 💡 [수정됨] 출처 이름(sourceName)을 작게 표시 */}
                   <span className={`text-[8px] mb-1 font-bold truncate w-full text-center ${answers[q.id] === clue.id ? 'text-red-400/80' : 'text-neutral-500'}`}>
                     [{clue.sourceName}]
                   </span>
@@ -250,7 +258,7 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
       ))}
 
       <button 
-        onClick={handleAccuse}
+        onClick={() => { playSfx(); handleAccuse(); }} // 💡 클릭음 추가
         disabled={Object.keys(answers).length < questions.length}
         className={`w-full py-5 rounded-2xl font-black text-lg transition-all flex items-center justify-center gap-2 ${
           Object.keys(answers).length === questions.length

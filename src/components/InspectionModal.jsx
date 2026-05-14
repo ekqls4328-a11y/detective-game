@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
+// 💡 AudioContext 임포트 추가
+import { useAudio } from '../contexts/AudioContext';
 
 const InspectionModal = ({ suspect, inventory, onClueFound, onClose }) => {
   const [inspectionSide, setInspectionSide] = useState('front');
@@ -7,9 +9,10 @@ const InspectionModal = ({ suspect, inventory, onClueFound, onClose }) => {
   const [focusedPoint, setFocusedPoint] = useState(null);
   
   const [aspectRatio, setAspectRatio] = useState(null);
-  
-  // 💡 부드러운 화면 전환(페이드)을 위한 상태
   const [isImageLoaded, setIsImageLoaded] = useState(false);
+
+  // 💡 효과음 함수 가져오기
+  const { playSfx } = useAudio();
 
   const IS_DEV_MODE = false; 
 
@@ -29,11 +32,13 @@ const InspectionModal = ({ suspect, inventory, onClueFound, onClose }) => {
 
   const handlePointClick = (e, point) => {
     e.stopPropagation(); 
+    playSfx(); // 💡 히트박스(단서) 터치 시 클릭음 추가
     setFocusedPoint(point);
     setDiscoveryText(`[${point.name}]\n\n${point.description}`);
   };
 
   const handleSaveToInventory = () => {
+    playSfx(); // 💡 기록하기 버튼 터치 시 클릭음 추가
     if (focusedPoint && onClueFound) {
       onClueFound(focusedPoint.id);
       setDiscoveryText(`[${focusedPoint.name}] 단서를 수첩에 기록했습니다.`);
@@ -45,7 +50,10 @@ const InspectionModal = ({ suspect, inventory, onClueFound, onClose }) => {
       
       {/* 1. 상단 헤더 */}
       <header className="shrink-0 w-full z-[80] p-4 flex justify-between items-center bg-neutral-950 border-b border-neutral-800 shadow-md">
-        <button onClick={onClose} className="text-white font-bold text-xs px-4 py-2 bg-neutral-800 rounded-full border border-neutral-600 active:scale-95 transition-all hover:bg-neutral-700">
+        <button 
+          onClick={() => { playSfx(); onClose(); }} // 💡 클릭음 추가
+          className="text-white font-bold text-xs px-4 py-2 bg-neutral-800 rounded-full border border-neutral-600 active:scale-95 transition-all hover:bg-neutral-700"
+        >
           &lt; 돌아가기
         </button>
         <div className="flex items-center gap-3">
@@ -72,9 +80,10 @@ const InspectionModal = ({ suspect, inventory, onClueFound, onClose }) => {
             <>
               {/* 줌 컨트롤러 (좌측 상단 고정) */}
               <div className="absolute top-4 left-4 z-[90] flex flex-col gap-2 opacity-60 hover:opacity-100 transition-opacity">
-                <button onClick={() => zoomIn()} className="w-8 h-8 bg-neutral-900/80 text-white rounded-full border border-neutral-600 backdrop-blur-sm shadow-lg font-bold">+</button>
-                <button onClick={() => zoomOut()} className="w-8 h-8 bg-neutral-900/80 text-white rounded-full border border-neutral-600 backdrop-blur-sm shadow-lg font-bold">-</button>
-                <button onClick={() => resetTransform()} className="w-8 h-8 bg-neutral-900/80 text-white rounded-full border border-neutral-600 backdrop-blur-sm shadow-lg text-[10px] font-black">R</button>
+                {/* 💡 줌 컨트롤러에도 클릭음 추가 */}
+                <button onClick={() => { playSfx(); zoomIn(); }} className="w-8 h-8 bg-neutral-900/80 text-white rounded-full border border-neutral-600 backdrop-blur-sm shadow-lg font-bold">+</button>
+                <button onClick={() => { playSfx(); zoomOut(); }} className="w-8 h-8 bg-neutral-900/80 text-white rounded-full border border-neutral-600 backdrop-blur-sm shadow-lg font-bold">-</button>
+                <button onClick={() => { playSfx(); resetTransform(); }} className="w-8 h-8 bg-neutral-900/80 text-white rounded-full border border-neutral-600 backdrop-blur-sm shadow-lg text-[10px] font-black">R</button>
               </div>
 
               <TransformComponent 
@@ -158,7 +167,10 @@ const InspectionModal = ({ suspect, inventory, onClueFound, onClose }) => {
         <div className="h-[48px] w-full flex items-center justify-center shrink-0">
           {focusedPoint ? (
             !inventory?.includes(focusedPoint.id) ? (
-              <button onClick={handleSaveToInventory} className="w-full h-full bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-lg shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2 text-sm">
+              <button 
+                onClick={handleSaveToInventory} 
+                className="w-full h-full bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-lg shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2 text-sm"
+              >
                 <span>📌</span> 기록하기
               </button>
             ) : (
@@ -175,8 +187,19 @@ const InspectionModal = ({ suspect, inventory, onClueFound, onClose }) => {
 
         {suspect.illustration?.backFullUrl && (
           <div className="flex bg-neutral-800 rounded-xl p-1 border border-neutral-700 w-full shrink-0 h-[48px]">
-            <button onClick={() => { setInspectionSide('front'); setFocusedPoint(null); setDiscoveryText("앞모습을 보고 있습니다."); }} className={`flex-1 text-xs font-black rounded-lg transition-all ${inspectionSide === 'front' ? 'bg-amber-500 text-black shadow-lg' : 'text-neutral-500 hover:text-neutral-300'}`}>앞모습</button>
-            <button onClick={() => { setInspectionSide('back'); setFocusedPoint(null); setDiscoveryText("뒷모습을 보고 있습니다."); }} className={`flex-1 text-xs font-black rounded-lg transition-all ${inspectionSide === 'back' ? 'bg-amber-500 text-black shadow-lg' : 'text-neutral-500 hover:text-neutral-300'}`}>뒷모습</button>
+            {/* 💡 앞/뒷모습 전환 시에도 클릭음 추가 */}
+            <button 
+              onClick={() => { playSfx(); setInspectionSide('front'); setFocusedPoint(null); setDiscoveryText("앞모습을 보고 있습니다."); }} 
+              className={`flex-1 text-xs font-black rounded-lg transition-all ${inspectionSide === 'front' ? 'bg-amber-500 text-black shadow-lg' : 'text-neutral-500 hover:text-neutral-300'}`}
+            >
+              앞모습
+            </button>
+            <button 
+              onClick={() => { playSfx(); setInspectionSide('back'); setFocusedPoint(null); setDiscoveryText("뒷모습을 보고 있습니다."); }} 
+              className={`flex-1 text-xs font-black rounded-lg transition-all ${inspectionSide === 'back' ? 'bg-amber-500 text-black shadow-lg' : 'text-neutral-500 hover:text-neutral-300'}`}
+            >
+              뒷모습
+            </button>
           </div>
         )}
       </div>

@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
+// 💡 AudioContext 임포트 추가
+import { useAudio } from '../contexts/AudioContext';
 
 const LocationModal = ({ 
   location, inventory, maxActionPoints, actionPoints, 
@@ -12,6 +14,9 @@ const LocationModal = ({
 
   // 💡 [핵심] 배경 이미지 페이드 인 효과를 위한 상태 추가
   const [isImageLoaded, setIsImageLoaded] = useState(false);
+
+  // 💡 효과음 함수 가져오기
+  const { playSfx } = useAudio();
 
   const IS_DEV_MODE = false; 
 
@@ -29,11 +34,13 @@ const LocationModal = ({
 
   const handlePointClick = (e, clue) => {
     e.stopPropagation(); 
+    playSfx(); // 💡 단서(히트박스) 터치 시 클릭음 추가
     setFocusedPoint(clue);
     setDiscoveryText(`[${clue.name}]\n\n${clue.desc}`);
   };
 
   const handleSaveToInventory = () => {
+    playSfx(); // 💡 기록하기 버튼 터치 시 클릭음 추가
     if (focusedPoint && onClueFound) {
       onClueFound(focusedPoint.id);
       setDiscoveryText(`[${focusedPoint.name}] 단서를 수첩에 기록했습니다.`);
@@ -41,7 +48,9 @@ const LocationModal = ({
   };
 
   const handleScanClick = () => {
+    // 💡 탐색 버튼 터치 시 클릭음 추가 (disabled 상태가 아닐 때만 재생)
     if (actionPoints > 0 && !isScanning) {
+      playSfx(); 
       onScan(); 
       setIsScanning(true); 
       setDiscoveryText("주변을 탐색합니다... (단서 위치가 잠시 드러납니다)");
@@ -56,7 +65,10 @@ const LocationModal = ({
       
       {/* 1. 상단 헤더 */}
       <header className="shrink-0 w-full z-[80] p-3 flex justify-between items-center gap-2 bg-neutral-950 border-b border-neutral-800 shadow-md">
-        <button onClick={onClose} className="text-white text-xs font-bold px-4 py-2 bg-neutral-800 rounded-full border border-neutral-600 active:scale-95 whitespace-nowrap shrink-0 hover:bg-neutral-700 transition-all">
+        <button 
+          onClick={() => { playSfx(); onClose(); }} // 💡 클릭음 추가
+          className="text-white text-xs font-bold px-4 py-2 bg-neutral-800 rounded-full border border-neutral-600 active:scale-95 whitespace-nowrap shrink-0 hover:bg-neutral-700 transition-all"
+        >
           &lt; 현장 이탈
         </button>
         
@@ -92,10 +104,11 @@ const LocationModal = ({
           {({ zoomIn, zoomOut, resetTransform }) => (
             <>
               {/* 줌 컨트롤러 */}
-              <div className="absolute top-4 left-4 z-[90] flex flex-col gap-2 opacity-60 hover:opacity-100 transition-opacity">
-                <button onClick={() => zoomIn()} className="w-8 h-8 bg-neutral-900/80 text-white rounded-full border border-neutral-600 backdrop-blur-sm shadow-lg font-bold">+</button>
-                <button onClick={() => zoomOut()} className="w-8 h-8 bg-neutral-900/80 text-white rounded-full border border-neutral-600 backdrop-blur-sm shadow-lg font-bold">-</button>
-                <button onClick={() => resetTransform()} className="w-8 h-8 bg-neutral-900/80 text-white rounded-full border border-neutral-600 backdrop-blur-sm shadow-lg text-[10px] font-black">R</button>
+              <div className="absolute top-4 left-4 z-[90] flex flex-col gap-2 opacity-60 hover:opacity-100 transition-opacity opacity-80">
+                {/* 💡 줌 버튼에도 클릭음 추가 */}
+                <button onClick={() => { playSfx(); zoomIn(); }} className="w-8 h-8 bg-neutral-900/80 text-white rounded-full border border-neutral-600 backdrop-blur-sm shadow-lg font-bold">+</button>
+                <button onClick={() => { playSfx(); zoomOut(); }} className="w-8 h-8 bg-neutral-900/80 text-white rounded-full border border-neutral-600 backdrop-blur-sm shadow-lg font-bold">-</button>
+                <button onClick={() => { playSfx(); resetTransform(); }} className="w-8 h-8 bg-neutral-900/80 text-white rounded-full border border-neutral-600 backdrop-blur-sm shadow-lg text-[10px] font-black">R</button>
               </div>
 
               <TransformComponent 

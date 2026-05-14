@@ -1,6 +1,11 @@
 import React, { useState } from 'react';
+// 💡 AudioContext 임포트 추가
+import { useAudio } from '../contexts/AudioContext';
 
 const ReasoningNoteModal = ({ onClose }) => {
+  // 💡 효과음 함수 가져오기
+  const { playSfx } = useAudio();
+
   // 로컬 스토리지에서 기존 메모 불러오기
   const [noteText, setNoteText] = useState(() => {
     return localStorage.getItem('detective_note') || "";
@@ -15,8 +20,11 @@ const ReasoningNoteModal = ({ onClose }) => {
 
   return (
     <div className="fixed inset-0 z-[110] flex items-end justify-center">
-      {/* 배경 블러 */}
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm animate-fadeIn" onClick={onClose} />
+      {/* 💡 배경 블러 및 닫기 (+ 클릭음) */}
+      <div 
+        className="absolute inset-0 bg-black/70 backdrop-blur-sm animate-fadeIn" 
+        onClick={() => { playSfx(); onClose(); }} 
+      />
 
       {/* 노트 본체 (다크 테마 적용) */}
       <div className="relative w-full max-w-lg bg-neutral-900 h-[75vh] rounded-t-[32px] shadow-[0_-10px_40px_rgba(0,0,0,0.5)] flex flex-col overflow-hidden animate-slideUp border-t border-neutral-700">
@@ -36,21 +44,21 @@ const ReasoningNoteModal = ({ onClose }) => {
           <div className="flex gap-2 items-center">
             {isEditing ? (
               <button 
-                onClick={handleSave}
+                onClick={() => { playSfx(); handleSave(); }} // 💡 저장 버튼 클릭음
                 className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold rounded-full shadow-md active:scale-95 transition-all"
               >
                 저장하기
               </button>
             ) : (
               <button 
-                onClick={() => setIsEditing(true)}
+                onClick={() => { playSfx(); setIsEditing(true); }} // 💡 기록 수정 버튼 클릭음
                 className="px-4 py-1.5 bg-neutral-700 hover:bg-neutral-600 text-white text-sm font-bold rounded-full shadow-md active:scale-95 transition-all"
               >
                 기록 수정
               </button>
             )}
             <button 
-              onClick={onClose} 
+              onClick={() => { playSfx(); onClose(); }} // 💡 닫기 버튼 클릭음
               className="ml-1 w-8 h-8 flex items-center justify-center bg-neutral-800 rounded-full text-neutral-400 font-bold hover:text-white hover:bg-neutral-700 transition-all active:scale-95"
             >
               ✕
@@ -64,7 +72,7 @@ const ReasoningNoteModal = ({ onClose }) => {
             <textarea
               autoFocus
               value={noteText}
-              onChange={(e) => setNoteText(e.target.value)}
+              onChange={(e) => setNoteText(e.target.value)} // 💡 타자 칠 때는 소리 없음
               placeholder="사건의 모순점이나 범인에 대한 단서를 자유롭게 기록하세요..."
               className="w-full h-full bg-transparent border-none focus:ring-0 text-gray-100 leading-relaxed resize-none p-0 text-sm font-medium placeholder-neutral-600 scrollbar-hide outline-none"
               style={{ lineHeight: '1.8rem' }}

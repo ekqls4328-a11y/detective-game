@@ -2,12 +2,16 @@ import React from 'react';
 import { useAudio } from '../contexts/AudioContext';
 
 const SettingsModal = ({ onClose }) => {
-  const { bgmVolume, setBgmVolume, sfxVolume, setSfxVolume, isMuted, setIsMuted } = useAudio();
+  // 💡 playSfx 가져오기
+  const { bgmVolume, setBgmVolume, sfxVolume, setSfxVolume, isMuted, setIsMuted, playSfx } = useAudio();
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm animate-fadeIn p-6">
       <div className="bg-neutral-900 border border-neutral-700 w-full max-w-sm rounded-3xl p-6 shadow-2xl relative">
-        <button onClick={onClose} className="absolute top-4 right-4 text-neutral-500 hover:text-white font-bold text-xl">
+        <button 
+          onClick={() => { playSfx(); onClose(); }} // 💡 상단 닫기 버튼 클릭음
+          className="absolute top-4 right-4 text-neutral-500 hover:text-white font-bold text-xl"
+        >
           ✕
         </button>
         
@@ -20,7 +24,7 @@ const SettingsModal = ({ onClose }) => {
           <div className="flex justify-between items-center bg-neutral-800 p-4 rounded-xl border border-neutral-700">
             <span className="font-bold text-white">전체 소리 끄기</span>
             <button 
-              onClick={() => setIsMuted(!isMuted)}
+              onClick={() => { playSfx(); setIsMuted(!isMuted); }} // 💡 음소거 토글 클릭음
               className={`w-14 h-8 rounded-full transition-colors relative ${isMuted ? 'bg-red-600' : 'bg-neutral-600'}`}
             >
               <div className={`absolute top-1 w-6 h-6 bg-white rounded-full transition-all ${isMuted ? 'right-1' : 'left-1'}`} />
@@ -33,6 +37,7 @@ const SettingsModal = ({ onClose }) => {
               <span className="text-neutral-300">배경음악 (BGM)</span>
               <span className="text-neutral-500">{Math.round(bgmVolume * 100)}%</span>
             </div>
+            {/* 💡 슬라이더에는 클릭음을 넣지 않습니다 (렉 방지) */}
             <input 
               type="range" min="0" max="1" step="0.1" 
               value={bgmVolume} 
@@ -58,7 +63,10 @@ const SettingsModal = ({ onClose }) => {
           </div>
         </div>
 
-        <button onClick={onClose} className="w-full mt-8 py-4 bg-neutral-100 text-black font-black rounded-xl hover:bg-white active:scale-95 transition-all">
+        <button 
+          onClick={() => { playSfx(); onClose(); }} // 💡 하단 닫기 버튼 클릭음
+          className="w-full mt-8 py-4 bg-neutral-100 text-black font-black rounded-xl hover:bg-white active:scale-95 transition-all"
+        >
           닫기
         </button>
       </div>

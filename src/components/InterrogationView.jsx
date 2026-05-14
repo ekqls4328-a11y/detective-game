@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import TypewriterText from './TypewriterText';
 import InventoryModal from './InventoryModal';
 import InspectionModal from './InspectionModal';
+// 💡 AudioContext 임포트 추가
+import { useAudio } from '../contexts/AudioContext';
 
 const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, onClueFound, onMarkAsViewed, onRemoveClue, onPresent, onClose }) => {
   const [isTypingDone, setIsTypingDone] = useState(false);
@@ -17,6 +19,22 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, onCl
   const [discoveryText, setDiscoveryText] = useState(null);
 
   const [isImageLoaded, setIsImageLoaded] = useState(false);
+
+  // 💡 BGM 변경 및 효과음 함수 가져오기
+  const { changeAndPlayBgm, playSfx } = useAudio();
+
+  // 💡 심문 전용 BGM 재생 및 종료 시 원상 복구 로직
+  useEffect(() => {
+    // 1. 심문 창이 열리면 긴장감 있는 BGM으로 교체 (실제 파일 경로로 수정 필요)
+    changeAndPlayBgm('/audio/tension_bgm.mp3');
+
+    // 2. 심문 창이 닫힐 때(언마운트) 원래 시나리오 BGM으로 되돌림
+    return () => {
+      if (scenarioData && scenarioData.bgmUrl) {
+        changeAndPlayBgm(scenarioData.bgmUrl);
+      }
+    };
+  }, [changeAndPlayBgm, scenarioData]);
 
   useEffect(() => {
     setCurrentDialog(suspect.selfIntro);
@@ -81,11 +99,10 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, onCl
         >
           {suspect.illustration?.interrogationUrl ? (
             <img 
-              key={suspect.id} // 💡 핵심 1: 용의자가 바뀌면 돔(DOM)에서 완전히 새로 그리도록 강제함
+              key={suspect.id}
               src={suspect.illustration.interrogationUrl} 
               alt={`${suspect.name} 심문`} 
               onLoad={() => {
-                // 💡 핵심 2: 브라우저가 opacity: 0 인 상태를 화면에 먼저 그릴 수 있도록 50ms 딜레이 부여!
                 setTimeout(() => {
                   setIsImageLoaded(true);
                 }, 50);
@@ -105,11 +122,17 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, onCl
       <div className="relative z-10 flex flex-col h-full">
         
         <header className="shrink-0 p-4 flex justify-between items-center bg-gradient-to-b from-black/80 to-transparent">
-          <button onClick={onClose} className="text-white font-bold px-3 py-1 bg-black/50 rounded-full hover:bg-neutral-700 backdrop-blur-sm border border-neutral-700">
+          <button 
+            onClick={() => { playSfx(); onClose(); }} // 💡 클릭음 추가
+            className="text-white font-bold px-3 py-1 bg-black/50 rounded-full hover:bg-neutral-700 backdrop-blur-sm border border-neutral-700"
+          >
             &lt; 심문 종료
           </button>
           
-          <button onClick={() => setIsInspectionOpen(true)} className="font-bold px-4 py-1.5 rounded-full backdrop-blur-md bg-neutral-900/80 border border-neutral-600 text-amber-500 shadow-lg flex items-center gap-2 active:scale-95 transition-transform">
+          <button 
+            onClick={() => { playSfx(); setIsInspectionOpen(true); }} // 💡 클릭음 추가
+            className="font-bold px-4 py-1.5 rounded-full backdrop-blur-md bg-neutral-900/80 border border-neutral-600 text-amber-500 shadow-lg flex items-center gap-2 active:scale-95 transition-transform"
+          >
             <span>🧐</span> 외형 관찰
           </button>
         </header>
@@ -126,7 +149,11 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, onCl
                 </div>
                 <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-3 px-1 scrollbar-hide py-1">
                   {suspect.questions.map((q, idx) => (
-                    <button key={q.id} onClick={() => handleAskQuestion(q)} className="group relative w-full overflow-hidden rounded-xl bg-neutral-900 border border-neutral-700 p-4 text-left shadow-lg hover:border-amber-500 transition-all active:scale-[0.98] shrink-0">
+                    <button 
+                      key={q.id} 
+                      onClick={() => { playSfx(); handleAskQuestion(q); }} // 💡 클릭음 추가
+                      className="group relative w-full overflow-hidden rounded-xl bg-neutral-900 border border-neutral-700 p-4 text-left shadow-lg hover:border-amber-500 transition-all active:scale-[0.98] shrink-0"
+                    >
                       <div className="absolute inset-0 bg-gradient-to-r from-amber-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                       <div className="relative flex items-center gap-4">
                         <span className="flex items-center justify-center w-7 h-7 rounded-full bg-neutral-800 text-neutral-500 text-xs font-black group-hover:bg-amber-500 group-hover:text-black transition-colors shrink-0">{idx + 1}</span>
@@ -136,13 +163,27 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, onCl
                   ))}
                 </div>
                 <div className="shrink-0 pt-5 flex justify-center">
-                  <button onClick={() => setShowQuestionMenu(false)} className="py-3 px-8 rounded-full bg-neutral-800 text-neutral-400 font-bold hover:bg-neutral-700 hover:text-white transition-all border border-neutral-600 shadow-md">닫기</button>
+                  <button 
+                    onClick={() => { playSfx(); setShowQuestionMenu(false); }} // 💡 클릭음 추가
+                    className="py-3 px-8 rounded-full bg-neutral-800 text-neutral-400 font-bold hover:bg-neutral-700 hover:text-white transition-all border border-neutral-600 shadow-md"
+                  >
+                    닫기
+                  </button>
                 </div>
               </div>
             </div>
           )}
 
-          <div onClick={() => { if (!isTypingDone) setIsSkipping(true); }} className="bg-black/60 backdrop-blur-md border border-neutral-700/50 rounded-xl p-4 pt-5 relative shadow-2xl cursor-pointer flex flex-col min-h-[110px]">
+          {/* 💡 대화창 터치 시 스킵할 때도 클릭음 추가 */}
+          <div 
+            onClick={() => { 
+              if (!isTypingDone) {
+                playSfx(); 
+                setIsSkipping(true); 
+              } 
+            }} 
+            className="bg-black/60 backdrop-blur-md border border-neutral-700/50 rounded-xl p-4 pt-5 relative shadow-2xl cursor-pointer flex flex-col min-h-[110px]"
+          >
             <div className="absolute -top-3 left-4 bg-neutral-800 text-amber-500 font-black px-4 py-1 rounded-md text-sm border border-neutral-600 shadow-lg">
               {suspect.name}
             </div>
@@ -155,7 +196,10 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, onCl
           </div>
 
           {isTypingDone && currentStatement && !inventory.includes(currentStatement.id) && (
-            <button onClick={handleSaveToInventory} className="w-full py-3.5 bg-emerald-600/90 backdrop-blur-sm hover:bg-emerald-500 text-white font-black rounded-xl shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2 shrink-0 border border-emerald-500/50 animate-fadeIn">
+            <button 
+              onClick={() => { playSfx(); handleSaveToInventory(); }} // 💡 클릭음 추가
+              className="w-full py-3.5 bg-emerald-600/90 backdrop-blur-sm hover:bg-emerald-500 text-white font-black rounded-xl shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2 shrink-0 border border-emerald-500/50 animate-fadeIn"
+            >
               <span>📌</span> 이 진술을 수첩에 기록하기
             </button>
           )}
@@ -172,10 +216,16 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, onCl
           )}
 
           <div className={`flex gap-3 h-[52px] shrink-0 transition-opacity ${isTypingDone && !showQuestionMenu ? 'opacity-100' : 'opacity-30 pointer-events-none'}`}>
-            <button onClick={() => setShowQuestionMenu(true)} className="flex-1 bg-black/60 backdrop-blur-sm text-white font-bold rounded-xl border border-neutral-600 hover:bg-neutral-800 transition-colors flex items-center justify-center gap-2 shadow-lg">
+            <button 
+              onClick={() => { playSfx(); setShowQuestionMenu(true); }} // 💡 클릭음 추가
+              className="flex-1 bg-black/60 backdrop-blur-sm text-white font-bold rounded-xl border border-neutral-600 hover:bg-neutral-800 transition-colors flex items-center justify-center gap-2 shadow-lg"
+            >
               <span className="text-lg">🗣️</span> 질문하기
             </button>
-            <button onClick={() => setIsInventoryOpen(true)} className="flex-1 bg-red-900/80 backdrop-blur-sm text-white font-black rounded-xl border border-red-600 shadow-[0_0_15px_rgba(220,38,38,0.3)] hover:bg-red-800 transition-all flex items-center justify-center gap-1">
+            <button 
+              onClick={() => { playSfx(); setIsInventoryOpen(true); }} // 💡 클릭음 추가
+              className="flex-1 bg-red-900/80 backdrop-blur-sm text-white font-black rounded-xl border border-red-600 shadow-[0_0_15px_rgba(220,38,38,0.3)] hover:bg-red-800 transition-all flex items-center justify-center gap-1"
+            >
               <span className="text-xl">!</span> 단서 제시 (⚡ -1)
             </button>
           </div>

@@ -1,9 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import scenarioData from '../data/scenario_list.json';
+// 💡 AudioContext 임포트
+import { useAudio } from '../contexts/AudioContext';
 
 const MainScreen = ({ onSelectScenario, onBack, onOpenSettings }) => {
   const [scenarios, setScenarios] = useState([]);
   const [clearedScenarios, setClearedScenarios] = useState([]);
+
+  // 💡 BGM 변경 및 효과음 함수 가져오기
+  const { changeAndPlayBgm, playSfx } = useAudio();
 
   useEffect(() => {
     setScenarios(scenarioData);
@@ -11,7 +16,11 @@ const MainScreen = ({ onSelectScenario, onBack, onOpenSettings }) => {
     if (savedData) {
       setClearedScenarios(JSON.parse(savedData));
     }
-  }, []);
+
+    // 💡 화면 진입 시 메인 로비용 BGM 재생
+    // 실제 프로젝트의 로비 브금 경로에 맞게 수정해 줘 (ex: /audio/main_bgm.mp3)
+    changeAndPlayBgm('/audio/main_bgm.mp3');
+  }, [changeAndPlayBgm]);
 
   return (
     // 모바일 환경에 맞춰 좌우 패딩을 약간 줄이고(p-4), 하단 여백(pb-10)을 넉넉히 줌
@@ -19,7 +28,7 @@ const MainScreen = ({ onSelectScenario, onBack, onOpenSettings }) => {
 
       {/* 💡 우측 상단 설정 버튼 */}
       <button 
-        onClick={onOpenSettings}
+        onClick={() => { playSfx(); onOpenSettings(); }} // 💡 클릭음 추가
         className="absolute top-4 right-4 z-20 w-9 h-9 bg-neutral-800 border border-neutral-700 rounded-full flex items-center justify-center text-lg shadow-lg hover:bg-neutral-700 active:scale-95"
       >
         ⚙️
@@ -27,7 +36,10 @@ const MainScreen = ({ onSelectScenario, onBack, onOpenSettings }) => {
       
       {/* 💡 헤더 영역에 뒤로 가기 버튼 추가 */}
       <header className="mt-4 mb-8 pl-1 flex items-start gap-3">
-        <button onClick={onBack} className="text-neutral-400 hover:text-white font-bold mt-1 shrink-0">
+        <button 
+          onClick={() => { playSfx(); onBack(); }} // 💡 클릭음 추가
+          className="text-neutral-400 hover:text-white font-bold mt-1 shrink-0"
+        >
           &lt; 뒤로
         </button>
         <div>
@@ -67,7 +79,7 @@ const MainScreen = ({ onSelectScenario, onBack, onOpenSettings }) => {
                 {scenario.title}
               </h2>
               
-              {/* 💡 썸네일 이미지 영역 (briefingImageUrl 연동 및 디테일 강화) */}
+              {/* 썸네일 이미지 영역 */}
               <div className="h-44 w-full bg-neutral-950 rounded-xl overflow-hidden border border-neutral-700 mb-5 relative flex items-center justify-center">
                 
                 {scenario.briefingImageUrl ? (
@@ -101,7 +113,7 @@ const MainScreen = ({ onSelectScenario, onBack, onOpenSettings }) => {
                   </div>
                 )}
 
-                {/* 잠금 해제 상태일 때 하단 그라데이션 (시각적 깊이감 추가) */}
+                {/* 잠금 해제 상태일 때 하단 그라데이션 */}
                 {!scenario.isLocked && (
                   <div className="absolute inset-0 bg-gradient-to-t from-neutral-950/80 via-transparent to-transparent pointer-events-none" />
                 )}
@@ -109,7 +121,13 @@ const MainScreen = ({ onSelectScenario, onBack, onOpenSettings }) => {
 
               {/* 엄지손가락 최적화 하단 풀사이즈 버튼 */}
               <button 
-                onClick={() => !scenario.isLocked && onSelectScenario(scenario.id)}
+                onClick={() => {
+                  // 💡 잠겨있지 않을 때만 소리가 나고 넘어가도록 처리
+                  if (!scenario.isLocked) {
+                    playSfx();
+                    onSelectScenario(scenario.id);
+                  }
+                }}
                 disabled={scenario.isLocked}
                 className={`
                   w-full py-3.5 rounded-xl text-sm font-bold tracking-wide flex items-center justify-center gap-2

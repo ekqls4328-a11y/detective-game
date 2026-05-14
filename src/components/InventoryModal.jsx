@@ -1,10 +1,15 @@
 import React, { useState, useMemo } from 'react';
+// 💡 AudioContext 임포트 추가
+import { useAudio } from '../contexts/AudioContext';
 
 const InventoryModal = ({ inventory, scenarioData, viewedClues, onMarkAsViewed, onRemoveClue, onClose, onPresent }) => {
   const [selectedClue, setSelectedClue] = useState(null);
   const [activeTab, setActiveTab] = useState('evidence');
 
-  // 💡 [핵심 업데이트] 각 단서 객체에 부모의 이름(sourceName)을 자동으로 주입
+  // 💡 효과음 함수 가져오기
+  const { playSfx } = useAudio();
+
+  // 각 단서 객체에 부모의 이름(sourceName)을 자동으로 주입
   const allClues = useMemo(() => {
     if (!scenarioData) return [];
     
@@ -30,7 +35,7 @@ const InventoryModal = ({ inventory, scenarioData, viewedClues, onMarkAsViewed, 
           name: q.title,
           desc: q.response,
           icon: '🗣️',
-          sourceName: suspect.name // 💡 획득처 추가
+          sourceName: suspect.name
         });
       });
 
@@ -40,10 +45,10 @@ const InventoryModal = ({ inventory, scenarioData, viewedClues, onMarkAsViewed, 
         const clueName = originalClue ? originalClue.name : '단서';
         statements.push({
           id: `def_${suspect.id}_${d.clueId}`,
-          name: `${clueName} 추궁`, // 💡 대괄호 뺌 (위에 [사람] 태그가 붙을 거니까)
+          name: `${clueName} 추궁`, 
           desc: d.response,
           icon: '🗣️',
-          sourceName: suspect.name // 💡 획득처 추가
+          sourceName: suspect.name
         });
       });
     });
@@ -75,10 +80,10 @@ const InventoryModal = ({ inventory, scenarioData, viewedClues, onMarkAsViewed, 
 
   return (
     <div className="fixed inset-0 z-[60] flex items-end justify-center">
-      {/* 배경 블러 및 클릭 시 닫기 */}
+      {/* 💡 배경 블러 및 클릭 시 닫기 (+ 클릭음) */}
       <div 
         className="absolute inset-0 bg-black/70 backdrop-blur-sm animate-fadeIn" 
-        onClick={onClose} 
+        onClick={() => { playSfx(); onClose(); }} 
       />
 
       {/* 바텀 시트 본체 */}
@@ -101,7 +106,7 @@ const InventoryModal = ({ inventory, scenarioData, viewedClues, onMarkAsViewed, 
         <div className="px-6 pb-2 shrink-0">
           <div className="flex bg-neutral-950 rounded-xl p-1 border border-neutral-800">
             <button 
-              onClick={() => { setActiveTab('evidence'); setSelectedClue(null); }}
+              onClick={() => { playSfx(); setActiveTab('evidence'); setSelectedClue(null); }} // 💡 클릭음 추가
               className={`flex-1 py-2 text-xs font-black rounded-lg transition-all flex items-center justify-center gap-1.5 ${
                 activeTab === 'evidence' ? 'bg-blue-600 text-white shadow-md' : 'text-neutral-500 hover:text-neutral-300'
               }`}
@@ -109,7 +114,7 @@ const InventoryModal = ({ inventory, scenarioData, viewedClues, onMarkAsViewed, 
               <span>🔍</span> 물증 ({evidenceClues.length})
             </button>
             <button 
-              onClick={() => { setActiveTab('statement'); setSelectedClue(null); }}
+              onClick={() => { playSfx(); setActiveTab('statement'); setSelectedClue(null); }} // 💡 클릭음 추가
               className={`flex-1 py-2 text-xs font-black rounded-lg transition-all flex items-center justify-center gap-1.5 ${
                 activeTab === 'statement' ? 'bg-amber-500 text-black shadow-md' : 'text-neutral-500 hover:text-neutral-300'
               }`}
@@ -137,7 +142,7 @@ const InventoryModal = ({ inventory, scenarioData, viewedClues, onMarkAsViewed, 
             </div>
           ) : (
             <>
-              {/* 💡 단서 그리드 리스트 */}
+              {/* 단서 그리드 리스트 */}
               <div className="grid grid-cols-3 gap-3 p-6 overflow-y-auto max-h-[40%] bg-neutral-950/50">
                 {displayList.map(clue => {
                   const isUnread = viewedClues ? !viewedClues.includes(clue.id) : false;
@@ -146,6 +151,7 @@ const InventoryModal = ({ inventory, scenarioData, viewedClues, onMarkAsViewed, 
                     <button
                       key={clue.id}
                       onClick={() => {
+                        playSfx(); // 💡 단서 선택 시 클릭음 추가
                         setSelectedClue(clue);
                         if (onMarkAsViewed) onMarkAsViewed(clue.id);
                       }}
@@ -163,7 +169,6 @@ const InventoryModal = ({ inventory, scenarioData, viewedClues, onMarkAsViewed, 
                         <span className="text-lg mb-1 opacity-80">{clue.icon}</span>
                       )}
 
-                      {/* 💡 그리드 내 텍스트 출력: [출처] + 단서명 */}
                       <div className="w-full px-1 flex flex-col items-center justify-center gap-0.5 mt-auto mb-auto">
                         <span className="text-[9px] text-neutral-400 font-bold truncate w-full text-center">
                           [{clue.sourceName}]
@@ -181,12 +186,11 @@ const InventoryModal = ({ inventory, scenarioData, viewedClues, onMarkAsViewed, 
                 })}
               </div>
 
-              {/* 💡 선택된 단서 상세 정보 */}
+              {/* 선택된 단서 상세 정보 */}
               <div className="flex-1 p-6 bg-neutral-900 overflow-y-auto pb-32 border-t border-neutral-800">
                 {selectedClue ? (
                   <div className="animate-fadeIn">
                     
-                    {/* 타이틀 영역 */}
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-3 flex-1 pr-2">
                         <div className={`shrink-0 w-12 h-12 rounded-xl flex items-center justify-center border text-2xl ${
@@ -195,7 +199,6 @@ const InventoryModal = ({ inventory, scenarioData, viewedClues, onMarkAsViewed, 
                           {activeTab === 'evidence' ? '📍' : '💬'}
                         </div>
                         <div className="flex flex-col min-w-0">
-                          {/* 💡 상세 창에서도 [출처]를 예쁘게 표시 */}
                           <span className={`text-[10px] font-black tracking-wider ${activeTab === 'evidence' ? 'text-blue-400' : 'text-amber-500'}`}>
                             [{selectedClue.sourceName}]
                           </span>
@@ -207,6 +210,7 @@ const InventoryModal = ({ inventory, scenarioData, viewedClues, onMarkAsViewed, 
                       {onRemoveClue && activeTab === 'evidence' && (
                         <button 
                           onClick={() => {
+                            playSfx(); // 💡 휴지통 클릭 시 소리 추가
                             if(window.confirm('이 단서를 수첩에서 정말 파기하시겠습니까? (현장에서 다시 획득할 수 있습니다)')) {
                               onRemoveClue(selectedClue.id);
                               setSelectedClue(null);
@@ -239,13 +243,13 @@ const InventoryModal = ({ inventory, scenarioData, viewedClues, onMarkAsViewed, 
           {onPresent ? (
             <>
               <button 
-                onClick={onClose}
+                onClick={() => { playSfx(); onClose(); }} // 💡 닫기 버튼 클릭음
                 className="w-1/3 h-[56px] bg-neutral-800 text-neutral-300 font-bold rounded-2xl active:scale-[0.97] transition-all border border-neutral-700"
               >
                 닫기
               </button>
               <button 
-                onClick={() => selectedClue && onPresent(selectedClue)}
+                onClick={() => { playSfx(); selectedClue && onPresent(selectedClue); }} // 💡 추궁하기 버튼 클릭음
                 disabled={!selectedClue}
                 className={`flex-1 h-[56px] font-black rounded-2xl transition-all flex items-center justify-center gap-2 text-base ${
                   selectedClue 
@@ -258,7 +262,7 @@ const InventoryModal = ({ inventory, scenarioData, viewedClues, onMarkAsViewed, 
             </>
           ) : (
             <button 
-              onClick={onClose}
+              onClick={() => { playSfx(); onClose(); }} // 💡 수첩 닫기 버튼 클릭음
               className="w-full h-[56px] bg-neutral-800 hover:bg-neutral-700 text-white font-bold rounded-2xl active:scale-[0.97] transition-all border border-neutral-600 shadow-lg"
             >
               수첩 닫기

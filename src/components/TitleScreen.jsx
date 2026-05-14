@@ -1,15 +1,27 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+// 💡 AudioContext 훅 임포트
+import { useAudio } from '../contexts/AudioContext';
 
 const TitleScreen = ({ onStartGame, hasSaveData, onContinue, onOpenSettings }) => {
+  // 💡 BGM 변경 및 효과음 함수 가져오기
+  const { changeAndPlayBgm, playSfx } = useAudio();
+
+  useEffect(() => {
+    // 💡 화면이 처음 렌더링될 때 타이틀 전용 BGM 재생
+    // 실제 프로젝트의 타이틀 브금 경로에 맞게 수정해 줘 (ex: /audio/main_bgm.mp3)
+    changeAndPlayBgm('/audio/main_bgm.mp3');
+  }, [changeAndPlayBgm]);
+
   return (
     <div className="min-h-screen bg-neutral-950 flex flex-col items-center justify-center p-6 relative overflow-hidden">
-      {/* 💡 우측 상단 설정 버튼 */}
+      {/* 우측 상단 설정 버튼 */}
       <button 
-        onClick={onOpenSettings}
+        onClick={() => { playSfx(); onOpenSettings(); }} // 💡 클릭음 적용
         className="absolute top-6 right-6 z-20 w-10 h-10 bg-neutral-900/80 backdrop-blur border border-neutral-700 rounded-full flex items-center justify-center text-xl shadow-lg hover:bg-neutral-800 active:scale-95"
       >
         ⚙️
       </button>
+      
       {/* 배경 장식 */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-neutral-800 via-neutral-950 to-black opacity-50" />
       
@@ -27,7 +39,7 @@ const TitleScreen = ({ onStartGame, hasSaveData, onContinue, onOpenSettings }) =
         <div className="flex flex-col gap-4 w-full">
           {hasSaveData && (
             <button 
-              onClick={onContinue}
+              onClick={() => { playSfx(); onContinue(); }} // 💡 클릭음 적용
               className="w-full py-4 bg-amber-600 hover:bg-amber-500 text-white font-black rounded-2xl shadow-[0_0_20px_rgba(217,119,6,0.3)] active:scale-95 transition-all flex items-center justify-center gap-2"
             >
               <span>📂</span> 이어서 수사하기
@@ -35,7 +47,7 @@ const TitleScreen = ({ onStartGame, hasSaveData, onContinue, onOpenSettings }) =
           )}
           
           <button 
-            onClick={onStartGame}
+            onClick={() => { playSfx(); onStartGame(); }} // 💡 클릭음 적용
             className={`w-full py-4 font-black rounded-2xl transition-all active:scale-95 flex items-center justify-center gap-2 ${
               hasSaveData 
                 ? 'bg-neutral-800 text-neutral-400 hover:bg-neutral-700 border border-neutral-700' 
