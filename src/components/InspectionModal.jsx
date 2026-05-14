@@ -11,7 +11,7 @@ const InspectionModal = ({ suspect, inventory, onClueFound, onClose }) => {
   // 💡 부드러운 화면 전환(페이드)을 위한 상태
   const [isImageLoaded, setIsImageLoaded] = useState(false);
 
-  const IS_DEV_MODE = true; 
+  const IS_DEV_MODE = false; 
 
   const currentImageUrl = inspectionSide === 'front' ? suspect.illustration?.frontFullUrl : suspect.illustration?.backFullUrl;
 

@@ -13,7 +13,7 @@ const LocationModal = ({
   // 💡 [핵심] 배경 이미지 페이드 인 효과를 위한 상태 추가
   const [isImageLoaded, setIsImageLoaded] = useState(false);
 
-  const IS_DEV_MODE = true; 
+  const IS_DEV_MODE = false; 
 
   // 장소가 바뀔 때마다 이미지 로드 상태 초기화
   useEffect(() => {
