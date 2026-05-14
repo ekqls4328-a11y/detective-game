@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-// 💡 1. 줌 라이브러리 임포트 (수첩 모달 임포트는 삭제!)
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 
 const InspectionModal = ({ suspect, inventory, onClueFound, onClose }) => {
@@ -7,30 +6,29 @@ const InspectionModal = ({ suspect, inventory, onClueFound, onClose }) => {
   const [discoveryText, setDiscoveryText] = useState("화면을 터치해 수상한 곳을 찾아보세요.");
   const [focusedPoint, setFocusedPoint] = useState(null);
   
-  // 💡 2. 로컬 수첩 상태(isNoteOpen) 삭제됨 (PlayScreen의 전역 버튼 사용)
-
-  // 이미지의 원본 비율을 저장할 상태
   const [aspectRatio, setAspectRatio] = useState(null);
+  
+  // 💡 부드러운 화면 전환(페이드)을 위한 상태
+  const [isImageLoaded, setIsImageLoaded] = useState(false);
 
   const IS_DEV_MODE = true; 
 
   const currentImageUrl = inspectionSide === 'front' ? suspect.illustration?.frontFullUrl : suspect.illustration?.backFullUrl;
 
-  // 이미지가 바뀔 때마다 비율 초기화
   useEffect(() => {
-    setAspectRatio(null);
+    setIsImageLoaded(false); 
   }, [currentImageUrl]);
 
-  // 이미지가 로드되면 원본 가로/세로 비율을 계산해서 저장
   const handleImageLoad = (e) => {
     const { naturalWidth, naturalHeight } = e.target;
     if (naturalWidth && naturalHeight) {
       setAspectRatio(naturalWidth / naturalHeight);
     }
+    setIsImageLoaded(true);
   };
 
   const handlePointClick = (e, point) => {
-    e.stopPropagation(); // 💡 드래그와 클릭 충돌 방지
+    e.stopPropagation(); 
     setFocusedPoint(point);
     setDiscoveryText(`[${point.name}]\n\n${point.description}`);
   };
@@ -51,7 +49,6 @@ const InspectionModal = ({ suspect, inventory, onClueFound, onClose }) => {
           &lt; 돌아가기
         </button>
         <div className="flex items-center gap-3">
-          {/* 💡 3. 중복된 로컬 수첩 버튼 삭제됨 */}
           <div className="flex flex-col items-end">
             <span className="text-amber-500 font-black bg-neutral-900 px-3 py-1 rounded-full border border-amber-900/30 text-[11px]">
               {suspect.name} 관찰 중
@@ -61,7 +58,7 @@ const InspectionModal = ({ suspect, inventory, onClueFound, onClose }) => {
         </div>
       </header>
 
-      {/* 💡 4. 중앙 전신 이미지 및 히트박스 영역 (줌 라이브러리 & Shrink-Wrap 적용) */}
+      {/* 2. 중앙 전신 이미지 및 히트박스 영역 */}
       <div className="flex-1 min-h-0 flex items-center justify-center bg-black overflow-hidden relative">
         <TransformWrapper
           initialScale={1}
@@ -80,12 +77,10 @@ const InspectionModal = ({ suspect, inventory, onClueFound, onClose }) => {
                 <button onClick={() => resetTransform()} className="w-8 h-8 bg-neutral-900/80 text-white rounded-full border border-neutral-600 backdrop-blur-sm shadow-lg text-[10px] font-black">R</button>
               </div>
 
-              {/* 💡 뷰포트 폭주 방지용 wrapperStyle 적용 */}
               <TransformComponent 
                 wrapperStyle={{ width: "100%", height: "100%", position: "absolute", top: 0, left: 0 }}
                 contentStyle={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", padding: "12px" }}
               >
-                {/* 네가 짠 비율 계산(aspectRatio) 로직을 그대로 살려서 히트박스 위치 완벽 보존! */}
                 <div 
                   className="relative flex items-center justify-center"
                   style={{
@@ -94,8 +89,8 @@ const InspectionModal = ({ suspect, inventory, onClueFound, onClose }) => {
                     maxHeight: '100%',
                     height: aspectRatio ? '100%' : 'auto',
                     width: aspectRatio ? 'auto' : 'auto',
-                    opacity: aspectRatio ? 1 : 0,
-                    transition: 'opacity 0.3s'
+                    opacity: isImageLoaded ? 1 : 0,
+                    transition: 'opacity 0.3s ease-in-out'
                   }}
                 >
                   {currentImageUrl ? (
@@ -109,8 +104,8 @@ const InspectionModal = ({ suspect, inventory, onClueFound, onClose }) => {
                     <div className="w-[200px] h-[300px] flex items-center justify-center text-neutral-600 border border-neutral-800 rounded-xl text-xs">이미지 없음</div>
                   )}
 
-                  {/* 히트박스 레이어 (줌 땡겨도 절대 위치 안 틀어짐!) */}
-                  {aspectRatio && (
+                  {/* 히트박스 레이어 */}
+                  {isImageLoaded && (
                     <div className="absolute inset-0 z-[75]">
                       {suspect.inspectionPoints?.filter(point => point.side === inspectionSide).map(point => {
                         const isFound = inventory?.includes(point.id);
@@ -128,8 +123,8 @@ const InspectionModal = ({ suspect, inventory, onClueFound, onClose }) => {
                             }}
                             className={`absolute rounded-full transition-all duration-300 ${
                               IS_DEV_MODE 
-                                ? `border-2 ${isFocused ? 'border-blue-400 bg-blue-400/30' : (isFound ? 'border-emerald-500 bg-emerald-500/10' : 'border-red-500 bg-red-500/10')}` 
-                                : (isFocused ? 'border-2 border-blue-400 bg-blue-400/30' : 'bg-transparent border-none')
+                                ? `border-2 ${isFocused ? 'border-blue-400 bg-blue-400/30 shadow-[0_0_15px_rgba(96,165,250,0.5)]' : (isFound ? 'border-emerald-500 bg-emerald-500/10' : 'border-red-500 bg-red-500/10')}` 
+                                : (isFocused ? 'border-2 border-blue-400 bg-blue-400/30 shadow-[0_0_15px_rgba(96,165,250,0.5)]' : 'bg-transparent border-none')
                             }`}
                           >
                             {IS_DEV_MODE && (
@@ -149,7 +144,7 @@ const InspectionModal = ({ suspect, inventory, onClueFound, onClose }) => {
         </TransformWrapper>
       </div>
 
-      {/* 3. 하단 패널 (높이 고정하여 꿀렁임 원천 차단) */}
+      {/* 3. 하단 패널 */}
       <div className="shrink-0 w-full z-[80] bg-neutral-950 border-t border-neutral-800 p-3 pb-6 flex flex-col gap-2.5 shadow-2xl">
         <div className="bg-neutral-900 border border-neutral-700 px-3 py-2.5 rounded-xl shadow-inner relative flex flex-col h-[80px]">
           <div className="overflow-y-auto h-full pr-1 pb-1">
@@ -186,7 +181,6 @@ const InspectionModal = ({ suspect, inventory, onClueFound, onClose }) => {
         )}
       </div>
 
-      {/* 💡 5. 하단 수첩 모달 렌더링 삭제됨! */}
     </div>
   );
 };

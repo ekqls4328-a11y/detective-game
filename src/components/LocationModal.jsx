@@ -10,8 +10,15 @@ const LocationModal = ({
   
   const [isScanning, setIsScanning] = useState(false);
 
-  // 디버그 모드 플래그
+  // 💡 [핵심] 배경 이미지 페이드 인 효과를 위한 상태 추가
+  const [isImageLoaded, setIsImageLoaded] = useState(false);
+
   const IS_DEV_MODE = true; 
+
+  // 장소가 바뀔 때마다 이미지 로드 상태 초기화
+  useEffect(() => {
+    setIsImageLoaded(false);
+  }, [location?.backgroundUrl]);
 
   useEffect(() => {
     if (isScanning) {
@@ -72,7 +79,7 @@ const LocationModal = ({
         </div>
       </header>
 
-      {/* 2. 중앙 배경 이미지 (비율 및 잘림 방지 완벽 적용) */}
+      {/* 2. 중앙 배경 이미지 */}
       <div className="flex-1 min-h-0 flex items-center justify-center bg-black overflow-hidden relative">
         <TransformWrapper
           initialScale={1}
@@ -84,24 +91,27 @@ const LocationModal = ({
         >
           {({ zoomIn, zoomOut, resetTransform }) => (
             <>
-              {/* 줌 컨트롤러 (좌측 상단 유지) */}
+              {/* 줌 컨트롤러 */}
               <div className="absolute top-4 left-4 z-[90] flex flex-col gap-2 opacity-60 hover:opacity-100 transition-opacity">
                 <button onClick={() => zoomIn()} className="w-8 h-8 bg-neutral-900/80 text-white rounded-full border border-neutral-600 backdrop-blur-sm shadow-lg font-bold">+</button>
                 <button onClick={() => zoomOut()} className="w-8 h-8 bg-neutral-900/80 text-white rounded-full border border-neutral-600 backdrop-blur-sm shadow-lg font-bold">-</button>
                 <button onClick={() => resetTransform()} className="w-8 h-8 bg-neutral-900/80 text-white rounded-full border border-neutral-600 backdrop-blur-sm shadow-lg text-[10px] font-black">R</button>
               </div>
 
-              {/* 💡 [핵심 수정] absolute를 주어서 줌 라이브러리가 부모 크기를 100% 꽉 채우게 강제함 */}
               <TransformComponent 
                 wrapperStyle={{ width: "100%", height: "100%", position: "absolute", top: 0, left: 0 }}
                 contentStyle={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}
               >
-                {/* 💡 [핵심 수정] aspect-square를 추가해서 이미지가 무조건 1:1 비율을 유지한 채로 빈 공간에 딱 맞게 줄어들게(Shrink-Wrap) 함! */}
-                <div className="relative max-w-full max-h-full aspect-square flex items-center justify-center">
+                {/* 💡 isImageLoaded 상태에 따라 opacity를 조절하여 부드러운 페이드인 효과 적용! */}
+                <div 
+                  className="relative max-w-full max-h-full aspect-square flex items-center justify-center transition-opacity duration-500 ease-in-out"
+                  style={{ opacity: isImageLoaded ? 1 : 0 }}
+                >
                   {location.backgroundUrl ? (
                     <img 
                       src={location.backgroundUrl} 
                       alt={location.name} 
+                      onLoad={() => setIsImageLoaded(true)} // 💡 로드 완료 시 페이드 인 트리거
                       className="w-full h-full object-cover pointer-events-none select-none opacity-80" 
                     />
                   ) : (
@@ -110,41 +120,44 @@ const LocationModal = ({
                     </div>
                   )}
 
-                  <div className="absolute inset-0 z-[75]">
-                    {location.clues?.map(clue => {
-                      const isFound = inventory?.includes(clue.id);
-                      const isFocused = focusedPoint?.id === clue.id;
+                  {/* 💡 히트박스도 이미지가 로드된 후에만 스르륵 나타나게 처리 */}
+                  {isImageLoaded && (
+                    <div className="absolute inset-0 z-[75]">
+                      {location.clues?.map(clue => {
+                        const isFound = inventory?.includes(clue.id);
+                        const isFocused = focusedPoint?.id === clue.id;
 
-                      return (
-                        <button
-                          key={clue.id}
-                          onClick={(e) => handlePointClick(e, clue)}
-                          style={{ 
-                            top: clue.top, left: clue.left, width: clue.width, height: clue.height,
-                            transform: 'translate(-50%, -50%)'
-                          }}
-                          className={`absolute rounded-xl transition-all duration-300 ${
-                            IS_DEV_MODE 
-                              ? `border-2 ${isFocused ? 'border-blue-400 bg-blue-400/30 shadow-[0_0_15px_rgba(96,165,250,0.5)]' : (isFound ? 'border-emerald-500 bg-emerald-500/20' : 'border-red-500 bg-red-500/20')}`
-                              : (isFocused ? 'border-2 border-blue-400 bg-blue-400/30 shadow-[0_0_15px_rgba(96,165,250,0.5)]' : 'bg-transparent border-none')
-                          }`}
-                        >
-                          {IS_DEV_MODE && (
-                            <span className="absolute -top-5 left-1/2 -translate-x-1/2 whitespace-nowrap text-[8px] font-bold bg-black/80 text-white px-1.5 py-0.5 rounded border border-neutral-700 opacity-80 z-10 pointer-events-none">
-                              {clue.id}
-                            </span>
-                          )}
-                          
-                          {isScanning && !isFound && (
-                            <span className="absolute inset-0 rounded-xl bg-amber-400/40 animate-ping" />
-                          )}
-                          {isScanning && isFound && (
-                            <span className="absolute inset-0 rounded-xl bg-emerald-500/20 shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
+                        return (
+                          <button
+                            key={clue.id}
+                            onClick={(e) => handlePointClick(e, clue)}
+                            style={{ 
+                              top: clue.top, left: clue.left, width: clue.width, height: clue.height,
+                              transform: 'translate(-50%, -50%)'
+                            }}
+                            className={`absolute rounded-xl transition-all duration-300 ${
+                              IS_DEV_MODE 
+                                ? `border-2 ${isFocused ? 'border-blue-400 bg-blue-400/30 shadow-[0_0_15px_rgba(96,165,250,0.5)]' : (isFound ? 'border-emerald-500 bg-emerald-500/20' : 'border-red-500 bg-red-500/20')}`
+                                : (isFocused ? 'border-2 border-blue-400 bg-blue-400/30 shadow-[0_0_15px_rgba(96,165,250,0.5)]' : 'bg-transparent border-none')
+                            }`}
+                          >
+                            {IS_DEV_MODE && (
+                              <span className="absolute -top-5 left-1/2 -translate-x-1/2 whitespace-nowrap text-[8px] font-bold bg-black/80 text-white px-1.5 py-0.5 rounded border border-neutral-700 opacity-80 z-10 pointer-events-none">
+                                {clue.id}
+                              </span>
+                            )}
+                            
+                            {isScanning && !isFound && (
+                              <span className="absolute inset-0 rounded-xl bg-amber-400/40 animate-ping" />
+                            )}
+                            {isScanning && isFound && (
+                              <span className="absolute inset-0 rounded-xl bg-emerald-500/20 shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
               </TransformComponent>
             </>
@@ -200,7 +213,7 @@ const LocationModal = ({
           ) : actionPoints > 0 ? (
             <><span>🔍</span> 주변 탐색 (⚡ -1)</>
           ) : (
-            '탐색 불가 (AP 부족)'
+            '탐색 불가 (⚡ 부족)'
           )}
         </button>
       </div>
