@@ -72,7 +72,7 @@ const TitleScreen = ({ onStartGame, hasSaveData, onContinue, onOpenSettings }) =
       {/* 최하단 면책 조항 */}
       <footer className="absolute bottom-6 w-full text-center px-8 opacity-50 pointer-events-none">
         <p className="text-[11px] text-neutral-400 leading-relaxed font-bold break-keep">
-          본 게임의 모든 시나리오, 인물, 사건 및 장소는 허구로 창작된 것이며, <br/>
+          본 게임의 모든 시나리오, 인물, 사건 및 장소는 허구로 창작된 것이며, 
           실제 사건이나 인물과는 어떠한 관련도 없음을 알려드립니다.
         </p>
         <p className="text-[10px] text-neutral-600 mt-2 font-mono">
