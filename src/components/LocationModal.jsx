@@ -104,7 +104,7 @@ const LocationModal = ({
           {({ zoomIn, zoomOut, resetTransform }) => (
             <>
               {/* 줌 컨트롤러 */}
-              <div className="absolute top-4 left-4 z-[90] flex flex-col gap-2 opacity-60 hover:opacity-100 transition-opacity opacity-80">
+              <div className="absolute top-4 left-4 z-[90] flex flex-col gap-2 opacity-60 hover:opacity-100 transition-opacity">
                 {/* 💡 줌 버튼에도 클릭음 추가 */}
                 <button onClick={() => { playSfx(); zoomIn(); }} className="w-8 h-8 bg-neutral-900/80 text-white rounded-full border border-neutral-600 backdrop-blur-sm shadow-lg font-bold">+</button>
                 <button onClick={() => { playSfx(); zoomOut(); }} className="w-8 h-8 bg-neutral-900/80 text-white rounded-full border border-neutral-600 backdrop-blur-sm shadow-lg font-bold">-</button>
