@@ -26,7 +26,7 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, onCl
   // 💡 심문 전용 BGM 재생 및 종료 시 원상 복구 로직
   useEffect(() => {
     // 1. 심문 창이 열리면 긴장감 있는 BGM으로 교체 (실제 파일 경로로 수정 필요)
-    changeAndPlayBgm('/audio/tension_bgm.mp3');
+    // changeAndPlayBgm('/audio/tension_bgm.mp3');
 
     // 2. 심문 창이 닫힐 때(언마운트) 원래 시나리오 BGM으로 되돌림
     return () => {

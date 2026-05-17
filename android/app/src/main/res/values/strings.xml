@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">미스터리 탐정 보고서</string>
+    <string name="title_activity_main">미스터리 탐정 보고서</string>
+    <string name="package_name">com.studioPK.detective</string>
+    <string name="custom_url_scheme">com.studioPK.detective</string>
+</resources>

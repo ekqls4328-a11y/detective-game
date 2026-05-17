@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-// 💡 AudioContext 임포트 추가
+import React, { useState } from 'react';
+// 💡 AudioContext 임포트 추가 (이제 playSfx만 사용)
 import { useAudio } from '../contexts/AudioContext';
 
 const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, onFail, onReset }) => {
@@ -7,8 +7,8 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
   const [result, setResult] = useState('none'); // 'none', 'success', 'fail', 'gameover'
   const [accuracy, setAccuracy] = useState(0);
 
-  // 💡 BGM 변경 및 효과음 함수 가져오기
-  const { changeAndPlayBgm, playSfx } = useAudio();
+  // 💡 효과음 함수만 가져오기
+  const { playSfx } = useAudio();
 
   const questions = scenarioData.solution.questions || [];
   const truth = scenarioData.solution.crimeTruth;
@@ -26,17 +26,6 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
     const allPhysicalClues = [...locationClues, ...inspectionClues];
     return inventory?.map(id => allPhysicalClues.find(c => c.id === id)).filter(Boolean) || [];
   })();
-
-  // 💡 [핵심] 결과창 상태에 따라 엔딩 BGM으로 교체하는 로직
-  useEffect(() => {
-    if (result === 'success') {
-      changeAndPlayBgm('/audio/success_bgm.mp3'); // 성공 시 브금 (경로 수정 필요)
-    } else if (result === 'gameover') {
-      changeAndPlayBgm('/audio/gameover_bgm.mp3'); // 게임오버 시 브금 (경로 수정 필요)
-    } else if (result === 'fail') {
-      // 실패 시 긴장감 있는 브금으로 유지하거나 바꿀 수 있음
-    }
-  }, [result, changeAndPlayBgm]);
 
   const handleSelectAnswer = (questionId, answerId) => {
     setAnswers(prev => ({ ...prev, [questionId]: answerId }));
@@ -186,7 +175,8 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
         <h2 className="text-xl font-bold flex items-center gap-2">
           <span className="text-red-500">⚖️</span> 사건 종결.
         </h2>
-        <div className="flex gap-1 bg-black/30 px-3 py-1.5 rounded-full border border-neutral-800">
+        {/* 💡 여기에 mr-14 를 추가해서 우측 수첩 아이콘과 안 겹치게 왼쪽으로 밀어줌! */}
+        <div className="flex gap-1 bg-black/30 px-3 py-1.5 rounded-full border border-neutral-800 mr-14">
         {[...Array(3)].map((_, i) => (
           <span 
             key={i} 

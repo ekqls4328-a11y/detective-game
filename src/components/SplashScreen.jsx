@@ -37,7 +37,7 @@ const SplashScreen = ({ onFinish }) => {
           {/* 💡 src에 문자열로 직접 경로를 줬어. (public 폴더 기준) */}
           <img 
             src="/assets/studio_logo.png" 
-            alt="Studio PP Logo"
+            alt="Studio PK Logo"
             onLoad={() => setImageLoaded(true)} 
             onError={() => setImageLoaded(false)} 
             className={`transition-all duration-500 w-24 h-auto opacity-90 ${
@@ -56,7 +56,7 @@ const SplashScreen = ({ onFinish }) => {
 
         <div className="text-center mt-2">
           <h1 className="text-white font-black tracking-[0.4em] text-2xl mb-2">
-            STUDIO PP
+            STUDIO PK
           </h1>
           <p className="text-neutral-600 font-bold text-xs tracking-[0.3em]">
             PRESENTS
