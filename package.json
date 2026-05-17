@@ -10,8 +10,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@capacitor-community/keep-awake": "^8.0.1",
     "@capacitor/android": "^8.3.4",
+    "@capacitor/app": "^8.1.0",
     "@capacitor/core": "^8.3.4",
+    "@capacitor/toast": "^8.0.1",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "react-zoom-pan-pinch": "^4.0.3"

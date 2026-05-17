@@ -18,17 +18,15 @@ const MainScreen = ({ onSelectScenario, onBack, onOpenSettings }) => {
     }
 
     // 💡 화면 진입 시 메인 로비용 BGM 재생
-    // 실제 프로젝트의 로비 브금 경로에 맞게 수정해 줘 (ex: /audio/main_bgm.mp3)
     changeAndPlayBgm('/audio/main_bgm.mp3');
   }, [changeAndPlayBgm]);
 
   return (
-    // 모바일 환경에 맞춰 좌우 패딩을 약간 줄이고(p-4), 하단 여백(pb-10)을 넉넉히 줌
     <div className="min-h-screen bg-neutral-900 text-gray-100 p-4 pb-10 font-sans">
 
       {/* 💡 우측 상단 설정 버튼 */}
       <button 
-        onClick={() => { playSfx(); onOpenSettings(); }} // 💡 클릭음 추가
+        onClick={() => { playSfx(); onOpenSettings(); }} 
         className="absolute top-4 right-4 z-20 w-9 h-9 bg-neutral-800 border border-neutral-700 rounded-full flex items-center justify-center text-lg shadow-lg hover:bg-neutral-700 active:scale-95"
       >
         ⚙️
@@ -37,7 +35,7 @@ const MainScreen = ({ onSelectScenario, onBack, onOpenSettings }) => {
       {/* 💡 헤더 영역에 뒤로 가기 버튼 추가 */}
       <header className="mt-4 mb-8 pl-1 flex items-start gap-3">
         <button 
-          onClick={() => { playSfx(); onBack(); }} // 💡 클릭음 추가
+          onClick={() => { playSfx(); onBack(); }} 
           className="text-neutral-400 hover:text-white font-bold mt-1 shrink-0"
         >
           &lt; 뒤로
@@ -57,10 +55,12 @@ const MainScreen = ({ onSelectScenario, onBack, onOpenSettings }) => {
         {scenarios.map((scenario) => {
           const isCleared = clearedScenarios.includes(scenario.id);
           
+          // 💡 [핵심 추가] 로컬 스토리지에서 해당 시나리오의 수사 기록이 존재하는지 체크
+          const hasSavedData = !!localStorage.getItem(`crime_game_progress_${scenario.id}`);
+          
           return (
             <div 
               key={scenario.id} 
-              // w-full로 모바일 화면 가로를 꽉 채우고 둥근 모서리(rounded-2xl) 적용
               className={`
                 relative w-full bg-neutral-800 rounded-2xl p-5 flex flex-col
                 border border-neutral-700 shadow-lg transition-all duration-300
@@ -81,9 +81,7 @@ const MainScreen = ({ onSelectScenario, onBack, onOpenSettings }) => {
               
               {/* 썸네일 이미지 영역 */}
               <div className="h-44 w-full bg-neutral-950 rounded-xl overflow-hidden border border-neutral-700 mb-5 relative flex items-center justify-center">
-                
                 {scenario.briefingImageUrl ? (
-                  // 이미지가 있을 때: 꽉 차게 렌더링하고, 잠금 상태면 블러 처리
                   <img 
                     src={scenario.briefingImageUrl} 
                     alt={scenario.title} 
@@ -92,7 +90,6 @@ const MainScreen = ({ onSelectScenario, onBack, onOpenSettings }) => {
                     }`}
                   />
                 ) : (
-                  // 이미지가 없을 때: 기존 NO DATA 표시
                   <span className="text-neutral-600 text-xs font-mono block text-center">
                     [EVIDENCE PHOTO]<br/>NO DATA
                   </span>
@@ -113,36 +110,57 @@ const MainScreen = ({ onSelectScenario, onBack, onOpenSettings }) => {
                   </div>
                 )}
 
-                {/* 잠금 해제 상태일 때 하단 그라데이션 */}
                 {!scenario.isLocked && (
                   <div className="absolute inset-0 bg-gradient-to-t from-neutral-950/80 via-transparent to-transparent pointer-events-none" />
                 )}
               </div>
 
-              {/* 엄지손가락 최적화 하단 풀사이즈 버튼 */}
-              <button 
-                onClick={() => {
-                  // 💡 잠겨있지 않을 때만 소리가 나고 넘어가도록 처리
-                  if (!scenario.isLocked) {
-                    playSfx();
-                    onSelectScenario(scenario.id);
-                  }
-                }}
-                disabled={scenario.isLocked}
-                className={`
-                  w-full py-3.5 rounded-xl text-sm font-bold tracking-wide flex items-center justify-center gap-2
-                  transition-colors z-10
-                  ${scenario.isLocked 
-                    ? 'bg-neutral-700 text-neutral-500 cursor-not-allowed' 
-                    : 'bg-white text-black hover:bg-gray-200 active:bg-gray-300 shadow-md'}
-                `}
-              >
+              {/* 💡 하단 버튼 액션 영역 분기 처리 */}
+              <div className="w-full z-10">
                 {scenario.isLocked ? (
-                  'COMMING SOON'
+                  // 1. 잠금 상태일 때 (COMING SOON)
+                  <button 
+                    disabled
+                    className="w-full py-3.5 rounded-xl text-sm font-bold tracking-wide bg-neutral-700 text-neutral-500 cursor-not-allowed flex items-center justify-center"
+                  >
+                    COMING SOON
+                  </button>
+                ) : hasSavedData ? (
+                  // 2. 락은 풀렸고 기존 세이브 데이터가 존재할 때 -> 버튼 2개로 쪼개기
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => {
+                        playSfx();
+                        onSelectScenario(scenario.id, true); // 💡 이어하기 플래그 true 전달
+                      }}
+                      className="flex-[2] py-3.5 bg-amber-600 hover:bg-amber-500 active:bg-amber-700 text-white font-black rounded-xl text-sm tracking-wide shadow-md flex items-center justify-center transition-colors active:scale-[0.98]"
+                    >
+                      이어하기
+                    </button>
+                    <button
+                      onClick={() => {
+                        playSfx();
+                        onSelectScenario(scenario.id, false); // 💡 새 게임 플래그 false 전달
+                      }}
+                      className="flex-1 py-3.5 bg-neutral-700 hover:bg-neutral-600 active:bg-neutral-800 text-neutral-300 font-bold rounded-xl text-xs tracking-wide border border-neutral-600 flex items-center justify-center transition-colors active:scale-[0.98]"
+                    >
+                      처음부터
+                    </button>
+                  </div>
                 ) : (
-                  <>조사 시작하기 <span className="text-lg">➔</span></>
+                  // 3. 기록이 없는 순수 초반 상태일 때 -> 기존 싱글 버튼 유지
+                  <button 
+                    onClick={() => {
+                      playSfx();
+                      onSelectScenario(scenario.id, false); // 💡 새 게임 진입
+                    }}
+                    className="w-full py-3.5 rounded-xl text-sm font-bold tracking-wide bg-white text-black hover:bg-gray-200 active:bg-gray-300 shadow-md flex items-center justify-center gap-2 transition-colors active:scale-[0.98]"
+                  >
+                    조사 시작하기 <span className="text-lg">➔</span>
+                  </button>
                 )}
-              </button>
+              </div>
+
             </div>
           );
         })}
