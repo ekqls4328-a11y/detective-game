@@ -1,15 +1,35 @@
 import React, { useState, useEffect } from 'react';
-import scenarioData from '../data/wedding_murder.json';
 import InterrogationView from './InterrogationView';
 import DeductionView from './DeductionView';
 import InventoryModal from './InventoryModal';
 import LocationModal from './LocationModal';
 import ReasoningNoteModal from './ReasoningNoteModal'; 
-// 💡 정확한 상대 경로로 AudioContext 임포트
 import { useAudio } from '../contexts/AudioContext'; 
+
+// 💡 1. 만들어둔 시나리오 JSON 파일들을 모두 임포트해!
+import wedding_murder from '../data/wedding_murder.json';
+import apartment_murder from '../data/apartment_murder.json';
+
+// 💡 2. 시나리오 ID를 키(Key)값으로 하는 객체(DB)를 만들어줘!
+const scenarioDB = {
+  "wedding_murder": wedding_murder,
+  "apartment_murder": apartment_murder
+};
 
 const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
   const SAVE_KEY = `crime_game_progress_${scenarioId}`;
+
+  // 💡 3. App.jsx에서 넘겨준 scenarioId를 바탕으로 진짜 데이터를 꺼냄!
+  const currentScenarioData = scenarioDB[scenarioId];
+
+  // 혹시라도 데이터를 못 찾았을 때 앱이 뻗는 걸 방지하는 안전장치
+  if (!currentScenarioData) {
+    return (
+      <div className="min-h-screen bg-black text-white flex items-center justify-center">
+        해당 시나리오({scenarioId}) 데이터를 찾을 수 없습니다.
+      </div>
+    );
+  }
 
   const getInitialState = (key, defaultValue) => {
     try {
@@ -23,9 +43,10 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
     }
   };
 
-  const defaultAP = scenarioData.maxActionPoints || 3;
+  const defaultAP = currentScenarioData.maxActionPoints || 3;
 
-  const [data, setData] = useState(scenarioData); 
+  // 💡 4. 고정된 값이 아니라 현재 시나리오 데이터를 초기값으로 세팅
+  const [data, setData] = useState(currentScenarioData); 
   const [activeTab, setActiveTab] = useState(() => getInitialState('activeTab', 'briefing')); 
   const [actionPoints, setActionPoints] = useState(() => getInitialState('actionPoints', defaultAP));
   const [inventory, setInventory] = useState(() => getInitialState('inventory', []));
@@ -37,7 +58,6 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
   const [isGlobalInventoryOpen, setIsGlobalInventoryOpen] = useState(false);
   const [isNoteOpen, setIsNoteOpen] = useState(false);
 
-  // 💡 BGM 재생 및 효과음 함수 가져오기
   const { changeAndPlayBgm, playSfx } = useAudio(); 
 
   const unreadCount = inventory.filter(id => !viewedClues.includes(id)).length;
@@ -54,29 +74,31 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
   }, [activeTab, actionPoints, inventory, viewedClues, deductionLife, SAVE_KEY]);
 
   useEffect(() => {
-    setData(scenarioData);
+    // 💡 5. scenarioId가 바뀔 때 올바른 데이터를 다시 세팅
+    const newData = scenarioDB[scenarioId];
+    setData(newData);
+    
     const saved = localStorage.getItem(SAVE_KEY);
     
     if (saved) {
       const parsed = JSON.parse(saved);
-      setActionPoints(parsed.actionPoints !== undefined ? parsed.actionPoints : defaultAP);
+      setActionPoints(parsed.actionPoints !== undefined ? parsed.actionPoints : (newData.maxActionPoints || 3));
       setInventory(parsed.inventory || []);
       setViewedClues(parsed.viewedClues || []);
       setActiveTab(parsed.activeTab || 'briefing');
       setDeductionLife(parsed.deductionLife !== undefined ? parsed.deductionLife : 3);
     } else {
-      setActionPoints(defaultAP);
+      setActionPoints(newData.maxActionPoints || 3);
       setInventory([]);
       setViewedClues([]);
       setActiveTab('briefing');
       setDeductionLife(3);
     }
 
-    // 💡 시나리오 데이터가 로드되면 해당 BGM 재생
-    if (scenarioData && scenarioData.bgmUrl) {
-      changeAndPlayBgm(scenarioData.bgmUrl);
+    if (newData && newData.bgmUrl) {
+      changeAndPlayBgm(newData.bgmUrl);
     }
-  }, [scenarioId, SAVE_KEY, defaultAP, changeAndPlayBgm]);
+  }, [scenarioId, SAVE_KEY, changeAndPlayBgm]);
   
   useEffect(() => {
     if (data && actionPoints <= 0 && activeTab !== 'deduction') {
@@ -91,7 +113,8 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
 
   const clearProgress = () => {
     localStorage.removeItem(SAVE_KEY);
-    window.location.reload();
+    // window.location.reload();       // ❌ 앱 전체 강제 재시작 (삭제!)
+    onBack();                          // 💡 MainScreen으로 안전하게 라우팅 (추가!
   };
 
   const handlePresentEvidence = () => {
@@ -127,7 +150,7 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
       
       {/* 글로벌 수첩 플로팅 버튼 */}
       <button 
-        onClick={() => { playSfx(); setIsNoteOpen(true); }} // 💡 클릭음 추가
+        onClick={() => { playSfx(); setIsNoteOpen(true); }}
         className="fixed top-[72px] right-4 z-[80] w-12 h-12 bg-neutral-800 border border-neutral-600 rounded-full flex items-center justify-center text-xl shadow-[0_4px_15px_rgba(0,0,0,0.5)] active:scale-90 transition-all hover:bg-neutral-700"
       >
         📓
@@ -135,7 +158,7 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
 
       <header className={`sticky top-0 z-20 border-b border-neutral-800 p-3 flex justify-between items-center gap-2 shadow-md transition-colors ${actionPoints === 0 ? 'bg-red-950' : 'bg-neutral-950'}`}>
         <button 
-          onClick={() => { playSfx(); onBack(); }} // 💡 클릭음 추가
+          onClick={() => { playSfx(); onBack(); }}
           className="text-neutral-400 hover:text-white font-bold text-sm whitespace-nowrap shrink-0"
         >
           &lt; 철수
@@ -147,14 +170,14 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
         
         <div className="flex items-center gap-2 shrink-0">
           <button 
-            onClick={() => { playSfx(); onOpenSettings(); }} // 💡 클릭음 추가
+            onClick={() => { playSfx(); onOpenSettings(); }}
             className="w-8 h-8 bg-neutral-800 rounded-full border border-neutral-600 flex items-center justify-center hover:bg-neutral-700 active:scale-95 transition-all"
           >
             <span className="text-sm">⚙️</span>
           </button>
 
           <button 
-            onClick={() => { playSfx(); setIsGlobalInventoryOpen(true); }} // 💡 클릭음 추가
+            onClick={() => { playSfx(); setIsGlobalInventoryOpen(true); }}
             className="relative w-8 h-8 bg-neutral-800 rounded-full border border-neutral-600 flex items-center justify-center hover:bg-neutral-700 active:scale-95 transition-all"
           >
             <span className="text-sm">💼</span>
@@ -203,7 +226,7 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
             </div>
 
             <button 
-              onClick={() => { playSfx(); setActiveTab('interrogation'); }} // 💡 클릭음 추가
+              onClick={() => { playSfx(); setActiveTab('interrogation'); }}
               className="w-full py-4 bg-neutral-200 text-black font-black rounded-xl hover:bg-white active:scale-95 transition-all shadow-lg mt-4"
             >
               용의자 심문 시작하기
@@ -220,7 +243,7 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
               {data.suspects.map((suspect, index) => (
                 <button 
                   key={suspect.id} 
-                  onClick={() => { playSfx(); setSelectedSuspect(suspect); }} // 💡 클릭음 추가
+                  onClick={() => { playSfx(); setSelectedSuspect(suspect); }}
                   className="w-full bg-neutral-800 p-4 rounded-xl flex items-center gap-4 border border-neutral-700 hover:bg-neutral-700 active:scale-[0.98] transition-all"
                 >
                   <div className="w-14 h-14 shrink-0 bg-neutral-900 rounded-lg border border-neutral-600 flex flex-col items-center justify-center shadow-[inset_0_2px_8px_rgba(0,0,0,0.5)] relative overflow-hidden">
@@ -253,7 +276,7 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
               {data.locations.map(loc => (
                 <button 
                   key={loc.id} 
-                  onClick={() => { playSfx(); setSelectedLocation(loc); }} // 💡 클릭음 추가
+                  onClick={() => { playSfx(); setSelectedLocation(loc); }}
                   className="w-full bg-neutral-800 p-4 rounded-xl text-left border border-neutral-700 hover:bg-neutral-700 active:scale-[0.98] transition-all flex justify-between items-center"
                 >
                   <div>

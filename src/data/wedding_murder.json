@@ -1,6 +1,5 @@
 {
   "id": "wedding_murder",
-  "themeId": "realism",
   "title": "창백한 부케: VIP 신부 대기실 살인사건",
   "maxActionPoints": 999,
   "briefingImageUrl": "/images/wedding_murder/briefingImage.webp",
@@ -47,12 +46,7 @@
         { "id": "insp_knee_dust", "side": "front", "top": "71%", "left": "59%", "width": "10%", "height": "7%", "name": "무릎의 먼지", "description": "오른쪽 무릎 부분에만 짙은 자주색 카펫 섬유가 뭉쳐서 묻어 있다." },
         { "id": "clue_handkerchief", "side": "front", "top": "30%", "left": "63%", "width": "8%", "height": "5%", "name": "얼룩진 손수건", "description": "마른 액체 자국 위로 희미한 흰색 가루 흔적이 남아 있다."},
         { "id": "clue_reminder", "side": "front", "top": "50%", "left": "66%", "width": "8%", "height": "6%", "name": "붉은색 독촉장", "description": "'가압류' 도장이 찍힌 독촉장 사이에 사채 상환 일정 메모가 끼어 있다."}
-      ],
-      "hiddenInfo": {
-        "personalDetail": "32세. 겉보기엔 완벽한 스타트업 대표지만, 실상은 투자 실패로 수십억의 사채 빚을 지고 있다. 핸드폰 케이스 안쪽에 '가압류'가 찍힌 붉은색 독촉장을 숨기고 다니며 극도로 초조해한다. 신부의 막대한 재산과 사망 보험금이 절실한 상황이라, 다정한 새신랑 연기를 위해 평소 짙은 남색 실크 손수건을 품에 지니고 다닌다.",
-        "timeline": "10:30 로비에서 하객 맞이 중.\n11:00 대기실 진입. 신부 샴페인 음용.\n11:05 파혼 통보받음.\n11:10 남은 샴페인에 독을 탐. 신부 사망.\n11:15 밖에서 문을 잠그고 문 밑으로 열쇠를 밀어 넣음. 화분에 펜 은닉.\n11:16 로비 의자의 박플래너 가방에 독약 공병 투척.",
-        "secretBackground": "당신이 진범입니다. 11시 5분경 파혼을 통보받았으나, 11시 10분쯤 신부가 수면제 기운에 비몽사몽해지자 맹독을 탔습니다. 손수건으로 입가를 닦아내고 도구를 숨겨 나왔으며, 공용 볼펜으로 문 밑으로 열쇠를 밀어 넣어 밀실을 만들었습니다."
-      }
+      ]
     },
     {
       "id": "suspect2",
@@ -93,12 +87,7 @@
         { "id": "insp_inner_pocket", "side": "front", "top": "41%", "left": "63%", "width": "10%", "height": "5%", "name": "자켓 주머니의 수첩", "description": "타이트한 정장 자켓 주머니에 수첩을 억지로 쑤셔 넣은 듯 하다." },
         { "id": "clue_perfumebottle", "side": "front", "top": "47%", "left": "39%", "width": "10%", "height": "8%", "name": "미니 향수 공병", "description": "안쪽에 액체를 급하게 비워낸 흔적이 남아 있고, 강한 알코올 향과 낯선 금속성 냄새가 희미하게 남아 있다." },
         { "id": "clue_doubleledger", "side": "back", "top": "47%", "left": "61%", "width": "10%", "height": "8%", "name": "비밀 이중 장부", "description": "예식 비용이 다르게 적힌 이중 장부." }
-      ],
-      "hiddenInfo": {
-        "personalDetail": "30세. 신부의 갑질을 견디며 뒤로는 막대한 리베이트를 챙겨 가죽 수첩에 기록해 둔다. 스트레스를 받을 땐 버건디색 립스틱을 바른 채 비상계단에서 커피를 마신다.",
-        "timeline": "10:30 대기실 샴페인 세팅.\n10:40 뺨 맞고 비상계단에서 휴식.\n10:55 대기실 접근, 이동생 난동 목격.\n11:16 로비 소파로 돌아와 가방 지퍼 열린 것 발견.\n11:20 대기실 잠긴 것 확인 후 2층 이동.\n11:30 보안요원 호출하여 시신 발견.",
-        "secretBackground": "당신은 범인이 아닙니다. 리베이트 장부가 들킬까 봐 신부 가방을 뒤지려 했으나 실패했고, 로비에 방치한 가방에 누군가 독약 공병을 몰래 넣은 피해자입니다."
-      }
+      ]
     },
     {
       "id": "suspect3",
@@ -134,12 +123,7 @@
         { "id": "insp_nail_powder", "side": "front", "top": "33%", "left": "82%", "width": "15%", "height": "5%", "name": "손톱 밑의 주황색 가루", "description": "화려한 네일아트가 칠해진 손톱 밑에 미세한 주황색 가루가 끼어 있다." },
         { "id": "clue_pillcan", "side": "front", "top": "43%", "left": "63%", "width": "7%", "height": "5%", "name": "텅 빈 주황색 약통", "description": "잔여 가루조차 없이 완전히 비어 있는 수면제 약통." },
         { "id": "clue_manda", "side": "front", "top": "42%", "left": "43%", "width": "8%", "height": "7%", "name": "M&A 계약서", "description": "최베프의 이름이 지워진 회사 매각 계약서." }
-      ],
-      "hiddenInfo": {
-        "personalDetail": "30세. 신부가 회사를 단독 매각하려 했다는 사실을 알고 분노해 M&A 계약서를 챙겨 왔다. 불면증 때문에 주황색 캡슐형 수면제를 지니고 다닌다.",
-        "timeline": "10:45 회사 매각 건으로 몸싸움 (머리핀 파손).\n10:48 화장실 이동 (로비에 큐빅 떨어짐).\n10:57 몰래 대기실 진입. 샴페인 잔에 수면제 투입.\n11:00 대기실 퇴실.\n11:10 2층 식당 이동 중 정전남친 목격.",
-        "secretBackground": "당신은 범인이 아닙니다. 10시 57분에 신부가 파우더룸에 간 사이 샴페인 잔에 수면제를 몰래 탔습니다. 결혼식을 망칠 목적이었을 뿐, 독을 탄 것은 다른 사람입니다."
-      }
+      ]
     },
     {
       "id": "suspect4",
@@ -173,12 +157,7 @@
       "inspectionPoints": [
         { "id": "clue_potionbottle", "side": "front", "top": "48%", "left": "65%", "width": "9%", "height": "7%", "name": "라벨 없는 물약병", "description": "정체불명의 투명한 액체가 남아 있는 물약병." },
         { "id": "clue_knife", "side": "front", "top": "45%", "left": "37%", "width": "8%", "height": "7%", "name": "다용도 공구 (맥가이버칼)", "description": "허름한 코트 주머니 끝에 다용도 공구(맥가이버칼). 송곳 날에 짙은 자주색 카펫 섬유가 박혀 있으며 본체가 두껍다." }
-      ],
-      "hiddenInfo": {
-        "personalDetail": "33세. 이별 후유증으로 심한 공황장애를 앓아 투명한 신경안정제를 소지하고 다닌다. 증거 수집용 소형 녹음기와 맥가이버칼을 들고 호텔에 잠입했다.",
-        "timeline": "10:50 식장 잠입. 하늘이와 눈 마주침.\n11:00 김신랑 대기실 진입 목격.\n11:10 소리에 놀라 숨다 넘어져 코피 남. 녹음기 은닉.\n11:15 김신랑이 도구를 숨기며 나오는 뒷모습 목격.\n11:18 이동생이 철사로 문 쑤시는 것 목격.\n11:25 본인의 공구로 문을 억지로 따보려다 실패.",
-        "secretBackground": "당신은 범인이 아닙니다. 11시 25분경 잠긴 문을 억지로 열어보려고 맥가이버칼 송곳을 문 밑에 쑤셔 넣었을 뿐입니다."
-      }
+      ]
     },
     {
       "id": "suspect5",
@@ -213,12 +192,7 @@
       "inspectionPoints": [
         { "id": "insp_bulging_pants", "side": "front", "top": "51%", "left": "64%", "width": "12%", "height": "8%", "name": "불룩한 정장 주머니", "description": "주머니 안에 여러 물건이 뒤섞여 들어 있는 듯 불룩하며, 구겨진 비닐 패키지 조각이 살짝 삐져나와 있다." },
         { "id": "clue_memorandum", "side": "front", "top": "30%", "left": "63%", "width": "8%", "height": "5%", "name": "신체 포기 각서", "description": "손가락을 억지로 찍은 듯 번진 붉은 지장과 오래된 핏자국이 남아 있다." }
-      ],
-      "hiddenInfo": {
-        "personalDetail": "28세. 도박 빚으로 신체 포기 각서를 쓴 상태. 불법 각성제 빈 봉지를 지니고 불안에 떨고 있다.",
-        "timeline": "10:50 로비 ATM 출금 실패.\n10:52 대기실 진입. 구걸.\n10:55 샴페인 잔 들었다 내려놓음. 경찰 신고 협박받음.\n10:56 예물 반지 절도 후 2층 이동.\n11:18 반지 반환하러 왔으나 문 잠김. 철사로 구멍 쑤심.",
-        "secretBackground": "당신은 범인이 아닙니다. 10시 56분경 다이아 예물 반지를 몰래 훔쳐서 도망쳤고 죄책감에 11시 18분경 반지를 돌려주려 왔다가 잠긴 문을 철사로 쑤셔봤을 뿐입니다."
-      }
+      ]
     }
   ],
   "locations": [
@@ -368,7 +342,7 @@
     "failMessage": "당신의 추리는 빗나갔습니다. 진범은 유유히 현장을 빠져나갔습니다.",
 
     "crimeTruth": {
-      "illustrationUrl": "/images/wedding_murder/crime_truth.jpg",
+      "illustrationUrl": "/images/wedding_murder/crime_truth.webp",
       "title": "사건의 전말: 완벽한 신랑의 붕괴",
       "story": [
         "결혼식 직전, 피해자 이하늘은 김신랑의 막대한 사채 빚과 투자 사기 의혹을 모두 알게 되었다.",

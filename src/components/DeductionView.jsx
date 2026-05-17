@@ -96,7 +96,7 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
           (남은 기회: {deductionLife}번)
         </p>
         <button 
-          onClick={() => { playSfx(); setResult('none'); }} // 💡 클릭음 추가
+          onClick={() => { playSfx(); setResult('none'); }} 
           className="w-full py-3 bg-neutral-800 text-white font-bold rounded-xl border border-neutral-700 active:scale-95 transition-all"
         >
           다시 검토하기
@@ -116,7 +116,8 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
           이 사건은 영원히 해결되지 못한 채 서류 더미 속에 묻혔습니다.
         </p>
         <button 
-            onClick={() => { playSfx(); onReset(); }} // 💡 클릭음 추가
+            // 💡 여기서 호출하는 onReset이 PlayScreen의 clearProgress를 실행함
+            onClick={() => { playSfx(); onReset(); }} 
             className="w-full max-w-xs py-4 bg-red-800 text-white font-black rounded-xl border border-red-600 shadow-[0_0_15px_rgba(220,38,38,0.5)] hover:bg-red-700 active:scale-95 transition-all"
         >
           처음부터 다시 수사하기
@@ -158,7 +159,8 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
           </div>
 
           <button 
-            onClick={() => { playSfx(); onReset(); }} // 💡 클릭음 추가
+            // 💡 성공 시에도 onReset을 통해 진행도를 깔끔히 지우고 메인으로 이동
+            onClick={() => { playSfx(); onReset(); }} 
             className="w-full py-4 mt-2 bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-xl shadow-lg active:scale-95 transition-all"
           >
             사건 종료 및 메인으로
@@ -175,7 +177,6 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
         <h2 className="text-xl font-bold flex items-center gap-2">
           <span className="text-red-500">⚖️</span> 사건 종결.
         </h2>
-        {/* 💡 여기에 mr-14 를 추가해서 우측 수첩 아이콘과 안 겹치게 왼쪽으로 밀어줌! */}
         <div className="flex gap-1 bg-black/30 px-3 py-1.5 rounded-full border border-neutral-800 mr-14">
         {[...Array(3)].map((_, i) => (
           <span 
@@ -210,7 +211,7 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
               {scenarioData.suspects.map(suspect => (
                 <button
                   key={suspect.id}
-                  onClick={() => { playSfx(); handleSelectAnswer(q.id, suspect.id); }} // 💡 클릭음 추가
+                  onClick={() => { playSfx(); handleSelectAnswer(q.id, suspect.id); }} 
                   className={`p-4 rounded-2xl border-2 flex flex-col items-center gap-3 transition-all active:scale-95 ${
                     answers[q.id] === suspect.id ? 'bg-red-600/10 border-red-600 shadow-[0_0_20px_rgba(220,38,38,0.2)]' : 'bg-neutral-800/50 border-neutral-700 hover:bg-neutral-700/50'
                   }`}
@@ -229,7 +230,7 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
               {myClues.map(clue => (
                 <button
                   key={clue.id}
-                  onClick={() => { playSfx(); handleSelectAnswer(q.id, clue.id); }} // 💡 클릭음 추가
+                  onClick={() => { playSfx(); handleSelectAnswer(q.id, clue.id); }} 
                   className={`p-2 rounded-xl border-2 flex flex-col items-center justify-center min-h-[5.5rem] transition-all active:scale-95 ${
                     answers[q.id] === clue.id ? 'bg-red-600/10 border-red-600 shadow-[0_0_15px_rgba(220,38,38,0.2)]' : 'bg-neutral-800/50 border-neutral-700 hover:bg-neutral-700/50'
                   }`}
@@ -248,7 +249,7 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
       ))}
 
       <button 
-        onClick={() => { playSfx(); handleAccuse(); }} // 💡 클릭음 추가
+        onClick={() => { playSfx(); handleAccuse(); }} 
         disabled={Object.keys(answers).length < questions.length}
         className={`w-full py-5 rounded-2xl font-black text-lg transition-all flex items-center justify-center gap-2 ${
           Object.keys(answers).length === questions.length
