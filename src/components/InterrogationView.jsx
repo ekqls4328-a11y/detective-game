@@ -5,7 +5,8 @@ import InspectionModal from './InspectionModal';
 // 💡 AudioContext 임포트 추가
 import { useAudio } from '../contexts/AudioContext';
 
-const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, onClueFound, onMarkAsViewed, onRemoveClue, onPresent, onClose }) => {
+// 💡 actionPoints 추가됨!
+const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, actionPoints, onClueFound, onMarkAsViewed, onRemoveClue, onPresent, onClose }) => {
   const [isTypingDone, setIsTypingDone] = useState(false);
   const [showQuestionMenu, setShowQuestionMenu] = useState(false);
   const [currentDialog, setCurrentDialog] = useState(suspect.selfIntro);
@@ -60,6 +61,12 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, onCl
   };
 
   const handlePresentEvidence = (evidence) => {
+    // 💡 방어 코드: 행동력이 0 이하면 튕겨내기!
+    if (actionPoints <= 0) {
+      alert("⚡ 행동력이 부족합니다. 창을 닫고 행동력을 충전해주세요.");
+      return; 
+    }
+
     setIsInventoryOpen(false);
     setIsTypingDone(false);
     setIsSkipping(false); 
@@ -84,6 +91,16 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, onCl
       onClueFound(currentStatement.id); 
       setDiscoveryText(`[${currentStatement.title}] 진술을 수첩에 기록했습니다.`);
     }
+  };
+
+  // 💡 인벤토리 모달 열기 전 방어 로직
+  const handleOpenInventory = () => {
+    if (actionPoints <= 0) {
+      alert("⚡ 행동력이 부족합니다. 창을 닫고 행동력을 충전해주세요.");
+      return;
+    }
+    playSfx();
+    setIsInventoryOpen(true);
   };
 
   if (!suspect) return null;
@@ -121,17 +138,30 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, onCl
 
       <div className="relative z-10 flex flex-col h-full">
         
-        <header className="shrink-0 p-4 flex justify-between items-center bg-gradient-to-b from-black/80 to-transparent">
+        {/* 💡 헤더에 행동력 표시기 개선 (줄바꿈 방지 적용) */}
+        <header className="shrink-0 p-3 flex justify-between items-center bg-gradient-to-b from-black/80 to-transparent gap-1">
           <button 
-            onClick={() => { playSfx(); onClose(); }} // 💡 클릭음 추가
-            className="text-white font-bold px-3 py-1 bg-black/50 rounded-full hover:bg-neutral-700 backdrop-blur-sm border border-neutral-700"
+            onClick={() => { playSfx(); onClose(); }} 
+            className="text-white font-bold px-3 py-1.5 text-sm bg-black/50 rounded-full hover:bg-neutral-700 backdrop-blur-sm border border-neutral-700 shrink-0"
           >
             &lt; 심문 종료
           </button>
           
+          <div className="flex justify-center shrink-0">
+             {/* 💡 행동력 게이지 (whitespace-nowrap 추가!) */}
+            <div className={`flex items-center gap-1 px-3 py-1.5 rounded-full border backdrop-blur-sm transition-colors whitespace-nowrap ${
+              actionPoints <= 1 ? 'bg-red-900/80 border-red-500 animate-pulse text-red-300' : 'bg-black/60 border-neutral-600 text-neutral-300'
+            }`}>
+              <span className="text-sm">⚡</span>
+              <span className="text-[12px] font-black tracking-wider mt-px shadow-sm">
+                {actionPoints} <span className="text-neutral-500 mx-0.5">/</span> {scenarioData.maxActionPoints || 3}
+              </span>
+            </div>
+          </div>
+
           <button 
-            onClick={() => { playSfx(); setIsInspectionOpen(true); }} // 💡 클릭음 추가
-            className="font-bold px-4 py-1.5 rounded-full backdrop-blur-md bg-neutral-900/80 border border-neutral-600 text-amber-500 shadow-lg flex items-center gap-2 active:scale-95 transition-transform"
+            onClick={() => { playSfx(); setIsInspectionOpen(true); }} 
+            className="font-bold px-3 py-1.5 text-sm rounded-full backdrop-blur-md bg-neutral-900/80 border border-neutral-600 text-amber-500 shadow-lg flex items-center gap-1 active:scale-95 transition-transform shrink-0"
           >
             <span>🧐</span> 외형 관찰
           </button>
@@ -151,7 +181,7 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, onCl
                   {suspect.questions.map((q, idx) => (
                     <button 
                       key={q.id} 
-                      onClick={() => { playSfx(); handleAskQuestion(q); }} // 💡 클릭음 추가
+                      onClick={() => { playSfx(); handleAskQuestion(q); }} 
                       className="group relative w-full overflow-hidden rounded-xl bg-neutral-900 border border-neutral-700 p-4 text-left shadow-lg hover:border-amber-500 transition-all active:scale-[0.98] shrink-0"
                     >
                       <div className="absolute inset-0 bg-gradient-to-r from-amber-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -164,7 +194,7 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, onCl
                 </div>
                 <div className="shrink-0 pt-5 flex justify-center">
                   <button 
-                    onClick={() => { playSfx(); setShowQuestionMenu(false); }} // 💡 클릭음 추가
+                    onClick={() => { playSfx(); setShowQuestionMenu(false); }} 
                     className="py-3 px-8 rounded-full bg-neutral-800 text-neutral-400 font-bold hover:bg-neutral-700 hover:text-white transition-all border border-neutral-600 shadow-md"
                   >
                     닫기
@@ -174,7 +204,6 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, onCl
             </div>
           )}
 
-          {/* 💡 대화창 터치 시 스킵할 때도 클릭음 추가 */}
           <div 
             onClick={() => { 
               if (!isTypingDone) {
@@ -197,7 +226,7 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, onCl
 
           {isTypingDone && currentStatement && !inventory.includes(currentStatement.id) && (
             <button 
-              onClick={() => { playSfx(); handleSaveToInventory(); }} // 💡 클릭음 추가
+              onClick={() => { playSfx(); handleSaveToInventory(); }} 
               className="w-full py-3.5 bg-emerald-600/90 backdrop-blur-sm hover:bg-emerald-500 text-white font-black rounded-xl shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2 shrink-0 border border-emerald-500/50 animate-fadeIn"
             >
               <span>📌</span> 이 진술을 수첩에 기록하기
@@ -217,14 +246,16 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, onCl
 
           <div className={`flex gap-3 h-[52px] shrink-0 transition-opacity ${isTypingDone && !showQuestionMenu ? 'opacity-100' : 'opacity-30 pointer-events-none'}`}>
             <button 
-              onClick={() => { playSfx(); setShowQuestionMenu(true); }} // 💡 클릭음 추가
+              onClick={() => { playSfx(); setShowQuestionMenu(true); }} 
               className="flex-1 bg-black/60 backdrop-blur-sm text-white font-bold rounded-xl border border-neutral-600 hover:bg-neutral-800 transition-colors flex items-center justify-center gap-2 shadow-lg"
             >
               <span className="text-lg">🗣️</span> 질문하기
             </button>
             <button 
-              onClick={() => { playSfx(); setIsInventoryOpen(true); }} // 💡 클릭음 추가
-              className="flex-1 bg-red-900/80 backdrop-blur-sm text-white font-black rounded-xl border border-red-600 shadow-[0_0_15px_rgba(220,38,38,0.3)] hover:bg-red-800 transition-all flex items-center justify-center gap-1"
+              onClick={handleOpenInventory} // 💡 위에서 만든 방어 로직 적용!
+              className={`flex-1 backdrop-blur-sm text-white font-black rounded-xl border shadow-[0_0_15px_rgba(220,38,38,0.3)] transition-all flex items-center justify-center gap-1 ${
+                actionPoints <= 0 ? 'bg-neutral-800 border-neutral-700 opacity-50 cursor-not-allowed' : 'bg-red-900/80 hover:bg-red-800 border-red-600'
+              }`}
             >
               <span className="text-xl">!</span> 단서 제시 (⚡ -1)
             </button>

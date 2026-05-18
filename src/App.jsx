@@ -8,6 +8,7 @@ import PlayScreen from './components/PlayScreen';
 import SplashScreen from './components/SplashScreen'; 
 import SettingsModal from './components/SettingsModal';
 import { AudioProvider } from './contexts/AudioContext';
+import { AdMob } from '@capacitor-community/admob';
 // 💡 시나리오 리스트에서 ID 목록을 가져오기 위해 임포트
 import scenarioDataList from './data/scenario_list.json';
 
@@ -16,6 +17,22 @@ const AppContent = () => {
   const [selectedScenarioId, setSelectedScenarioId] = useState(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [hasAnySaveData, setHasAnySaveData] = useState(false);
+
+  // 💡 애드몹 엔진 초기화 로직 추가
+  useEffect(() => {
+    const initAdMob = async () => {
+      try {
+        await AdMob.initialize({
+          requestTrackingAuthorization: true, // 광고 추적 권한 요청 (iOS/안드로이드 공통)
+          initializeForTesting: true,         // 💡 비공개 테스트 기간에는 무조건 true! (정식 출시 때 false로 변경)
+        });
+        console.log('애드몹 초기화 성공');
+      } catch (error) {
+        console.error('애드몹 초기화 실패:', error);
+      }
+    };
+    initAdMob();
+  }, []);
 
   // 화면 꺼짐 방지 로직
   useEffect(() => {
@@ -80,15 +97,12 @@ const AppContent = () => {
 
   // 💡 [핵심] 타이틀 화면용 이어하기 로직 개선
   const handleContinue = () => {
-    // 1. 시나리오 목록을 순회하면서 가장 최근에 수정된 세이브 데이터를 찾음 (가상 로직)
-    // 원래라면 저장 시간에 대한 timestamp가 필요하지만, 
-    // 여기서는 로컬 스토리지에 데이터가 존재하는 '첫 번째' 시나리오를 찾아줌
     let lastPlayedId = null;
     
     for (const scenario of scenarioDataList) {
       if (localStorage.getItem(`crime_game_progress_${scenario.id}`)) {
         lastPlayedId = scenario.id;
-        break; // 일단 하나 찾으면 멈춤 (추후 timestamp 비교 로직으로 고도화 가능)
+        break; 
       }
     }
 
@@ -96,7 +110,6 @@ const AppContent = () => {
       setSelectedScenarioId(lastPlayedId);
       setCurrentScreen('play');
     } else {
-      // 혹시라도 세이브 파일이 꼬여서 못 찾았을 경우 대비
       alert("이어서 할 수사 기록을 찾을 수 없습니다.");
       setCurrentScreen('select');
     }
@@ -125,7 +138,6 @@ const AppContent = () => {
 
       {currentScreen === 'title' && (
         <TitleScreen 
-          // 💡 특정 ID가 아니라, 어떤 세이브 파일이든 존재하면 버튼을 활성화
           hasSaveData={hasAnySaveData} 
           onStartGame={() => setCurrentScreen('select')} 
           onContinue={handleContinue} 

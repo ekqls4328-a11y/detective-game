@@ -5,10 +5,12 @@ import InventoryModal from './InventoryModal';
 import LocationModal from './LocationModal';
 import ReasoningNoteModal from './ReasoningNoteModal'; 
 import { useAudio } from '../contexts/AudioContext'; 
+import { AdMob, RewardAdPluginEvents } from '@capacitor-community/admob';
 
 // 💡 1. 만들어둔 시나리오 JSON 파일들을 모두 임포트해!
 import wedding_murder from '../data/wedding_murder.json';
 import apartment_murder from '../data/apartment_murder.json';
+import AdConfirmModal from './AdConfirmModal'; // 💡 모달 임포트
 
 // 💡 2. 시나리오 ID를 키(Key)값으로 하는 객체(DB)를 만들어줘!
 const scenarioDB = {
@@ -57,6 +59,9 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [isGlobalInventoryOpen, setIsGlobalInventoryOpen] = useState(false);
   const [isNoteOpen, setIsNoteOpen] = useState(false);
+  
+  const [showApAdModal, setShowApAdModal] = useState(false); // 💡 행동력 광고 모달 상태
+  const [isAdLoading, setIsAdLoading] = useState(true); // 💡 진입 시 전면광고 로딩 상태
 
   const { changeAndPlayBgm, playSfx } = useAudio(); 
 
@@ -100,21 +105,87 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
     }
   }, [scenarioId, SAVE_KEY, changeAndPlayBgm]);
   
+  // 💡 행동력이 0이 되었을 때 모달을 띄우는 로직으로 수정
   useEffect(() => {
-    if (data && actionPoints <= 0 && activeTab !== 'deduction') {
-      alert("🚨 모든 수사 기회를 소진했습니다! 지금부터 범인을 지목해야 합니다.");
-      setSelectedSuspect(null);
-      setSelectedLocation(null);
-      setIsGlobalInventoryOpen(false); 
-      setIsNoteOpen(false); 
-      setActiveTab('deduction');
+    if (data && actionPoints <= 0 && activeTab !== 'deduction' && !showApAdModal &&
+      !selectedSuspect &&
+      !selectedLocation) {
+      setShowApAdModal(true); // 💡 강제 이동 대신 모달 오픈
     }
-  }, [actionPoints, activeTab, data]);
+  }, [actionPoints, activeTab, data, showApAdModal, selectedSuspect, selectedLocation]);
+
+  // 💡 진입 시 전면 광고 로딩 및 송출 로직
+  useEffect(() => {
+    const playIntroAd = async () => {
+      try {
+        const adId = 'ca-app-pub-3940256099942544/1033173712'; // 💡 전면 광고 테스트 ID
+        
+        // 1. 광고 장전 대기
+        await AdMob.prepareInterstitial({ adId });
+        
+        // 2. 장전 완료되면 쏘기
+        await AdMob.showInterstitial();
+        
+      } catch (error) {
+        console.log("전면 광고 호출 실패 (웹 환경이거나 로드 에러):", error);
+      } finally {
+        // 3. 광고를 다 봤거나 에러가 났거나, 무조건 로딩 화면을 치워줌!
+        setIsAdLoading(false); 
+      }
+    };
+    
+    playIntroAd();
+  }, [scenarioId]); 
+
+  // 💡 행동력 광고 모달 뜰 때 사전 장전
+  useEffect(() => {
+    if (showApAdModal) {
+      AdMob.prepareRewardVideoAd({ adId: 'ca-app-pub-3940256099942544/5224354917' })
+        .catch(e => console.error("광고 사전 로드 실패:", e));
+    }
+  }, [showApAdModal]);
+
+  // 💡 행동력 충전 완료 로직
+  const handleApAdConfirm = async () => {
+    setShowApAdModal(false);
+    
+    try {
+      // await AdMob.removeAllListeners();
+
+      // AdMob.addListener(RewardAdPluginEvents.Rewarded, () => {
+      //   alert("행동력이 가득 충전되었습니다!");
+      //   setActionPoints(data.maxActionPoints || 3);
+      // });
+
+      // AdMob.addListener(RewardAdPluginEvents.Dismissed, () => {
+      //   AdMob.removeAllListeners();
+      // });
+
+      // await AdMob.showRewardVideoAd();
+
+      // 💡 2. 광고 본 척하고 바로 충전시켜 버리는 프리패스 코드!
+      console.log("📺 [개발용 치트키] 광고 시청 스킵");
+      alert("📺 [테스트] 행동력이 가득 충전되었습니다!");
+      setActionPoints(data.maxActionPoints || 3);
+
+    } catch (error) {
+      console.error("광고 재생 실패:", error);
+      alert("광고를 불러오는 데 실패했습니다. 잠시 후 다시 시도해주세요.");
+    }
+  };
+
+  const handleApAdCancel = () => {
+    setShowApAdModal(false);
+    setSelectedSuspect(null);
+    setSelectedLocation(null);
+    setIsGlobalInventoryOpen(false); 
+    setIsNoteOpen(false); 
+    setActiveTab('deduction'); 
+  };
 
   const clearProgress = () => {
     localStorage.removeItem(SAVE_KEY);
-    // window.location.reload();       // ❌ 앱 전체 강제 재시작 (삭제!)
-    onBack();                          // 💡 MainScreen으로 안전하게 라우팅 (추가!
+    onBack(); 
   };
 
   const handlePresentEvidence = () => {
@@ -144,6 +215,26 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
   };
 
   if (!data) return <div className="text-white p-10 text-center">Loading...</div>;
+
+  // 💡 진입 시 보여줄 커스텀 탐정 로딩 스피너 UI
+  if (isAdLoading) {
+    return (
+      <div className="min-h-screen bg-neutral-950 flex flex-col items-center justify-center p-6 space-y-8">
+        <div className="relative w-20 h-20 flex items-center justify-center">
+          {/* 흐릿한 배경 트랙 */}
+          <div className="absolute inset-0 border-4 border-neutral-800 rounded-full"></div>
+          {/* 빙글빙글 도는 메인 스피너 */}
+          <div className="absolute inset-0 border-4 border-amber-600 rounded-full border-t-transparent animate-spin"></div>
+          {/* 가운데 아이콘 */}
+          <span className="text-3xl relative z-10 opacity-80 animate-pulse">🕵️‍♂️</span>
+        </div>
+        <div className="text-center animate-pulse">
+          <h2 className="text-white font-black text-xl mb-2 tracking-widest text-shadow-md">사건 파일 동기화 중...</h2>
+          <p className="text-amber-600/80 text-sm font-bold tracking-widest">기밀 데이터 접근 권한 확인</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-neutral-900 text-gray-100 flex flex-col font-sans">
@@ -298,6 +389,7 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
             deductionLife={deductionLife} 
             onFail={() => setDeductionLife(prev => Math.max(0, prev - 1))} 
             onReset={clearProgress} 
+            onAdRevive={() => setDeductionLife(1)} 
           />
         )}
       </main>
@@ -330,6 +422,7 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
           scenarioData={data}
           inventory={inventory}          
           viewedClues={viewedClues}
+          actionPoints={actionPoints}
           onClueFound={handleAddClue}    
           onMarkAsViewed={markClueAsViewed}
           onRemoveClue={handleRemoveClue}
@@ -365,6 +458,15 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
         <div className="relative z-[110]">
           <ReasoningNoteModal onClose={() => setIsNoteOpen(false)} />
         </div>
+      )}
+
+      {/* 💡 행동력 소진 시 나타나는 광고 확인 모달 */}
+      {showApAdModal && (
+        <AdConfirmModal 
+          type="ap" 
+          onConfirm={handleApAdConfirm} 
+          onCancel={handleApAdCancel} 
+        />
       )}
     </div>
   );

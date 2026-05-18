@@ -12,7 +12,7 @@
       "name": "김아래",
       "role": "402호 거주자 (아랫집)",
       "desc": "집에서 24시간 일하는 프리랜서 번역가. 층간소음에 극도로 민감하고 예민한 상태다.",
-      "selfIntro": "경찰이시라고요? 하... 드디어 502호 그 인간이 무슨 일이라도 났나 보네요. 저는 402호 사는 김아래입니다. 솔직히 그 인간 죽었다고 해도 눈물 한 방울 안 날 것 같네요.",
+      "selfIntro": "아... 또 502호 일 때문에 오신 거예요? 저는 402호 사는 김아래입니다.\n솔직히 언젠가 큰일 날 줄은 알았어요. 밤마다 그렇게 시끄럽게 굴었으니까요...",
       "wrongEvidenceResponse": "그걸 왜 저한테 말하는 거죠...? 전 모르는 얘기예요. 괜히 사람 피곤하게 하지 마세요.",
       "illustration": {
         "interrogationUrl": "/images/apartment_murder/s1_interrogation.webp",
@@ -48,7 +48,7 @@
       "name": "박경비",
       "role": "야간조 경비원",
       "desc": "소심하고 방어적이며 일자리를 잃는 것을 가장 두려워하는 65세 가장.",
-      "selfIntro": "아이고... 502호에서 결국 사달이 났구먼. 저는 이 아파트 야간 경비를 맡고 있는 사람입니다. 순찰 돌다가 문이 열려있어서 가봤더니... 쯧쯧.",
+      "selfIntro": "아이고... 502호에서 결국 사달이 났구먼. 저는 이 아파트 야간 경비 맡고 있는 박경비라고 합니다.\n 순찰 돌다가 문이 열려 있어서 가봤더니... 에휴.",
       "wrongEvidenceResponse": "저랑은 상관없는 이야기 같습니다요... 저는 정말 아는 게 없습니다.",
       "illustration": {
         "interrogationUrl": "/images/apartment_murder/s2_interrogation.webp",
@@ -86,7 +86,7 @@
       "name": "최부녀",
       "role": "504호 거주자 (부녀회장)",
       "desc": "아파트 내 이권에 개입하며 막강한 권력을 누리는 과시욕 강한 인물.",
-      "selfIntro": "어머, 경찰분들 고생이 많으시네. 제가 이 아파트 부녀회장이에요. 동네에 흉흉한 일이 생겨서 집값 떨어지게 생겼네, 정말.",
+      "selfIntro": "어머, 오셨군요. 이런 흉흉한 일로 보게 돼서 참 유감이네요.\n제가 이 아파트 부녀회장을 맡고 있는데... 주민들이 많이 불안해하고 있어요.",
       "wrongEvidenceResponse": "그래서 어쩌라는 거죠? 그런 이야기까지 제가 일일이 알아야 하나요?",
       "illustration": {
         "interrogationUrl": "/images/apartment_murder/s3_interrogation.webp",
@@ -123,7 +123,7 @@
       "name": "정대리",
       "role": "501호 거주자 (옆집)",
       "desc": "코인에 전 재산을 쏟아부은 다혈질 회사원.",
-      "selfIntro": "씨... 경찰이세요? 하필 오늘 같은 날 이런 일까지... 501호 사는 사람입니다.",
+      "selfIntro": "...아, 당신이 조사 맡은 분입니까?\n저는 501호 사는 정대리입니다. 솔직히 오늘은 누구랑도 말 섞고 싶지 않네요.",
       "wrongEvidenceResponse": "아니, 그걸 왜 저한테 따집니까? 전 그런 거 모릅니다.",
       "illustration": {
         "interrogationUrl": "/images/apartment_murder/s4_interrogation.webp",
@@ -158,7 +158,7 @@
       "name": "강배달",
       "role": "배달 대행업체 기사",
       "desc": "억울한 일을 참지 못하는 거칠고 직설적인 성격.",
-      "selfIntro": "아 놔, 배달 콜 다 밀리는데 왜 못 가게 잡고 난리입니까? 502호 그 진상 새끼 죽은 게 나랑 뭔 상관인데요?",
+      "selfIntro": "아 놔, 배달 콜 다 밀리는데 왜 붙잡고 그러십니까?\n502호 그 진상 새끼 죽은 게 저랑 무슨 상관인데요?",
       "wrongEvidenceResponse": "뭔 소린지 모르겠는데요. 저한테 그런 얘기 해봐야 답 안 나옵니다.",
       "illustration": {
         "interrogationUrl": "/images/apartment_murder/s5_interrogation.webp",

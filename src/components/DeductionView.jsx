@@ -1,11 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react'; // 💡 useEffect 추가
 // 💡 AudioContext 임포트 추가 (이제 playSfx만 사용)
 import { useAudio } from '../contexts/AudioContext';
+import { AdMob, RewardAdPluginEvents } from '@capacitor-community/admob';
+// 💡 모달 컴포넌트 임포트
+import AdConfirmModal from './AdConfirmModal';
 
-const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, onFail, onReset }) => {
+// 💡 onAdRevive props 추가!
+const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, onFail, onReset, onAdRevive }) => {
   const [answers, setAnswers] = useState({});
   const [result, setResult] = useState('none'); // 'none', 'success', 'fail', 'gameover'
   const [accuracy, setAccuracy] = useState(0);
+
+  // 💡 생명력 부활 모달 관련 상태값 추가
+  const [showLifeAdModal, setShowLifeAdModal] = useState(false);
+  const [hasUsedAdRevive, setHasUsedAdRevive] = useState(false); // 한 번만 살려주기 위한 플래그
 
   // 💡 효과음 함수만 가져오기
   const { playSfx } = useAudio();
@@ -66,11 +74,69 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
     } else {
       onFail(); 
       if (nextLife <= 0) {
-        setResult('gameover');
+        // 💡 여기서 분기 처리! (기회가 0이 되었을 때)
+        if (!hasUsedAdRevive) {
+          setShowLifeAdModal(true); // 광고 부활 안 써봤으면 모달 띄움
+        } else {
+          setResult('gameover'); // 이미 광고 썼는데 또 죽으면 얄짤없이 배드 엔딩
+        }
       } else {
         setResult('fail');
       }
     }
+  };
+
+  // 💡 추리 실패 모달이 뜰 때 백그라운드에서 광고 장전!
+  useEffect(() => {
+    if (showLifeAdModal) {
+      AdMob.prepareRewardVideoAd({ adId: 'ca-app-pub-3940256099942544/5224354917' })
+        .catch(e => console.error("추리 부활 광고 사전 로드 실패:", e));
+    }
+  }, [showLifeAdModal]);
+
+  // 💡 모달에서 [광고 보고 부활하기] 눌렀을 때
+  const handleLifeAdConfirm = async () => {
+    setShowLifeAdModal(false);
+    
+    try {
+      /* 🚨 정식 배포 시 주석 해제할 부분!
+      await AdMob.removeAllListeners();
+
+      AdMob.addListener(RewardAdPluginEvents.Rewarded, () => {
+        alert("마지막 추리 기회가 주어집니다!");
+        setHasUsedAdRevive(true); 
+        if (onAdRevive) onAdRevive(); 
+        setResult('none'); 
+      });
+
+      AdMob.addListener(RewardAdPluginEvents.Dismissed, () => {
+        AdMob.removeAllListeners();
+      });
+
+      // 💡 장전은 위에서 했으니 바로 쏜다!
+      await AdMob.showRewardVideoAd();
+      */
+
+      // 💡 [개발용 치트키] 광고 본 척하고 즉시 부활
+      console.log("📺 [개발용 치트키] 추리 부활 광고 시청 스킵");
+      alert("📺 [테스트] 마지막 추리 기회가 주어집니다!");
+      setHasUsedAdRevive(true); // 광고 부활 1회 사용 기록 남기기
+      
+      if (onAdRevive) {
+        onAdRevive(); // 부모(PlayScreen)에게 생명력 1로 만들어달라고 요청
+      }
+      setResult('none'); // 다시 추리 화면으로
+
+    } catch (error) {
+      console.error("광고 재생 실패:", error);
+      alert("광고를 불러오는 데 실패했습니다. 잠시 후 다시 시도해주세요.");
+    }
+  };
+
+  // 💡 모달에서 [포기하기] 눌렀을 때
+  const handleLifeAdCancel = () => {
+    setShowLifeAdModal(false);
+    setResult('gameover'); // 안 본다고 하면 바로 배드 엔딩
   };
 
   // [실패 화면 - 기회가 남았을 때]
@@ -172,94 +238,105 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
 
   // [추리 입력 화면]
   return (
-    <div className="animate-fadeIn pb-10">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-bold flex items-center gap-2">
-          <span className="text-red-500">⚖️</span> 사건 종결.
-        </h2>
-        <div className="flex gap-1 bg-black/30 px-3 py-1.5 rounded-full border border-neutral-800 mr-14">
-        {[...Array(3)].map((_, i) => (
-          <span 
-            key={i} 
-            className={`text-base transition-all ${
-              i < deductionLife 
-                ? 'grayscale-0 drop-shadow-[0_0_8px_rgba(96,165,250,0.8)]' 
-                : 'grayscale opacity-20 scale-75' 
-            }`}
-          >
-            🔍
-          </span>
+    <>
+      <div className="animate-fadeIn pb-10">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-bold flex items-center gap-2">
+            <span className="text-red-500">⚖️</span> 사건 종결.
+          </h2>
+          <div className="flex gap-1 bg-black/30 px-3 py-1.5 rounded-full border border-neutral-800 mr-14">
+          {[...Array(3)].map((_, i) => (
+            <span 
+              key={i} 
+              className={`text-base transition-all ${
+                i < deductionLife 
+                  ? 'grayscale-0 drop-shadow-[0_0_8px_rgba(96,165,250,0.8)]' 
+                  : 'grayscale opacity-20 scale-75' 
+              }`}
+            >
+              🔍
+            </span>
+          ))}
+        </div>
+        </div>
+        
+        {actionPoints > 0 && (
+          <div className="bg-amber-900/20 border border-amber-600/30 text-amber-200 p-4 rounded-2xl text-xs font-bold mb-8 flex items-start gap-3">
+            <span>⚠️</span>
+            <p>아직 수사 기회가 {actionPoints}번 남았습니다. 지금 종결하면 추가 단서를 얻을 수 없습니다.</p>
+          </div>
+        )}
+
+        {questions.map((q) => (
+          <section key={q.id} className="mb-10 animate-slideUp">
+            <h3 className="text-sm font-bold text-neutral-400 mb-4 flex items-center gap-2">
+               <div className="w-1 h-4 bg-red-600 rounded-full"/> {q.title}
+            </h3>
+            
+            {q.type === 'suspect' && (
+              <div className="grid grid-cols-2 gap-3">
+                {scenarioData.suspects.map(suspect => (
+                  <button
+                    key={suspect.id}
+                    onClick={() => { playSfx(); handleSelectAnswer(q.id, suspect.id); }} 
+                    className={`p-4 rounded-2xl border-2 flex flex-col items-center gap-3 transition-all active:scale-95 ${
+                      answers[q.id] === suspect.id ? 'bg-red-600/10 border-red-600 shadow-[0_0_20px_rgba(220,38,38,0.2)]' : 'bg-neutral-800/50 border-neutral-700 hover:bg-neutral-700/50'
+                    }`}
+                  >
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center font-black transition-colors ${answers[q.id] === suspect.id ? 'bg-red-600 text-white' : 'bg-neutral-700 text-neutral-500'}`}>
+                      {suspect.name.charAt(0)}
+                    </div>
+                    <span className={`text-sm font-bold ${answers[q.id] === suspect.id ? 'text-red-400' : 'text-neutral-400'}`}>{suspect.name}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {q.type === 'clue' && (
+              <div className="grid grid-cols-3 gap-2">
+                {myClues.map(clue => (
+                  <button
+                    key={clue.id}
+                    onClick={() => { playSfx(); handleSelectAnswer(q.id, clue.id); }} 
+                    className={`p-2 rounded-xl border-2 flex flex-col items-center justify-center min-h-[5.5rem] transition-all active:scale-95 ${
+                      answers[q.id] === clue.id ? 'bg-red-600/10 border-red-600 shadow-[0_0_15px_rgba(220,38,38,0.2)]' : 'bg-neutral-800/50 border-neutral-700 hover:bg-neutral-700/50'
+                    }`}
+                  >
+                    <span className={`text-[8px] mb-1 font-bold truncate w-full text-center ${answers[q.id] === clue.id ? 'text-red-400/80' : 'text-neutral-500'}`}>
+                      [{clue.sourceName}]
+                    </span>
+                    <span className={`text-[11px] font-bold text-center break-keep leading-tight ${answers[q.id] === clue.id ? 'text-red-400' : 'text-neutral-300'}`}>
+                      {clue.name}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </section>
         ))}
-      </div>
+
+        <button 
+          onClick={() => { playSfx(); handleAccuse(); }} 
+          disabled={Object.keys(answers).length < questions.length}
+          className={`w-full py-5 rounded-2xl font-black text-lg transition-all flex items-center justify-center gap-2 ${
+            Object.keys(answers).length === questions.length
+              ? 'bg-red-600 hover:bg-red-500 text-white shadow-[0_0_20px_rgba(220,38,38,0.4)] active:scale-[0.98]' 
+              : 'bg-neutral-800 text-neutral-600 border border-neutral-700 cursor-not-allowed'
+          }`}
+        >
+          <span>⚖️</span> 최종 추리 제출하기
+        </button>
       </div>
       
-      {actionPoints > 0 && (
-        <div className="bg-amber-900/20 border border-amber-600/30 text-amber-200 p-4 rounded-2xl text-xs font-bold mb-8 flex items-start gap-3">
-          <span>⚠️</span>
-          <p>아직 수사 기회가 {actionPoints}번 남았습니다. 지금 종결하면 추가 단서를 얻을 수 없습니다.</p>
-        </div>
+      {/* 💡 추리 실패 시 나타나는 생명력 부활 광고 확인 모달 */}
+      {showLifeAdModal && (
+        <AdConfirmModal 
+          type="life" 
+          onConfirm={handleLifeAdConfirm} 
+          onCancel={handleLifeAdCancel} 
+        />
       )}
-
-      {questions.map((q) => (
-        <section key={q.id} className="mb-10 animate-slideUp">
-          <h3 className="text-sm font-bold text-neutral-400 mb-4 flex items-center gap-2">
-             <div className="w-1 h-4 bg-red-600 rounded-full"/> {q.title}
-          </h3>
-          
-          {q.type === 'suspect' && (
-            <div className="grid grid-cols-2 gap-3">
-              {scenarioData.suspects.map(suspect => (
-                <button
-                  key={suspect.id}
-                  onClick={() => { playSfx(); handleSelectAnswer(q.id, suspect.id); }} 
-                  className={`p-4 rounded-2xl border-2 flex flex-col items-center gap-3 transition-all active:scale-95 ${
-                    answers[q.id] === suspect.id ? 'bg-red-600/10 border-red-600 shadow-[0_0_20px_rgba(220,38,38,0.2)]' : 'bg-neutral-800/50 border-neutral-700 hover:bg-neutral-700/50'
-                  }`}
-                >
-                  <div className={`w-12 h-12 rounded-full flex items-center justify-center font-black transition-colors ${answers[q.id] === suspect.id ? 'bg-red-600 text-white' : 'bg-neutral-700 text-neutral-500'}`}>
-                    {suspect.name.charAt(0)}
-                  </div>
-                  <span className={`text-sm font-bold ${answers[q.id] === suspect.id ? 'text-red-400' : 'text-neutral-400'}`}>{suspect.name}</span>
-                </button>
-              ))}
-            </div>
-          )}
-
-          {q.type === 'clue' && (
-            <div className="grid grid-cols-3 gap-2">
-              {myClues.map(clue => (
-                <button
-                  key={clue.id}
-                  onClick={() => { playSfx(); handleSelectAnswer(q.id, clue.id); }} 
-                  className={`p-2 rounded-xl border-2 flex flex-col items-center justify-center min-h-[5.5rem] transition-all active:scale-95 ${
-                    answers[q.id] === clue.id ? 'bg-red-600/10 border-red-600 shadow-[0_0_15px_rgba(220,38,38,0.2)]' : 'bg-neutral-800/50 border-neutral-700 hover:bg-neutral-700/50'
-                  }`}
-                >
-                  <span className={`text-[8px] mb-1 font-bold truncate w-full text-center ${answers[q.id] === clue.id ? 'text-red-400/80' : 'text-neutral-500'}`}>
-                    [{clue.sourceName}]
-                  </span>
-                  <span className={`text-[11px] font-bold text-center break-keep leading-tight ${answers[q.id] === clue.id ? 'text-red-400' : 'text-neutral-300'}`}>
-                    {clue.name}
-                  </span>
-                </button>
-              ))}
-            </div>
-          )}
-        </section>
-      ))}
-
-      <button 
-        onClick={() => { playSfx(); handleAccuse(); }} 
-        disabled={Object.keys(answers).length < questions.length}
-        className={`w-full py-5 rounded-2xl font-black text-lg transition-all flex items-center justify-center gap-2 ${
-          Object.keys(answers).length === questions.length
-            ? 'bg-red-600 hover:bg-red-500 text-white shadow-[0_0_20px_rgba(220,38,38,0.4)] active:scale-[0.98]' 
-            : 'bg-neutral-800 text-neutral-600 border border-neutral-700 cursor-not-allowed'
-        }`}
-      >
-        <span>⚖️</span> 최종 추리 제출하기
-      </button>
-    </div>
+    </>
   );
 };
 
