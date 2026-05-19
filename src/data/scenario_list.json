@@ -3,13 +3,22 @@
     "id": "apartment_murder",
     "title": "조용해진 502호",
     "briefingImageUrl": "/images/apartment_murder/thumbnail.webp",
+    "maxActionPoints": 15,
     "isLocked": false
   },
   {
     "id": "wedding_murder",
     "title": "창백한 부케",
     "briefingImageUrl": "/images/wedding_murder/thumbnail.webp",
+    "maxActionPoints": 30,
     "isLocked": false
+  },
+  {
+    "id": "none",
+    "title": "none",
+    "briefingImageUrl": "/images/wedding_murder/thumbnail.webp",
+    "maxActionPoints": 0,
+    "isLocked": true
   }
   
 ]

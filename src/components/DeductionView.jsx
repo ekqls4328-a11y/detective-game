@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'; // 💡 useEffect 추가
+import React, { useState, useEffect } from 'react'; 
 // 💡 AudioContext 임포트 추가 (이제 playSfx만 사용)
 import { useAudio } from '../contexts/AudioContext';
 import { AdMob, RewardAdPluginEvents } from '@capacitor-community/admob';
@@ -58,7 +58,6 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
     const calculatedAccuracy = Math.floor((correctCount / questions.length) * 100);
     setAccuracy(calculatedAccuracy);
     
-    const nextLife = deductionLife - 1;
     const isAllCorrect = questions.every(q => answers[q.id] === q.answerId);
     
     if (isAllCorrect) {
@@ -72,17 +71,28 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
       
       setResult('success');
     } else {
+      // 💡 틀렸을 때는 무조건 목숨을 하나 깎고 일치율 화면(fail)으로 보냄!
       onFail(); 
-      if (nextLife <= 0) {
-        // 💡 여기서 분기 처리! (기회가 0이 되었을 때)
-        if (!hasUsedAdRevive) {
-          setShowLifeAdModal(true); // 광고 부활 안 써봤으면 모달 띄움
-        } else {
-          setResult('gameover'); // 이미 광고 썼는데 또 죽으면 얄짤없이 배드 엔딩
-        }
+      setResult('fail');
+    }
+  };
+
+  // 💡 실패 화면(일치율 화면)에서 버튼을 눌렀을 때의 분기 처리
+  const handleFailNextStep = () => {
+    playSfx();
+    
+    // 💡 방금 onFail()로 깎인 목숨이 0이라면?
+    if (deductionLife <= 0) {
+      if (!hasUsedAdRevive) {
+        // 광고 부활 찬스 안 썼으면 물어보기!
+        setShowLifeAdModal(true);
       } else {
-        setResult('fail');
+        // 이미 썼는데 또 죽었으면 자비 없이 게임오버!
+        setResult('gameover');
       }
+    } else {
+      // 아직 목숨 남아있으면 다시 추리 창으로!
+      setResult('none');
     }
   };
 
@@ -139,35 +149,55 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
     setResult('gameover'); // 안 본다고 하면 바로 배드 엔딩
   };
 
-  // [실패 화면 - 기회가 남았을 때]
+  // [실패 화면 - 일치율 보여주는 곳]
   if (result === 'fail') {
     return (
-      <div className="animate-fadeIn flex flex-col items-center justify-center p-10 text-center bg-neutral-900 rounded-3xl border border-red-900/30">
-        <div className="text-5xl mb-4">⚠️</div>
-        <h2 className="text-2xl font-black text-white mb-2">추리 실패!</h2>
+      <>
+        <div className="animate-fadeIn flex flex-col items-center justify-center p-10 text-center bg-neutral-900 rounded-3xl border border-red-900/30 relative overflow-hidden">
+          
+          {/* 💡 기회가 0일 때 긴장감 주는 배경 효과 */}
+          {deductionLife <= 0 && <div className="absolute inset-0 bg-red-900/10 animate-pulse pointer-events-none" />}
 
-        <div className="bg-neutral-800 border border-neutral-700 rounded-xl p-5 w-full mb-6 mt-4 shadow-inner">
-          <p className="text-neutral-400 text-sm font-bold mb-2">현재 추리 일치율</p>
-          <div className="text-4xl font-black text-amber-500 mb-3">{accuracy}%</div>
-          <div className="w-full bg-neutral-900 rounded-full h-3 overflow-hidden border border-neutral-700">
-            <div 
-              className="bg-amber-500 h-full rounded-full transition-all duration-1000 ease-out" 
-              style={{ width: `${accuracy}%` }}
-            />
+          <div className="text-5xl mb-4 relative z-10">⚠️</div>
+          <h2 className="text-2xl font-black text-white mb-2 relative z-10">추리 실패!</h2>
+
+          <div className="bg-neutral-800 border border-neutral-700 rounded-xl p-5 w-full mb-6 mt-4 shadow-inner relative z-10">
+            <p className="text-neutral-400 text-sm font-bold mb-2">현재 추리 일치율</p>
+            <div className="text-4xl font-black text-amber-500 mb-3">{accuracy}%</div>
+            <div className="w-full bg-neutral-900 rounded-full h-3 overflow-hidden border border-neutral-700">
+              <div 
+                className="bg-amber-500 h-full rounded-full transition-all duration-1000 ease-out" 
+                style={{ width: `${accuracy}%` }}
+              />
+            </div>
           </div>
+
+          <p className="text-red-400 text-sm font-bold mb-6 relative z-10">
+            증거가 불충분하거나 범인을 잘못 지목했습니다.<br/>
+            (남은 기회: {deductionLife}번)
+          </p>
+          <button 
+            // 💡 수정됨: 바로 추리 창으로 안 가고 검문소(handleFailNextStep)를 거침
+            onClick={handleFailNextStep} 
+            className={`w-full py-4 text-white font-bold rounded-xl active:scale-95 transition-all relative z-10 ${
+              deductionLife <= 0 
+                ? 'bg-red-800 border border-red-600 shadow-[0_0_15px_rgba(220,38,38,0.5)] hover:bg-red-700' 
+                : 'bg-neutral-800 border border-neutral-700'
+            }`}
+          >
+            {deductionLife <= 0 ? '수사 결과 확인하기' : '다시 검토하기'}
+          </button>
         </div>
 
-        <p className="text-red-400 text-sm font-bold mb-6">
-          증거가 불충분하거나 범인을 잘못 지목했습니다.<br/>
-          (남은 기회: {deductionLife}번)
-        </p>
-        <button 
-          onClick={() => { playSfx(); setResult('none'); }} 
-          className="w-full py-3 bg-neutral-800 text-white font-bold rounded-xl border border-neutral-700 active:scale-95 transition-all"
-        >
-          다시 검토하기
-        </button>
-      </div>
+        {/* 💡 실패 화면에서도 광고 모달이 뜰 수 있도록 추가된 부분! */}
+        {showLifeAdModal && (
+          <AdConfirmModal 
+            type="life" 
+            onConfirm={handleLifeAdConfirm} 
+            onCancel={handleLifeAdCancel} 
+          />
+        )}
+      </>
     );
   }
 

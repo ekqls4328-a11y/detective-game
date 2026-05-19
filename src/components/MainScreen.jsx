@@ -24,7 +24,7 @@ const MainScreen = ({ onSelectScenario, onBack, onOpenSettings }) => {
   return (
     <div className="min-h-screen bg-neutral-900 text-gray-100 p-4 pb-10 font-sans">
 
-      {/* 💡 우측 상단 설정 버튼 */}
+      {/* 우측 상단 설정 버튼 */}
       <button 
         onClick={() => { playSfx(); onOpenSettings(); }} 
         className="absolute top-4 right-4 z-20 w-9 h-9 bg-neutral-800 border border-neutral-700 rounded-full flex items-center justify-center text-lg shadow-lg hover:bg-neutral-700 active:scale-95"
@@ -32,7 +32,7 @@ const MainScreen = ({ onSelectScenario, onBack, onOpenSettings }) => {
         ⚙️
       </button>
       
-      {/* 💡 헤더 영역에 뒤로 가기 버튼 추가 */}
+      {/* 헤더 영역에 뒤로 가기 버튼 추가 */}
       <header className="mt-4 mb-8 pl-1 flex items-start gap-3">
         <button 
           onClick={() => { playSfx(); onBack(); }} 
@@ -54,8 +54,6 @@ const MainScreen = ({ onSelectScenario, onBack, onOpenSettings }) => {
       <div className="flex flex-col gap-6">
         {scenarios.map((scenario) => {
           const isCleared = clearedScenarios.includes(scenario.id);
-          
-          // 💡 [핵심 추가] 로컬 스토리지에서 해당 시나리오의 수사 기록이 존재하는지 체크
           const hasSavedData = !!localStorage.getItem(`crime_game_progress_${scenario.id}`);
           
           return (
@@ -74,10 +72,22 @@ const MainScreen = ({ onSelectScenario, onBack, onOpenSettings }) => {
                 </div>
               )}
               
-              {/* 타이틀 */}
-              <h2 className="text-lg font-bold leading-snug mb-4 pr-12 text-white">
-                {scenario.title}
-              </h2>
+              {/* 💡 타이틀 및 적정 행동력 표시 영역 */}
+              <div className="flex justify-between items-start mb-4 gap-2 pr-16">
+                <h2 className="text-lg font-bold leading-snug text-white">
+                  {scenario.title}
+                </h2>
+                
+                {/* 💡 잠금 상태가 아닐 때만 렌더링 */}
+                {!scenario.isLocked && (
+                  <div className="flex items-center gap-1 px-2 py-1 rounded border border-neutral-600 bg-neutral-900/50 text-neutral-400 shrink-0 mt-0.5">
+                    <span className="text-[10px] text-amber-500">⚡</span>
+                    <span className="text-[10px] font-bold tracking-widest mt-px">
+                      적정 행동력 {scenario.maxActionPoints || 15}
+                    </span>
+                  </div>
+                )}
+              </div>
               
               {/* 썸네일 이미지 영역 */}
               <div className="h-44 w-full bg-neutral-950 rounded-xl overflow-hidden border border-neutral-700 mb-5 relative flex items-center justify-center">
@@ -115,10 +125,9 @@ const MainScreen = ({ onSelectScenario, onBack, onOpenSettings }) => {
                 )}
               </div>
 
-              {/* 💡 하단 버튼 액션 영역 분기 처리 */}
+              {/* 하단 버튼 액션 영역 분기 처리 */}
               <div className="w-full z-10">
                 {scenario.isLocked ? (
-                  // 1. 잠금 상태일 때 (COMING SOON)
                   <button 
                     disabled
                     className="w-full py-3.5 rounded-xl text-sm font-bold tracking-wide bg-neutral-700 text-neutral-500 cursor-not-allowed flex items-center justify-center"
@@ -126,34 +135,23 @@ const MainScreen = ({ onSelectScenario, onBack, onOpenSettings }) => {
                     COMING SOON
                   </button>
                 ) : hasSavedData ? (
-                  // 2. 락은 풀렸고 기존 세이브 데이터가 존재할 때 -> 버튼 2개로 쪼개기
                   <div className="flex gap-3">
                     <button
-                      onClick={() => {
-                        playSfx();
-                        onSelectScenario(scenario.id, true); // 💡 이어하기 플래그 true 전달
-                      }}
+                      onClick={() => { playSfx(); onSelectScenario(scenario.id, true); }}
                       className="flex-[2] py-3.5 bg-amber-600 hover:bg-amber-500 active:bg-amber-700 text-white font-black rounded-xl text-sm tracking-wide shadow-md flex items-center justify-center transition-colors active:scale-[0.98]"
                     >
                       이어하기
                     </button>
                     <button
-                      onClick={() => {
-                        playSfx();
-                        onSelectScenario(scenario.id, false); // 💡 새 게임 플래그 false 전달
-                      }}
+                      onClick={() => { playSfx(); onSelectScenario(scenario.id, false); }}
                       className="flex-1 py-3.5 bg-neutral-700 hover:bg-neutral-600 active:bg-neutral-800 text-neutral-300 font-bold rounded-xl text-xs tracking-wide border border-neutral-600 flex items-center justify-center transition-colors active:scale-[0.98]"
                     >
                       처음부터
                     </button>
                   </div>
                 ) : (
-                  // 3. 기록이 없는 순수 초반 상태일 때 -> 기존 싱글 버튼 유지
                   <button 
-                    onClick={() => {
-                      playSfx();
-                      onSelectScenario(scenario.id, false); // 💡 새 게임 진입
-                    }}
+                    onClick={() => { playSfx(); onSelectScenario(scenario.id, false); }}
                     className="w-full py-3.5 rounded-xl text-sm font-bold tracking-wide bg-white text-black hover:bg-gray-200 active:bg-gray-300 shadow-md flex items-center justify-center gap-2 transition-colors active:scale-[0.98]"
                   >
                     조사 시작하기 <span className="text-lg">➔</span>
