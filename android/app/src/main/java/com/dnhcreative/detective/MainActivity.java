@@ -1,4 +1,4 @@
-package com.studioPK.detective;
+package com.dnhcreative.detective;
 
 import com.getcapacitor.BridgeActivity;
 

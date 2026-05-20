@@ -14,9 +14,9 @@
     "isLocked": false
   },
   {
-    "id": "none",
-    "title": "none",
-    "briefingImageUrl": "/images/wedding_murder/thumbnail.webp",
+    "id": "",
+    "title": "",
+    "briefingImageUrl": "",
     "maxActionPoints": 0,
     "isLocked": true
   }

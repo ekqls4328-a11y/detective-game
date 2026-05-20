@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import scenarioData from '../data/scenario_list.json';
-// 💡 AudioContext 임포트
+// AudioContext 임포트
 import { useAudio } from '../contexts/AudioContext';
 
 const MainScreen = ({ onSelectScenario, onBack, onOpenSettings }) => {
   const [scenarios, setScenarios] = useState([]);
   const [clearedScenarios, setClearedScenarios] = useState([]);
 
-  // 💡 BGM 변경 및 효과음 함수 가져오기
+  // BGM 변경 및 효과음 함수 가져오기
   const { changeAndPlayBgm, playSfx } = useAudio();
 
   useEffect(() => {
@@ -17,7 +17,7 @@ const MainScreen = ({ onSelectScenario, onBack, onOpenSettings }) => {
       setClearedScenarios(JSON.parse(savedData));
     }
 
-    // 💡 화면 진입 시 메인 로비용 BGM 재생
+    // 화면 진입 시 메인 로비용 BGM 재생
     changeAndPlayBgm('/audio/main_bgm.mp3');
   }, [changeAndPlayBgm]);
 
@@ -65,20 +65,14 @@ const MainScreen = ({ onSelectScenario, onBack, onOpenSettings }) => {
                 ${scenario.isLocked ? 'opacity-60' : ''}
               `}
             >
-              {/* 해결됨 뱃지 */}
-              {isCleared && (
-                <div className="absolute top-4 right-4 bg-red-600 text-white text-[10px] font-black px-2 py-1 rounded shadow-md border border-red-800 tracking-wider z-10">
-                  SOLVED
-                </div>
-              )}
               
-              {/* 💡 타이틀 및 적정 행동력 표시 영역 */}
-              <div className="flex justify-between items-start mb-4 gap-2 pr-16">
+              {/* 💡 [수정] 타이틀 및 적정 행동력 표시 영역 - pr-16 삭제! */}
+              <div className="flex justify-between items-start mb-4 gap-2">
                 <h2 className="text-lg font-bold leading-snug text-white">
                   {scenario.title}
                 </h2>
                 
-                {/* 💡 잠금 상태가 아닐 때만 렌더링 */}
+                {/* 잠금 상태가 아닐 때만 렌더링 */}
                 {!scenario.isLocked && (
                   <div className="flex items-center gap-1 px-2 py-1 rounded border border-neutral-600 bg-neutral-900/50 text-neutral-400 shrink-0 mt-0.5">
                     <span className="text-[10px] text-amber-500">⚡</span>
@@ -89,8 +83,20 @@ const MainScreen = ({ onSelectScenario, onBack, onOpenSettings }) => {
                 )}
               </div>
               
-              {/* 썸네일 이미지 영역 */}
+              {/* 썸네일 이미지 영역 - relative가 걸려있어서 absolute 뱃지의 기준점이 됨 */}
               <div className="h-44 w-full bg-neutral-950 rounded-xl overflow-hidden border border-neutral-700 mb-5 relative flex items-center justify-center">
+                
+                {/* 💡 [수정] 해결됨 뱃지를 썸네일 div 안쪽으로 이동 + 도장 스타일 적용 */}
+                {isCleared && (
+                  <div 
+                    className="absolute top-2 right-2 bg-neutral-950/80 text-red-500 text-[11px] font-black px-2 py-1 rounded shadow-lg border border-red-900 tracking-wider z-20 
+                               opacity-90 transform rotate-[-12deg] scale-110" // 도장 느낌을 위해 회전(rotate) 및 크기(scale) 살짝 키움
+                    style={{ textShadow: '0 0 5px rgba(220, 38, 38, 0.5)' }} // 글자 주변 붉은광 효과
+                  >
+                    SOLVED
+                  </div>
+                )}
+
                 {scenario.briefingImageUrl ? (
                   <img 
                     src={scenario.briefingImageUrl} 
@@ -156,7 +162,8 @@ const MainScreen = ({ onSelectScenario, onBack, onOpenSettings }) => {
                   >
                     조사 시작하기 <span className="text-lg">➔</span>
                   </button>
-                )}
+                )
+              }
               </div>
 
             </div>

@@ -337,9 +337,10 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
                   onClick={() => { playSfx(); setSelectedSuspect(suspect); }}
                   className="w-full bg-neutral-800 p-4 rounded-xl flex items-center gap-4 border border-neutral-700 hover:bg-neutral-700 active:scale-[0.98] transition-all"
                 >
+                  {/* 💡 [수정] TARGET ➔ SUSPECT 표기 변경 */}
                   <div className="w-14 h-14 shrink-0 bg-neutral-900 rounded-lg border border-neutral-600 flex flex-col items-center justify-center shadow-[inset_0_2px_8px_rgba(0,0,0,0.5)] relative overflow-hidden">
                     <div className="absolute top-0 w-full h-1 bg-amber-600/60" />
-                    <span className="text-[8px] text-neutral-500 font-black tracking-widest mt-1 opacity-80">TARGET</span>
+                    <span className="text-[7px] text-neutral-500 font-black tracking-widest mt-1 opacity-80">SUSPECT</span>
                     <span className="text-xl text-red-600/90 font-black tracking-tighter leading-none mt-0.5">
                       {String(index + 1).padStart(2, '0')}
                     </span>
@@ -348,7 +349,8 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
                   <div className="text-left flex-1">
                     <div className="font-bold text-white text-lg">{suspect.name}</div>
                     <div className="text-xs text-amber-500 font-bold mb-1">{suspect.role}</div>
-                    <div className="text-xs text-neutral-400 line-clamp-1">{suspect.desc}</div>
+                    {/* 💡 [수정] 옵션 A 적용: line-clamp-1 ➔ line-clamp-2로 변경하여 최대 2줄 노출 */}
+                    <div className="text-xs text-neutral-400 line-clamp-2">{suspect.desc}</div>
                   </div>
                   
                   <div className="text-neutral-600 text-lg pr-1 opacity-50">&gt;</div>
