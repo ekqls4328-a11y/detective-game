@@ -109,7 +109,7 @@ const TitleScreen = ({ onStartGame, hasSaveData, onContinue, onOpenSettings }) =
                 <div>
                   <p className="text-sm font-bold text-white mb-1">용의자 심문</p>
                   <p className="text-xs text-neutral-400 leading-relaxed break-keep">
-                    사건의 실마리를 풀기 위해 용의자에게 질문을 던지고, 의심스러운 답변은 수첩에 <span className="text-blue-400 font-bold">진술</span>로 기록하세요.
+                    사건의 실마리를 풀기 위해 용의자에게 질문을 던지고, 의심스러운 답변은 단서함에 <span className="text-blue-400 font-bold">진술</span>로 추가하세요.
                   </p>
                 </div>
               </div>

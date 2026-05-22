@@ -97,7 +97,7 @@ const InventoryModal = ({ inventory, scenarioData, viewedClues, onMarkAsViewed, 
         {/* 헤더 */}
         <header className="px-6 pb-3 flex justify-between items-center shrink-0">
           <h2 className="text-xl font-black text-white flex items-center gap-2">
-            <span className="text-2xl">💼</span> 증거 수첩 
+            <span className="text-2xl">💼</span> 단서함
             <span className="text-sm font-normal text-neutral-500 ml-1">{inventory?.length || 0}</span>
           </h2>
         </header>
@@ -106,7 +106,7 @@ const InventoryModal = ({ inventory, scenarioData, viewedClues, onMarkAsViewed, 
         <div className="px-6 pb-2 shrink-0">
           <div className="flex bg-neutral-950 rounded-xl p-1 border border-neutral-800">
             <button 
-              onClick={() => { playSfx(); setActiveTab('evidence'); setSelectedClue(null); }} // 💡 클릭음 추가
+              onClick={() => { playSfx(); setActiveTab('evidence'); setSelectedClue(null); }} 
               className={`flex-1 py-2 text-xs font-black rounded-lg transition-all flex items-center justify-center gap-1.5 ${
                 activeTab === 'evidence' ? 'bg-blue-600 text-white shadow-md' : 'text-neutral-500 hover:text-neutral-300'
               }`}
@@ -114,7 +114,7 @@ const InventoryModal = ({ inventory, scenarioData, viewedClues, onMarkAsViewed, 
               <span>🔍</span> 물증 ({evidenceClues.length})
             </button>
             <button 
-              onClick={() => { playSfx(); setActiveTab('statement'); setSelectedClue(null); }} // 💡 클릭음 추가
+              onClick={() => { playSfx(); setActiveTab('statement'); setSelectedClue(null); }} 
               className={`flex-1 py-2 text-xs font-black rounded-lg transition-all flex items-center justify-center gap-1.5 ${
                 activeTab === 'statement' ? 'bg-amber-500 text-black shadow-md' : 'text-neutral-500 hover:text-neutral-300'
               }`}
@@ -142,8 +142,11 @@ const InventoryModal = ({ inventory, scenarioData, viewedClues, onMarkAsViewed, 
             </div>
           ) : (
             <>
-              {/* 단서 그리드 리스트 */}
-              <div className="grid grid-cols-3 gap-3 p-6 overflow-y-auto max-h-[40%] bg-neutral-950/50">
+              {/* 💡 단서 그리드 리스트 (동적 높이 조절) */}
+              {/* 선택된 단서가 있으면 max-h-[45%]로 줄어들고, 없으면 flex-1으로 꽉 채움 */}
+              <div className={`grid grid-cols-3 gap-3 p-6 overflow-y-auto bg-neutral-950/50 transition-all duration-300 ${
+                selectedClue ? 'max-h-[45%]' : 'flex-1 pb-32'
+              }`}>
                 {displayList.map(clue => {
                   const isUnread = viewedClues ? !viewedClues.includes(clue.id) : false;
 
@@ -151,8 +154,9 @@ const InventoryModal = ({ inventory, scenarioData, viewedClues, onMarkAsViewed, 
                     <button
                       key={clue.id}
                       onClick={() => {
-                        playSfx(); // 💡 단서 선택 시 클릭음 추가
-                        setSelectedClue(clue);
+                        playSfx(); 
+                        // 이미 선택된 걸 또 누르면 닫히게 토글 기능 추가
+                        setSelectedClue(prev => prev?.id === clue.id ? null : clue);
                         if (onMarkAsViewed) onMarkAsViewed(clue.id);
                       }}
                       className={`relative aspect-square rounded-2xl border flex flex-col items-center justify-center p-2 transition-all active:scale-95 ${
@@ -186,54 +190,46 @@ const InventoryModal = ({ inventory, scenarioData, viewedClues, onMarkAsViewed, 
                 })}
               </div>
 
-              {/* 선택된 단서 상세 정보 */}
-              <div className="flex-1 p-6 bg-neutral-900 overflow-y-auto pb-32 border-t border-neutral-800">
-                {selectedClue ? (
-                  <div className="animate-fadeIn">
-                    
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center gap-3 flex-1 pr-2">
-                        <div className={`shrink-0 w-12 h-12 rounded-xl flex items-center justify-center border text-2xl ${
-                          activeTab === 'evidence' ? 'bg-blue-900/30 border-blue-800' : 'bg-amber-900/30 border-amber-800'
-                        }`}>
-                          {activeTab === 'evidence' ? '📍' : '💬'}
-                        </div>
-                        <div className="flex flex-col min-w-0">
-                          <span className={`text-[10px] font-black tracking-wider ${activeTab === 'evidence' ? 'text-blue-400' : 'text-amber-500'}`}>
-                            [{selectedClue.sourceName}]
-                          </span>
-                          <h3 className="text-lg font-black text-white leading-tight break-keep">{selectedClue.name}</h3>
-                        </div>
+              {/* 💡 선택된 단서 상세 정보 (단서가 선택되었을 때만 렌더링) */}
+              {selectedClue && (
+                <div className="flex-1 p-6 bg-neutral-900 overflow-y-auto pb-32 border-t border-neutral-800 animate-slideUp">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-3 flex-1 pr-2">
+                      <div className={`shrink-0 w-12 h-12 rounded-xl flex items-center justify-center border text-2xl ${
+                        activeTab === 'evidence' ? 'bg-blue-900/30 border-blue-800' : 'bg-amber-900/30 border-amber-800'
+                      }`}>
+                        {activeTab === 'evidence' ? '📍' : '💬'}
                       </div>
-                      
-                      {/* 휴지통(삭제) 버튼 */}
-                      {onRemoveClue && activeTab === 'evidence' && (
-                        <button 
-                          onClick={() => {
-                            playSfx(); // 💡 휴지통 클릭 시 소리 추가
-                            if(window.confirm('이 단서를 수첩에서 정말 파기하시겠습니까? (현장에서 다시 획득할 수 있습니다)')) {
-                              onRemoveClue(selectedClue.id);
-                              setSelectedClue(null);
-                            }
-                          }}
-                          className="shrink-0 w-10 h-10 flex items-center justify-center rounded-xl bg-neutral-800 hover:bg-red-950/50 text-neutral-500 hover:text-red-500 border border-neutral-700 transition-colors active:scale-95"
-                        >
-                          🗑️
-                        </button>
-                      )}
+                      <div className="flex flex-col min-w-0">
+                        <span className={`text-[10px] font-black tracking-wider ${activeTab === 'evidence' ? 'text-blue-400' : 'text-amber-500'}`}>
+                          [{selectedClue.sourceName}]
+                        </span>
+                        <h3 className="text-lg font-black text-white leading-tight break-keep">{selectedClue.name}</h3>
+                      </div>
                     </div>
+                    
+                    {/* 휴지통(삭제) 버튼 */}
+                    {onRemoveClue && activeTab === 'evidence' && (
+                      <button 
+                        onClick={() => {
+                          playSfx();
+                          if(window.confirm('이 단서를 단서함에서 정말 파기하시겠습니까? (현장에서 다시 획득할 수 있습니다)')) {
+                            onRemoveClue(selectedClue.id);
+                            setSelectedClue(null);
+                          }
+                        }}
+                        className="shrink-0 w-10 h-10 flex items-center justify-center rounded-xl bg-neutral-800 hover:bg-red-950/50 text-neutral-500 hover:text-red-500 border border-neutral-700 transition-colors active:scale-95"
+                      >
+                        🗑️
+                      </button>
+                    )}
+                  </div>
 
-                    <p className="text-neutral-300 leading-relaxed text-sm bg-neutral-950/50 p-4 rounded-2xl border border-neutral-800">
-                      {selectedClue.desc || selectedClue.description}
-                    </p>
-                  </div>
-                ) : (
-                  <div className="h-full flex flex-col items-center justify-center text-neutral-600 text-sm italic opacity-50 pb-10">
-                    <span className="text-3xl mb-2">👆</span>
-                    확인할 {activeTab === 'evidence' ? '물증' : '진술'}을 선택해주세요
-                  </div>
-                )}
-              </div>
+                  <p className="text-neutral-300 leading-relaxed text-sm bg-neutral-950/50 p-4 rounded-2xl border border-neutral-800">
+                    {selectedClue.desc || selectedClue.description}
+                  </p>
+                </div>
+              )}
             </>
           )}
         </div>
@@ -243,13 +239,13 @@ const InventoryModal = ({ inventory, scenarioData, viewedClues, onMarkAsViewed, 
           {onPresent ? (
             <>
               <button 
-                onClick={() => { playSfx(); onClose(); }} // 💡 닫기 버튼 클릭음
+                onClick={() => { playSfx(); onClose(); }}
                 className="w-1/3 h-[56px] bg-neutral-800 text-neutral-300 font-bold rounded-2xl active:scale-[0.97] transition-all border border-neutral-700"
               >
                 닫기
               </button>
               <button 
-                onClick={() => { playSfx(); selectedClue && onPresent(selectedClue); }} // 💡 추궁하기 버튼 클릭음
+                onClick={() => { playSfx(); selectedClue && onPresent(selectedClue); }}
                 disabled={!selectedClue}
                 className={`flex-1 h-[56px] font-black rounded-2xl transition-all flex items-center justify-center gap-2 text-base ${
                   selectedClue 
@@ -262,10 +258,10 @@ const InventoryModal = ({ inventory, scenarioData, viewedClues, onMarkAsViewed, 
             </>
           ) : (
             <button 
-              onClick={() => { playSfx(); onClose(); }} // 💡 수첩 닫기 버튼 클릭음
+              onClick={() => { playSfx(); onClose(); }}
               className="w-full h-[56px] bg-neutral-800 hover:bg-neutral-700 text-white font-bold rounded-2xl active:scale-[0.97] transition-all border border-neutral-600 shadow-lg"
             >
-              수첩 닫기
+              단서함 닫기
             </button>
           )}
         </footer>

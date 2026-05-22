@@ -6,6 +6,7 @@ import LocationModal from './LocationModal';
 import ReasoningNoteModal from './ReasoningNoteModal'; 
 import { useAudio } from '../contexts/AudioContext'; 
 import { AdMob, RewardAdPluginEvents } from '@capacitor-community/admob';
+import { App as CapacitorApp } from '@capacitor/app'; // 💡 Capacitor App 플러그인 임포트
 
 // 💡 1. 만들어둔 시나리오 JSON 파일들을 모두 임포트해!
 import wedding_murder from '../data/wedding_murder.json';
@@ -62,10 +63,46 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
   
   const [showApAdModal, setShowApAdModal] = useState(false); // 💡 행동력 광고 모달 상태
   const [isAdLoading, setIsAdLoading] = useState(true); // 💡 진입 시 전면광고 로딩 상태
+  
+  // 💡 [추가] 사건 해결 여부를 판단하는 상태
+  const [isCaseSolved, setIsCaseSolved] = useState(false); 
 
   const { changeAndPlayBgm, playSfx } = useAudio(); 
 
   const unreadCount = inventory.filter(id => !viewedClues.includes(id)).length;
+
+  // 💡 [추가된 로직] 안드로이드 물리 뒤로가기 버튼 핸들링
+  useEffect(() => {
+    let backButtonListener;
+
+    const setupBackButton = async () => {
+      backButtonListener = await CapacitorApp.addListener('backButton', () => {
+        // 우선순위에 따라 열려있는 모달을 하나씩 닫음
+        if (selectedSuspect) {
+          setSelectedSuspect(null);
+        } else if (selectedLocation) {
+          setSelectedLocation(null);
+        } else if (isGlobalInventoryOpen) {
+          setIsGlobalInventoryOpen(false);
+        } else if (isNoteOpen) {
+          setIsNoteOpen(false);
+        } else if (showApAdModal) {
+          setShowApAdModal(false);
+        } else {
+          // 어떤 모달도 열려있지 않다면, 시나리오 선택창(App.jsx)으로 철수!
+          onBack();
+        }
+      });
+    };
+
+    setupBackButton();
+
+    return () => {
+      if (backButtonListener) {
+        backButtonListener.remove(); // 컴포넌트 언마운트 시 메모리 누수 방지
+      }
+    };
+  }, [selectedSuspect, selectedLocation, isGlobalInventoryOpen, isNoteOpen, showApAdModal, onBack]);
 
   useEffect(() => {
     const gameState = {
@@ -150,20 +187,6 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
     setShowApAdModal(false);
     
     try {
-      // await AdMob.removeAllListeners();
-
-      // AdMob.addListener(RewardAdPluginEvents.Rewarded, () => {
-      //   alert("행동력이 가득 충전되었습니다!");
-      //   setActionPoints(data.maxActionPoints || 3);
-      // });
-
-      // AdMob.addListener(RewardAdPluginEvents.Dismissed, () => {
-      //   AdMob.removeAllListeners();
-      // });
-
-      // await AdMob.showRewardVideoAd();
-
-      // 💡 2. 광고 본 척하고 바로 충전시켜 버리는 프리패스 코드!
       console.log("📺 [개발용 치트키] 광고 시청 스킵");
       alert("📺 [테스트] 행동력이 가득 충전되었습니다!");
       setActionPoints(data.maxActionPoints || 3);
@@ -221,11 +244,8 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
     return (
       <div className="min-h-screen bg-neutral-950 flex flex-col items-center justify-center p-6 space-y-8">
         <div className="relative w-20 h-20 flex items-center justify-center">
-          {/* 흐릿한 배경 트랙 */}
           <div className="absolute inset-0 border-4 border-neutral-800 rounded-full"></div>
-          {/* 빙글빙글 도는 메인 스피너 */}
           <div className="absolute inset-0 border-4 border-amber-600 rounded-full border-t-transparent animate-spin"></div>
-          {/* 가운데 아이콘 */}
           <span className="text-3xl relative z-10 opacity-80 animate-pulse">🕵️‍♂️</span>
         </div>
         <div className="text-center animate-pulse">
@@ -239,7 +259,7 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
   return (
     <div className="min-h-screen bg-neutral-900 text-gray-100 flex flex-col font-sans">
       
-      {/* 글로벌 수첩 플로팅 버튼 */}
+      {/* 글로벌 단서함 플로팅 버튼 */}
       <button 
         onClick={() => { playSfx(); setIsNoteOpen(true); }}
         className="fixed top-[72px] right-4 z-[80] w-12 h-12 bg-neutral-800 border border-neutral-600 rounded-full flex items-center justify-center text-xl shadow-[0_4px_15px_rgba(0,0,0,0.5)] active:scale-90 transition-all hover:bg-neutral-700"
@@ -337,7 +357,6 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
                   onClick={() => { playSfx(); setSelectedSuspect(suspect); }}
                   className="w-full bg-neutral-800 p-4 rounded-xl flex items-center gap-4 border border-neutral-700 hover:bg-neutral-700 active:scale-[0.98] transition-all"
                 >
-                  {/* 💡 [수정] TARGET ➔ SUSPECT 표기 변경 */}
                   <div className="w-14 h-14 shrink-0 bg-neutral-900 rounded-lg border border-neutral-600 flex flex-col items-center justify-center shadow-[inset_0_2px_8px_rgba(0,0,0,0.5)] relative overflow-hidden">
                     <div className="absolute top-0 w-full h-1 bg-amber-600/60" />
                     <span className="text-[7px] text-neutral-500 font-black tracking-widest mt-1 opacity-80">SUSPECT</span>
@@ -349,7 +368,6 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
                   <div className="text-left flex-1">
                     <div className="font-bold text-white text-lg">{suspect.name}</div>
                     <div className="text-xs text-amber-500 font-bold mb-1">{suspect.role}</div>
-                    {/* 💡 [수정] 옵션 A 적용: line-clamp-1 ➔ line-clamp-2로 변경하여 최대 2줄 노출 */}
                     <div className="text-xs text-neutral-400 line-clamp-2">{suspect.desc}</div>
                   </div>
                   
@@ -392,12 +410,13 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
             onFail={() => setDeductionLife(prev => Math.max(0, prev - 1))} 
             onReset={clearProgress} 
             onAdRevive={() => setDeductionLife(1)} 
+            onSuccess={() => setIsCaseSolved(true)} // 💡 추리 성공 시 하단 탭바를 잠그는 신호!
           />
         )}
       </main>
 
-      {/* 하단 고정 탭 바 */}
-      {actionPoints > 0 && (
+      {/* 하단 고정 탭 바 (💡 사건이 해결되지 않았을 때만 표시) */}
+      {actionPoints > 0 && !isCaseSolved && (
         <nav className="fixed bottom-0 w-full bg-neutral-950 border-t border-neutral-800 flex pb-safe z-10">
           <button onClick={() => { playSfx(); setActiveTab('briefing'); }} className={`flex-1 py-4 flex flex-col items-center justify-center gap-1 transition-colors ${activeTab === 'briefing' ? 'text-white bg-neutral-900' : 'text-neutral-500 hover:text-neutral-300'}`}>
               <span className="text-2xl mb-1">📋</span>

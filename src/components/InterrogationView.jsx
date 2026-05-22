@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react'; // 💡 useRef 필수!
 import TypewriterText from './TypewriterText';
 import InventoryModal from './InventoryModal';
 import InspectionModal from './InspectionModal';
@@ -23,6 +23,29 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, acti
 
   // 💡 BGM 변경 및 효과음 함수 가져오기
   const { changeAndPlayBgm, playSfx } = useAudio();
+
+  // 💡 [수정] 대화창 전체를 감시할 Ref
+  const scrollContainerRef = useRef(null);
+
+  // 💡 [핵심 추가] 글자가 추가될 때마다 무조건 바닥으로 스크롤을 내리는 CCTV(Observer) 설치!
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const observer = new MutationObserver(() => {
+      // 박스 안의 내용(글자)이 변할 때마다 스크롤을 스크롤 높이(맨 아래)로 강제 이동!
+      container.scrollTop = container.scrollHeight;
+    });
+
+    // 텍스트 노드(characterData)나 자식 요소(childList)가 변하는지 감시
+    observer.observe(container, {
+      childList: true,
+      subtree: true,
+      characterData: true
+    });
+
+    return () => observer.disconnect(); // 컴포넌트 꺼질 때 감시 종료
+  }, [currentDialog]); // 새 대화가 시작될 때마다 다시 세팅
 
   // 💡 심문 전용 BGM 재생 및 종료 시 원상 복구 로직
   useEffect(() => {
@@ -61,7 +84,6 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, acti
   };
 
   const handlePresentEvidence = (evidence) => {
-    // 💡 방어 코드: 행동력이 0 이하면 튕겨내기!
     if (actionPoints <= 0) {
       alert("⚡ 행동력이 부족합니다. 창을 닫고 행동력을 충전해주세요.");
       return; 
@@ -89,11 +111,10 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, acti
   const handleSaveToInventory = () => {
     if (currentStatement && onClueFound) {
       onClueFound(currentStatement.id); 
-      setDiscoveryText(`[${currentStatement.title}] 진술을 수첩에 기록했습니다.`);
+      setDiscoveryText(`[${currentStatement.title}] 진술이 단서함에 추가되었습니다.`);
     }
   };
 
-  // 💡 인벤토리 모달 열기 전 방어 로직
   const handleOpenInventory = () => {
     if (actionPoints <= 0) {
       alert("⚡ 행동력이 부족합니다. 창을 닫고 행동력을 충전해주세요.");
@@ -138,7 +159,6 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, acti
 
       <div className="relative z-10 flex flex-col h-full">
         
-        {/* 💡 헤더에 행동력 표시기 개선 (줄바꿈 방지 적용) */}
         <header className="shrink-0 p-3 flex justify-between items-center bg-gradient-to-b from-black/80 to-transparent gap-1">
           <button 
             onClick={() => { playSfx(); onClose(); }} 
@@ -148,7 +168,6 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, acti
           </button>
           
           <div className="flex justify-center shrink-0">
-             {/* 💡 행동력 게이지 (whitespace-nowrap 추가!) */}
             <div className={`flex items-center gap-1 px-3 py-1.5 rounded-full border backdrop-blur-sm transition-colors whitespace-nowrap ${
               actionPoints <= 1 ? 'bg-red-900/80 border-red-500 animate-pulse text-red-300' : 'bg-black/60 border-neutral-600 text-neutral-300'
             }`}>
@@ -216,11 +235,20 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, acti
             <div className="absolute -top-3 left-4 bg-neutral-800 text-amber-500 font-black px-4 py-1 rounded-md text-sm border border-neutral-600 shadow-lg">
               {suspect.name}
             </div>
-            <div className="overflow-y-auto h-[90px] pr-2 mt-1 scrollbar-hide">
+            
+            {/* 💡 [수정] 여기에 ref={scrollContainerRef}를 연결해서 이 박스를 감시하게 만듦! */}
+            <div ref={scrollContainerRef} className="overflow-y-auto h-[90px] pr-2 mt-1 scrollbar-hide">
               <p className="text-gray-100 leading-relaxed text-sm select-none break-keep whitespace-pre-wrap text-shadow-sm">
-                <TypewriterText key={dialogKey} text={currentDialog} speed={30} forceSkip={isSkipping} onComplete={() => setIsTypingDone(true)} />
+                <TypewriterText 
+                  key={dialogKey} 
+                  text={currentDialog} 
+                  speed={30} 
+                  forceSkip={isSkipping} 
+                  onComplete={() => setIsTypingDone(true)} 
+                />
               </p>
             </div>
+            
             {isTypingDone && <div className="absolute bottom-3 right-4 text-amber-500 animate-bounce">▼</div>}
           </div>
 
@@ -229,7 +257,7 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, acti
               onClick={() => { playSfx(); handleSaveToInventory(); }} 
               className="w-full py-3.5 bg-emerald-600/90 backdrop-blur-sm hover:bg-emerald-500 text-white font-black rounded-xl shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2 shrink-0 border border-emerald-500/50 animate-fadeIn"
             >
-              <span>📌</span> 이 진술을 수첩에 기록하기
+              <span>📌</span> 이 진술을 단서함에 추가하기
             </button>
           )}
 
@@ -252,7 +280,7 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, acti
               <span className="text-lg">🗣️</span> 질문하기
             </button>
             <button 
-              onClick={handleOpenInventory} // 💡 위에서 만든 방어 로직 적용!
+              onClick={handleOpenInventory}
               className={`flex-1 backdrop-blur-sm text-white font-black rounded-xl border shadow-[0_0_15px_rgba(220,38,38,0.3)] transition-all flex items-center justify-center gap-1 ${
                 actionPoints <= 0 ? 'bg-neutral-800 border-neutral-700 opacity-50 cursor-not-allowed' : 'bg-red-900/80 hover:bg-red-800 border-red-600'
               }`}

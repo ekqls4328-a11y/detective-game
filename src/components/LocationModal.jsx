@@ -43,7 +43,7 @@ const LocationModal = ({
     playSfx(); // 💡 기록하기 버튼 터치 시 클릭음 추가
     if (focusedPoint && onClueFound) {
       onClueFound(focusedPoint.id);
-      setDiscoveryText(`[${focusedPoint.name}] 단서를 수첩에 기록했습니다.`);
+      setDiscoveryText(`[${focusedPoint.name}] 단서를 단서함에 추가하였습니다.`);
     }
   };
 

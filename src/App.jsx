@@ -57,11 +57,15 @@ const AppContent = () => {
           return;
         }
 
+        // 💡 [핵심 수정 포인트] Play 화면일 때는 App.jsx가 개입하지 않음!
+        // PlayScreen.jsx 내부의 리스너가 알아서 모달을 닫고 onBack을 호출하도록 권한 위임
         if (currentScreen === 'play') {
-          setCurrentScreen('select');
-        } else if (currentScreen === 'select') {
+          return; 
+        } 
+        else if (currentScreen === 'select') {
           setCurrentScreen('title');
-        } else if (currentScreen === 'title') {
+        } 
+        else if (currentScreen === 'title') {
           const now = new Date().getTime();
           if (now - lastBackPressTime < 2000) {
             CapacitorApp.exitApp(); 

@@ -1,27 +1,31 @@
-import React, { useState, useEffect } from 'react'; 
-// 💡 AudioContext 임포트 추가 (이제 playSfx만 사용)
+import React, { useState, useEffect, useRef } from 'react'; // 💡 useRef 임포트 추가!
 import { useAudio } from '../contexts/AudioContext';
 import { AdMob, RewardAdPluginEvents } from '@capacitor-community/admob';
-// 💡 모달 컴포넌트 임포트
 import AdConfirmModal from './AdConfirmModal';
 
-// 💡 onAdRevive props 추가!
-const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, onFail, onReset, onAdRevive }) => {
+const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, onFail, onReset, onAdRevive, onSuccess }) => {
   const [answers, setAnswers] = useState({});
-  const [result, setResult] = useState('none'); // 'none', 'success', 'fail', 'gameover'
+  const [result, setResult] = useState('none'); 
   const [accuracy, setAccuracy] = useState(0);
 
-  // 💡 생명력 부활 모달 관련 상태값 추가
   const [showLifeAdModal, setShowLifeAdModal] = useState(false);
-  const [hasUsedAdRevive, setHasUsedAdRevive] = useState(false); // 한 번만 살려주기 위한 플래그
+  const [hasUsedAdRevive, setHasUsedAdRevive] = useState(false); 
 
-  // 💡 효과음 함수만 가져오기
   const { playSfx } = useAudio();
+  
+  // 💡 화면 최상단 포커스를 맞추기 위한 Ref 추가
+  const topRef = useRef(null);
+
+  // 💡 결과(result) 화면이 바뀔 때마다 스크롤을 맨 위로 부드럽게 끌어올림!
+  useEffect(() => {
+    if (result !== 'none' && topRef.current) {
+      topRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [result]);
 
   const questions = scenarioData.solution.questions || [];
   const truth = scenarioData.solution.crimeTruth;
 
-  // 인벤토리 물증 매핑 (출처 이름 주입 로직 포함)
   const myClues = (() => {
     const locationClues = scenarioData.locations?.flatMap(loc => 
       (loc.clues || []).map(clue => ({ ...clue, sourceName: loc.name }))
@@ -46,7 +50,6 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
       return;
     }
     
-    // 정답 개수 계산
     let correctCount = 0;
     questions.forEach(q => {
       if (answers[q.id] === q.answerId) {
@@ -54,7 +57,6 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
       }
     });
 
-    // 일치율(퍼센트) 계산 후 상태에 저장
     const calculatedAccuracy = Math.floor((correctCount / questions.length) * 100);
     setAccuracy(calculatedAccuracy);
     
@@ -69,34 +71,28 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
         localStorage.setItem('cleared_scenarios', JSON.stringify(clearedList));
       }
       
+      if (onSuccess) onSuccess();
       setResult('success');
     } else {
-      // 💡 틀렸을 때는 무조건 목숨을 하나 깎고 일치율 화면(fail)으로 보냄!
       onFail(); 
       setResult('fail');
     }
   };
 
-  // 💡 실패 화면(일치율 화면)에서 버튼을 눌렀을 때의 분기 처리
   const handleFailNextStep = () => {
     playSfx();
     
-    // 💡 방금 onFail()로 깎인 목숨이 0이라면?
     if (deductionLife <= 0) {
       if (!hasUsedAdRevive) {
-        // 광고 부활 찬스 안 썼으면 물어보기!
         setShowLifeAdModal(true);
       } else {
-        // 이미 썼는데 또 죽었으면 자비 없이 게임오버!
         setResult('gameover');
       }
     } else {
-      // 아직 목숨 남아있으면 다시 추리 창으로!
       setResult('none');
     }
   };
 
-  // 💡 추리 실패 모달이 뜰 때 백그라운드에서 광고 장전!
   useEffect(() => {
     if (showLifeAdModal) {
       AdMob.prepareRewardVideoAd({ adId: 'ca-app-pub-3940256099942544/5224354917' })
@@ -104,38 +100,16 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
     }
   }, [showLifeAdModal]);
 
-  // 💡 모달에서 [광고 보고 부활하기] 눌렀을 때
   const handleLifeAdConfirm = async () => {
     setShowLifeAdModal(false);
     
     try {
-      /* 🚨 정식 배포 시 주석 해제할 부분!
-      await AdMob.removeAllListeners();
-
-      AdMob.addListener(RewardAdPluginEvents.Rewarded, () => {
-        alert("마지막 추리 기회가 주어집니다!");
-        setHasUsedAdRevive(true); 
-        if (onAdRevive) onAdRevive(); 
-        setResult('none'); 
-      });
-
-      AdMob.addListener(RewardAdPluginEvents.Dismissed, () => {
-        AdMob.removeAllListeners();
-      });
-
-      // 💡 장전은 위에서 했으니 바로 쏜다!
-      await AdMob.showRewardVideoAd();
-      */
-
-      // 💡 [개발용 치트키] 광고 본 척하고 즉시 부활
       console.log("📺 [개발용 치트키] 추리 부활 광고 시청 스킵");
       alert("📺 [테스트] 마지막 추리 기회가 주어집니다!");
-      setHasUsedAdRevive(true); // 광고 부활 1회 사용 기록 남기기
+      setHasUsedAdRevive(true); 
       
-      if (onAdRevive) {
-        onAdRevive(); // 부모(PlayScreen)에게 생명력 1로 만들어달라고 요청
-      }
-      setResult('none'); // 다시 추리 화면으로
+      if (onAdRevive) onAdRevive(); 
+      setResult('none'); 
 
     } catch (error) {
       console.error("광고 재생 실패:", error);
@@ -143,19 +117,17 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
     }
   };
 
-  // 💡 모달에서 [포기하기] 눌렀을 때
   const handleLifeAdCancel = () => {
     setShowLifeAdModal(false);
-    setResult('gameover'); // 안 본다고 하면 바로 배드 엔딩
+    setResult('gameover'); 
   };
 
-  // [실패 화면 - 일치율 보여주는 곳]
   if (result === 'fail') {
     return (
       <>
-        <div className="animate-fadeIn flex flex-col items-center justify-center p-10 text-center bg-neutral-900 rounded-3xl border border-red-900/30 relative overflow-hidden">
+        {/* 💡 최상단 div에 ref={topRef} 연결 */}
+        <div ref={topRef} className="animate-fadeIn flex flex-col items-center justify-center p-10 text-center bg-neutral-900 rounded-3xl border border-red-900/30 relative overflow-hidden">
           
-          {/* 💡 기회가 0일 때 긴장감 주는 배경 효과 */}
           {deductionLife <= 0 && <div className="absolute inset-0 bg-red-900/10 animate-pulse pointer-events-none" />}
 
           <div className="text-5xl mb-4 relative z-10">⚠️</div>
@@ -177,7 +149,6 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
             (남은 기회: {deductionLife}번)
           </p>
           <button 
-            // 💡 수정됨: 바로 추리 창으로 안 가고 검문소(handleFailNextStep)를 거침
             onClick={handleFailNextStep} 
             className={`w-full py-4 text-white font-bold rounded-xl active:scale-95 transition-all relative z-10 ${
               deductionLife <= 0 
@@ -189,7 +160,6 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
           </button>
         </div>
 
-        {/* 💡 실패 화면에서도 광고 모달이 뜰 수 있도록 추가된 부분! */}
         {showLifeAdModal && (
           <AdConfirmModal 
             type="life" 
@@ -201,10 +171,10 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
     );
   }
 
-  // [완전 실패 화면 - Bad Ending]
   if (result === 'gameover') {
     return (
-      <div className="animate-fadeIn fixed inset-0 z-[100] bg-black flex flex-col items-center justify-center p-10 text-center">
+      // 💡 최상단 div에 ref={topRef} 연결
+      <div ref={topRef} className="animate-fadeIn fixed inset-0 z-[100] bg-black flex flex-col items-center justify-center p-10 text-center">
         <div className="text-7xl mb-8 opacity-50">🕵️‍♂️💨</div>
         <h2 className="text-4xl font-black text-red-600 mb-4">사건 미궁 봉착</h2>
         <p className="text-neutral-400 leading-relaxed mb-10">
@@ -212,7 +182,6 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
           이 사건은 영원히 해결되지 못한 채 서류 더미 속에 묻혔습니다.
         </p>
         <button 
-            // 💡 여기서 호출하는 onReset이 PlayScreen의 clearProgress를 실행함
             onClick={() => { playSfx(); onReset(); }} 
             className="w-full max-w-xs py-4 bg-red-800 text-white font-black rounded-xl border border-red-600 shadow-[0_0_15px_rgba(220,38,38,0.5)] hover:bg-red-700 active:scale-95 transition-all"
         >
@@ -222,10 +191,10 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
     );
   }
 
-  // [성공 화면: 사건의 전말]
   if (result === 'success') {
     return (
-      <div className="animate-fadeIn flex flex-col bg-neutral-900 rounded-3xl overflow-hidden border border-emerald-500/30 shadow-[0_0_50px_rgba(16,185,129,0.1)]">
+      // 💡 최상단 div에 ref={topRef} 연결
+      <div ref={topRef} className="animate-fadeIn flex flex-col bg-neutral-900 rounded-3xl overflow-hidden border border-emerald-500/30 shadow-[0_0_50px_rgba(16,185,129,0.1)]">
         <div className="w-full h-56 bg-neutral-800 relative">
           {truth.illustrationUrl ? (
             <img src={truth.illustrationUrl} alt="Truth" className="w-full h-full object-cover" />
@@ -255,7 +224,6 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
           </div>
 
           <button 
-            // 💡 성공 시에도 onReset을 통해 진행도를 깔끔히 지우고 메인으로 이동
             onClick={() => { playSfx(); onReset(); }} 
             className="w-full py-4 mt-2 bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-xl shadow-lg active:scale-95 transition-all"
           >
@@ -266,7 +234,6 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
     );
   }
 
-  // [추리 입력 화면]
   return (
     <>
       <div className="animate-fadeIn pb-10">
@@ -358,7 +325,6 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
         </button>
       </div>
       
-      {/* 💡 추리 실패 시 나타나는 생명력 부활 광고 확인 모달 */}
       {showLifeAdModal && (
         <AdConfirmModal 
           type="life" 
