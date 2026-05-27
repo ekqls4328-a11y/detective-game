@@ -2,10 +2,57 @@ import React, { useState, useEffect, useRef } from 'react'; // 💡 useRef 필�
 import TypewriterText from './TypewriterText';
 import InventoryModal from './InventoryModal';
 import InspectionModal from './InspectionModal';
-// 💡 AudioContext 임포트 추가
 import { useAudio } from '../contexts/AudioContext';
+// 💡 다빈이가 확인한 중괄호 명시적 임포트 유지
+import { Joyride } from 'react-joyride'; 
 
-// 💡 actionPoints 추가됨!
+// 💡 추리 게임 감성에 맞춘 커스텀 툴팁 컴포넌트
+const CustomTooltip = ({
+  index,
+  step,
+  backProps,
+  closeProps,
+  primaryProps,
+  tooltipProps,
+  isLastStep,
+  size, // 💡 하드코딩 대신 전체 스텝 수를 자동으로 받아오게 추가
+}) => (
+  <div
+    {...tooltipProps}
+    className="bg-neutral-900 border border-neutral-700 rounded-xl shadow-[0_10px_30px_rgba(0,0,0,0.8)] p-5 max-w-[320px] w-full font-sans"
+  >
+    <div className="flex items-center justify-between mb-4 border-b border-neutral-800 pb-3">
+      <span className="text-amber-500 font-black text-[11px] tracking-widest">
+        [ 심문 가이드 {index + 1} / {size} ]
+      </span>
+      <button {...closeProps} className="text-neutral-500 hover:text-red-500 text-lg leading-none active:scale-90 transition-all">
+        &times;
+      </button>
+    </div>
+    <div className="text-gray-200 text-sm leading-loose mb-6 break-keep whitespace-pre-wrap">
+      {step.content}
+    </div>
+    <div className="flex justify-between items-center">
+      <div>
+        {index > 0 && (
+          <button
+            {...backProps}
+            className="px-3 py-2 text-xs font-bold text-neutral-400 hover:text-white bg-neutral-800 hover:bg-neutral-700 rounded-lg transition-colors border border-neutral-700 active:scale-95"
+          >
+            &lt; 이전
+          </button>
+        )}
+      </div>
+      <button
+        {...primaryProps}
+        className="px-5 py-2 text-xs font-black text-black bg-amber-500 hover:bg-amber-400 rounded-lg transition-all shadow-[0_0_15px_rgba(245,158,11,0.2)] active:scale-95"
+      >
+        {isLastStep ? '심문 시작하기' : '다음 단계 >'}
+      </button>
+    </div>
+  </div>
+);
+
 const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, actionPoints, onClueFound, onMarkAsViewed, onRemoveClue, onPresent, onClose }) => {
   const [isTypingDone, setIsTypingDone] = useState(false);
   const [showQuestionMenu, setShowQuestionMenu] = useState(false);
@@ -21,38 +68,82 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, acti
 
   const [isImageLoaded, setIsImageLoaded] = useState(false);
 
-  // 💡 BGM 변경 및 효과음 함수 가져오기
   const { changeAndPlayBgm, playSfx } = useAudio();
-
-  // 💡 [수정] 대화창 전체를 감시할 Ref
   const scrollContainerRef = useRef(null);
 
-  // 💡 [핵심 추가] 글자가 추가될 때마다 무조건 바닥으로 스크롤을 내리는 CCTV(Observer) 설치!
+  // 💡 중복 실행 방지를 위한 로컬스토리지 키값 v5 업데이트
+  const TUTORIAL_KEY = 'crime_game_interrogation_tutorial_cleared';
+  const [tourRun, setTourRun] = useState(false);
+  const [tourSteps] = useState([
+    // 💡 [핵심] PlayScreen과 똑같이 첫 타겟을 'body'로 설정해서 비콘을 강제 스킵하고 즉시 팝업!
+    {
+      target: 'body',
+      content: '🕵️‍♂️ 탐정님, 심문실에 오신 것을 환영합니다!\n상대의 진술을 듣고 모순을 꿰뚫어보세요.',
+      placement: 'center',
+      disableBeacon: true,
+    },
+    {
+      target: '.tutorial-step-dialog',
+      content: '용의자의 진술입니다. 박스를 터치하면 타이핑을 건너뛰고 빠르게 읽을 수 있어요.',
+      placement: 'bottom',
+      disableBeacon: true,
+    },
+    {
+      target: '.tutorial-step-inspect',
+      content: '용의자의 머리부터 발끝까지 샅샅이 관찰하여 숨겨진 특징을 단서로 획득하세요.',
+      placement: 'bottom',
+      disableBeacon: true,
+    },
+    {
+      target: '.tutorial-step-ask',
+      content: '질문하기를 통해 용의자의 알리바이를 캐낼 수 있습니다.',
+      placement: 'top',
+      disableBeacon: true,
+    },
+    {
+      target: '.tutorial-step-present',
+      content: '수집한 결정적인 단서를 들이밀어 거짓말을 추궁하세요! (⚡ 1 소모)',
+      placement: 'top',
+      disableBeacon: true,
+    }
+  ]);
+
+  // 💡 화면 진입 시 PlayScreen과 동일하게 선불 도장 날인 후 가이드 실행
+  useEffect(() => {
+    const isTutorialCleared = localStorage.getItem(TUTORIAL_KEY) === 'true';
+    if (!isTutorialCleared) {
+      setTimeout(() => {
+        setTourRun(true); 
+        localStorage.setItem(TUTORIAL_KEY, 'true'); 
+      }, 800); 
+    }
+  }, []);
+
+  const handleJoyrideCallback = (data) => {
+    const { status, action } = data;
+    if (['finished', 'skipped'].includes(status) || action === 'close') {
+      setTourRun(false); 
+    } 
+  };
+
   useEffect(() => {
     const container = scrollContainerRef.current;
     if (!container) return;
 
     const observer = new MutationObserver(() => {
-      // 박스 안의 내용(글자)이 변할 때마다 스크롤을 스크롤 높이(맨 아래)로 강제 이동!
       container.scrollTop = container.scrollHeight;
     });
 
-    // 텍스트 노드(characterData)나 자식 요소(childList)가 변하는지 감시
     observer.observe(container, {
       childList: true,
       subtree: true,
       characterData: true
     });
 
-    return () => observer.disconnect(); // 컴포넌트 꺼질 때 감시 종료
-  }, [currentDialog]); // 새 대화가 시작될 때마다 다시 세팅
+    return () => observer.disconnect(); 
+  }, [currentDialog]); 
 
-  // 💡 심문 전용 BGM 재생 및 종료 시 원상 복구 로직
   useEffect(() => {
-    // 1. 심문 창이 열리면 긴장감 있는 BGM으로 교체 (실제 파일 경로로 수정 필요)
-    // changeAndPlayBgm('/audio/tension_bgm.mp3');
-
-    // 2. 심문 창이 닫힐 때(언마운트) 원래 시나리오 BGM으로 되돌림
     return () => {
       if (scenarioData && scenarioData.bgmUrl) {
         changeAndPlayBgm(scenarioData.bgmUrl);
@@ -68,8 +159,6 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, acti
     setCurrentStatement(null); 
     setDiscoveryText(null);
     setDialogKey(prev => prev + 1); 
-    
-    // 용의자가 바뀔 때마다 이미지 로드 상태 초기화
     setIsImageLoaded(false);
   }, [suspect]);
 
@@ -104,7 +193,6 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, acti
     setCurrentStatement(null); 
     setDiscoveryText(null);
     setDialogKey(prev => prev + 1); 
-    
     if (onPresent) onPresent(); 
   };
 
@@ -129,6 +217,26 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, acti
   return (
     <div className="fixed inset-0 z-50 bg-black animate-fadeIn overflow-hidden">
       
+      <Joyride
+        steps={tourSteps}
+        run={tourRun}
+        continuous={true}
+        showSkipButton={true}
+        disableOverlayClose={true}
+        disableScrolling={true} 
+        spotlightClicks={true}
+        floaterProps={{ disableAnimation: true }}
+        callback={handleJoyrideCallback}
+        hideBackButton={true}
+        tooltipComponent={CustomTooltip} 
+        styles={{
+          options: {
+            zIndex: 100000,
+            overlayColor: 'rgba(0, 0, 0, 0.85)',
+          }
+        }}
+      />
+
       {/* 배경 이미지 영역 */}
       <div className="absolute inset-0 z-0">
         <div 
@@ -153,7 +261,6 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, acti
             </div>
           )}
         </div>
-        
         <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent pointer-events-none" />
       </div>
 
@@ -180,7 +287,7 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, acti
 
           <button 
             onClick={() => { playSfx(); setIsInspectionOpen(true); }} 
-            className="font-bold px-3 py-1.5 text-sm rounded-full backdrop-blur-md bg-neutral-900/80 border border-neutral-600 text-amber-500 shadow-lg flex items-center gap-1 active:scale-95 transition-transform shrink-0"
+            className="tutorial-step-inspect font-bold px-3 py-1.5 text-sm rounded-full backdrop-blur-md bg-neutral-900/80 border border-neutral-600 text-amber-500 shadow-lg flex items-center gap-1 active:scale-95 transition-transform shrink-0"
           >
             <span>🧐</span> 외형 관찰
           </button>
@@ -230,13 +337,12 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, acti
                 setIsSkipping(true); 
               } 
             }} 
-            className="bg-black/60 backdrop-blur-md border border-neutral-700/50 rounded-xl p-4 pt-5 relative shadow-2xl cursor-pointer flex flex-col min-h-[110px]"
+            className="tutorial-step-dialog bg-black/60 backdrop-blur-md border border-neutral-700/50 rounded-xl p-4 pt-5 relative shadow-2xl cursor-pointer flex flex-col min-h-[110px]"
           >
             <div className="absolute -top-3 left-4 bg-neutral-800 text-amber-500 font-black px-4 py-1 rounded-md text-sm border border-neutral-600 shadow-lg">
               {suspect.name}
             </div>
             
-            {/* 💡 [수정] 여기에 ref={scrollContainerRef}를 연결해서 이 박스를 감시하게 만듦! */}
             <div ref={scrollContainerRef} className="overflow-y-auto h-[90px] pr-2 mt-1 scrollbar-hide">
               <p className="text-gray-100 leading-relaxed text-sm select-none break-keep whitespace-pre-wrap text-shadow-sm">
                 <TypewriterText 
@@ -275,13 +381,13 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, acti
           <div className={`flex gap-3 h-[52px] shrink-0 transition-opacity ${isTypingDone && !showQuestionMenu ? 'opacity-100' : 'opacity-30 pointer-events-none'}`}>
             <button 
               onClick={() => { playSfx(); setShowQuestionMenu(true); }} 
-              className="flex-1 bg-black/60 backdrop-blur-sm text-white font-bold rounded-xl border border-neutral-600 hover:bg-neutral-800 transition-colors flex items-center justify-center gap-2 shadow-lg"
+              className="tutorial-step-ask flex-1 bg-black/60 backdrop-blur-sm text-white font-bold rounded-xl border border-neutral-600 hover:bg-neutral-800 transition-colors flex items-center justify-center gap-2 shadow-lg"
             >
               <span className="text-lg">🗣️</span> 질문하기
             </button>
             <button 
               onClick={handleOpenInventory}
-              className={`flex-1 backdrop-blur-sm text-white font-black rounded-xl border shadow-[0_0_15px_rgba(220,38,38,0.3)] transition-all flex items-center justify-center gap-1 ${
+              className={`tutorial-step-present flex-1 backdrop-blur-sm text-white font-black rounded-xl border shadow-[0_0_15px_rgba(220,38,38,0.3)] transition-all flex items-center justify-center gap-1 ${
                 actionPoints <= 0 ? 'bg-neutral-800 border-neutral-700 opacity-50 cursor-not-allowed' : 'bg-red-900/80 hover:bg-red-800 border-red-600'
               }`}
             >

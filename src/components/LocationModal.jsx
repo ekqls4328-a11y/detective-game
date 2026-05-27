@@ -2,6 +2,22 @@ import React, { useState, useEffect } from 'react';
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 // 💡 AudioContext 임포트 추가
 import { useAudio } from '../contexts/AudioContext';
+import { Joyride } from 'react-joyride';
+
+// 💡 현장 조사 전용 다크 모드 툴팁 (기존 구조 재활용)
+const CustomTooltip = ({ index, step, backProps, closeProps, primaryProps, tooltipProps, isLastStep }) => (
+  <div {...tooltipProps} className="bg-neutral-900 border border-neutral-700 rounded-xl shadow-[0_10px_30px_rgba(0,0,0,0.8)] p-5 max-w-[320px] w-full font-sans z-[100000]">
+    <div className="flex items-center justify-between mb-4 border-b border-neutral-800 pb-3">
+      <span className="text-amber-500 font-black text-[11px] tracking-widest">[ 조사 가이드 {index + 1} / 3 ]</span>
+      <button {...closeProps} className="text-neutral-500 hover:text-red-500 text-lg leading-none">&times;</button>
+    </div>
+    <div className="text-gray-200 text-sm leading-loose mb-6 break-keep">{step.content}</div>
+    <div className="flex justify-between items-center">
+      <div>{index > 0 && <button {...backProps} className="px-3 py-2 text-xs font-bold text-neutral-400 bg-neutral-800 rounded-lg border border-neutral-700">&lt; 이전</button>}</div>
+      <button {...primaryProps} className="px-5 py-2 text-xs font-black text-black bg-amber-500 rounded-lg">{isLastStep ? '조사 시작' : '다음 >'}</button>
+    </div>
+  </div>
+);
 
 const LocationModal = ({ 
   location, inventory, maxActionPoints, actionPoints, 
@@ -17,6 +33,8 @@ const LocationModal = ({
 
   // 💡 효과음 함수 가져오기
   const { playSfx } = useAudio();
+  const TUTORIAL_KEY = 'crime_game_investigation_tutorial_cleared';
+  const [tourRun, setTourRun] = useState(false);
 
   const IS_DEV_MODE = false; 
 
@@ -57,12 +75,59 @@ const LocationModal = ({
       setFocusedPoint(null);
     }
   };
+  const [tourSteps] = useState([
+  {
+    target: '.react-transform-component', 
+    content: '현장은 거짓말을 하지 않습니다. 두 손가락으로 화면을 확대하고 스와이프하여 은폐된 흔적을 샅샅이 수색하십시오.',
+    placement: 'center',
+    disableBeacon: true,
+  },
+  {
+    target: '.tutorial-scan-btn', 
+    content: '수색이 막막할 땐 주변 탐색을 활용하세요. 행동력(⚡)을 소모해 숨겨진 결정적 물증의 위치를 스캔할 수 있습니다.',
+    placement: 'top',
+    disableBeacon: true,
+  },
+  {
+    target: '.tutorial-clue-item', 
+    content: '작은 위화감도 놓치지 마십시오. 의심스러운 흔적을 직접 터치해 조사하고 단서함에 확실하게 기록해야 합니다.',
+    placement: 'top',
+    disableBeacon: true,
+  }
+]);
+
+  
+  useEffect(() => {
+    if (localStorage.getItem(TUTORIAL_KEY) !== 'true') {
+      setTimeout(() => {
+        setTourRun(true);
+        localStorage.setItem(TUTORIAL_KEY, 'true');
+      }, 800);
+    }
+  }, []);
 
   if (!location) return null;
 
   return (
     <div className="fixed inset-0 z-[70] bg-neutral-950 flex flex-col animate-fadeIn overflow-hidden pb-safe">
       
+      <Joyride
+        steps={tourSteps}
+        run={tourRun}
+        continuous={true}
+        disableOverlayClose={true}
+        disableScrolling={true}
+        disablePortal={true}
+        spotlightClicks={true}
+        callback={(data) => { if (data.status === 'finished' || data.action === 'close') setTourRun(false); }}
+        hideBackButton={true}
+        tooltipComponent={CustomTooltip}
+        styles={{
+          options: { zIndex: 100000, overlayColor: 'rgba(0, 0, 0, 0.6)' },
+          spotlight: { backgroundColor: 'transparent' }
+        }}
+      />
+
       {/* 1. 상단 헤더 */}
       <header className="shrink-0 w-full z-[80] p-3 flex justify-between items-center gap-2 bg-neutral-950 border-b border-neutral-800 shadow-md">
         <button 
@@ -148,7 +213,7 @@ const LocationModal = ({
                               top: clue.top, left: clue.left, width: clue.width, height: clue.height,
                               transform: 'translate(-50%, -50%)'
                             }}
-                            className={`absolute rounded-xl transition-all duration-300 ${
+                            className={`tutorial-clue-item absolute rounded-xl transition-all duration-300 ${
                               IS_DEV_MODE 
                                 ? `border-2 ${isFocused ? 'border-blue-400 bg-blue-400/30 shadow-[0_0_15px_rgba(96,165,250,0.5)]' : (isFound ? 'border-emerald-500 bg-emerald-500/20' : 'border-red-500 bg-red-500/20')}`
                                 : (isFocused ? 'border-2 border-blue-400 bg-blue-400/30 shadow-[0_0_15px_rgba(96,165,250,0.5)]' : 'bg-transparent border-none')
@@ -215,7 +280,7 @@ const LocationModal = ({
         <button 
           onClick={handleScanClick}
           disabled={actionPoints <= 0 || isScanning}
-          className={`w-full py-3.5 rounded-xl font-black text-base flex items-center justify-center gap-2 transition-all shadow-xl shrink-0 ${
+          className={`tutorial-scan-btn w-full py-3.5 rounded-xl font-black text-base flex items-center justify-center gap-2 transition-all shadow-xl shrink-0 ${
             actionPoints > 0 && !isScanning
               ? 'bg-blue-600 hover:bg-blue-500 text-white active:scale-[0.98]'
               : 'bg-neutral-800 text-neutral-500 border border-neutral-700 cursor-not-allowed'

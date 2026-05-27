@@ -1,31 +1,76 @@
 import React, { useState, useEffect } from 'react';
+import { Joyride } from 'react-joyride'; 
 import InterrogationView from './InterrogationView';
 import DeductionView from './DeductionView';
 import InventoryModal from './InventoryModal';
 import LocationModal from './LocationModal';
 import ReasoningNoteModal from './ReasoningNoteModal'; 
 import { useAudio } from '../contexts/AudioContext'; 
-import { AdMob, RewardAdPluginEvents } from '@capacitor-community/admob';
-import { App as CapacitorApp } from '@capacitor/app'; // 💡 Capacitor App 플러그인 임포트
-
-// 💡 1. 만들어둔 시나리오 JSON 파일들을 모두 임포트해!
+import { AdMob } from '@capacitor-community/admob';
+import { App as CapacitorApp } from '@capacitor/app';
 import wedding_murder from '../data/wedding_murder.json';
 import apartment_murder from '../data/apartment_murder.json';
-import AdConfirmModal from './AdConfirmModal'; // 💡 모달 임포트
+import camping_murder from '../data/camping_murder.json';
+import AdConfirmModal from './AdConfirmModal';
 
-// 💡 2. 시나리오 ID를 키(Key)값으로 하는 객체(DB)를 만들어줘!
 const scenarioDB = {
   "wedding_murder": wedding_murder,
-  "apartment_murder": apartment_murder
+  "apartment_murder": apartment_murder,
+  "camping_murder": camping_murder
 };
+
+// 💡 추리 게임 감성에 맞춘 커스텀 툴팁 컴포넌트
+const CustomTooltip = ({
+  index,
+  step,
+  backProps,
+  closeProps,
+  primaryProps,
+  tooltipProps,
+  isLastStep,
+}) => (
+  <div
+    {...tooltipProps}
+    className="bg-neutral-900 border border-neutral-700 rounded-xl shadow-[0_10px_30px_rgba(0,0,0,0.8)] p-5 max-w-[320px] w-full font-sans"
+  >
+    <div className="flex items-center justify-between mb-4 border-b border-neutral-800 pb-3">
+      <span className="text-amber-500 font-black text-[11px] tracking-widest">
+        [ 시스템 가이드 {index + 1} / 6 ]
+      </span>
+      <button {...closeProps} className="text-neutral-500 hover:text-red-500 text-lg leading-none active:scale-90 transition-all">
+        &times;
+      </button>
+    </div>
+    <div className="text-gray-200 text-sm leading-loose mb-6 break-keep whitespace-pre-wrap">
+      {step.content}
+    </div>
+    <div className="flex justify-between items-center">
+      <div>
+        {index > 0 && (
+          <button
+            {...backProps}
+            className="px-3 py-2 text-xs font-bold text-neutral-400 hover:text-white bg-neutral-800 hover:bg-neutral-700 rounded-lg transition-colors border border-neutral-700 active:scale-95"
+          >
+            &lt; 이전
+          </button>
+        )}
+      </div>
+      <button
+        {...primaryProps}
+        className="px-5 py-2 text-xs font-black text-black bg-amber-500 hover:bg-amber-400 rounded-lg transition-all shadow-[0_0_15px_rgba(245,158,11,0.2)] active:scale-95"
+      >
+        {isLastStep ? '수사 시작하기' : '다음 단계 >'}
+      </button>
+    </div>
+  </div>
+);
 
 const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
   const SAVE_KEY = `crime_game_progress_${scenarioId}`;
+  const TUTORIAL_KEY = `crime_game_tutorial_cleared`;
 
-  // 💡 3. App.jsx에서 넘겨준 scenarioId를 바탕으로 진짜 데이터를 꺼냄!
   const currentScenarioData = scenarioDB[scenarioId];
 
-  // 혹시라도 데이터를 못 찾았을 때 앱이 뻗는 걸 방지하는 안전장치
   if (!currentScenarioData) {
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center">
@@ -48,7 +93,6 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
 
   const defaultAP = currentScenarioData.maxActionPoints || 3;
 
-  // 💡 4. 고정된 값이 아니라 현재 시나리오 데이터를 초기값으로 세팅
   const [data, setData] = useState(currentScenarioData); 
   const [activeTab, setActiveTab] = useState(() => getInitialState('activeTab', 'briefing')); 
   const [actionPoints, setActionPoints] = useState(() => getInitialState('actionPoints', defaultAP));
@@ -61,23 +105,78 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
   const [isGlobalInventoryOpen, setIsGlobalInventoryOpen] = useState(false);
   const [isNoteOpen, setIsNoteOpen] = useState(false);
   
-  const [showApAdModal, setShowApAdModal] = useState(false); // 💡 행동력 광고 모달 상태
-  const [isAdLoading, setIsAdLoading] = useState(true); // 💡 진입 시 전면광고 로딩 상태
-  
-  // 💡 [추가] 사건 해결 여부를 판단하는 상태
+  const [showApAdModal, setShowApAdModal] = useState(false); 
+  const [isAdLoading, setIsAdLoading] = useState(true); 
   const [isCaseSolved, setIsCaseSolved] = useState(false); 
 
-  const { changeAndPlayBgm, playSfx } = useAudio(); 
+  const [tourRun, setTourRun] = useState(false);
 
+  const [tourSteps] = useState([
+    {
+      target: 'body', 
+      content: '🕵️‍♂️ 탐정님, 사건 현장에 오신 것을 환영합니다! [다음]을 눌러 기본 사용법을 숙지하세요.',
+      placement: 'center', 
+      disableBeacon: true, 
+    },
+    {
+      target: '.tutorial-tab-interrogation',
+      content: '💬 용의자 심문 탭입니다. 사건 관계자들의 알리바이를 캐내고 진술 단서를 획득하세요.',
+      placement: 'top',
+      disableBeacon: true,
+    },
+    {
+      target: '.tutorial-tab-investigation',
+      content: '🔍 현장 조사 탭입니다. 사건 현장을 수색하여 물증과 증거를 찾아낼 수 있습니다.',
+      placement: 'top',
+      disableBeacon: true,
+    },
+    {
+      target: '.tutorial-tab-deduction',
+      content: '⚖️ 사건 종결 탭입니다. 단서가 모두 모였다면 정확한 범인과 흉기를 지목하세요.',
+      placement: 'top',
+      disableBeacon: true,
+    },
+    {
+      target: '.tutorial-icon-inventory', 
+      content: '💼 단서함 가방입니다. 수집한 모든 진술과 물증 리스트를 한눈에 모아볼 수 있습니다.',
+      placement: 'bottom',
+      disableBeacon: true,
+    },
+    {
+      target: '.tutorial-icon-note', 
+      content: '📓 추리 노트입니다. 수사 과정에서 필요한 단서들을 자유롭게 메모해 두세요.',
+      placement: 'left',
+      disableBeacon: true,
+    }
+  ]);
+
+  const { changeAndPlayBgm, playSfx } = useAudio(); 
   const unreadCount = inventory.filter(id => !viewedClues.includes(id)).length;
 
-  // 💡 [추가된 로직] 안드로이드 물리 뒤로가기 버튼 핸들링
+  // 💡 [핵심 로직] 라이브러리 콜백을 믿지 않고, 가이드가 시작되는 즉시 "선불"로 도장 쾅!
+  useEffect(() => {
+    const isTutorialCleared = localStorage.getItem(TUTORIAL_KEY) === 'true';
+    
+    if (!isTutorialCleared) {
+      setTimeout(() => {
+        setTourRun(true); // 가이드 시작
+        localStorage.setItem(TUTORIAL_KEY, 'true'); // 시작하자마자 무조건 완료 처리!
+      }, 600); 
+    }
+  }, []);
+
+  // 💡 이미 시작할 때 저장했으므로, 여기선 그냥 화면(UI)만 닫아주면 끝남!
+  const handleJoyrideCallback = (data) => {
+    const { status, action } = data;
+    if (['finished', 'skipped'].includes(status) || action === 'close') {
+      setTourRun(false); 
+    } 
+  };
+
   useEffect(() => {
     let backButtonListener;
-
     const setupBackButton = async () => {
       backButtonListener = await CapacitorApp.addListener('backButton', () => {
-        // 우선순위에 따라 열려있는 모달을 하나씩 닫음
         if (selectedSuspect) {
           setSelectedSuspect(null);
         } else if (selectedLocation) {
@@ -89,37 +188,24 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
         } else if (showApAdModal) {
           setShowApAdModal(false);
         } else {
-          // 어떤 모달도 열려있지 않다면, 시나리오 선택창(App.jsx)으로 철수!
           onBack();
         }
       });
     };
-
     setupBackButton();
-
     return () => {
-      if (backButtonListener) {
-        backButtonListener.remove(); // 컴포넌트 언마운트 시 메모리 누수 방지
-      }
+      if (backButtonListener) backButtonListener.remove();
     };
   }, [selectedSuspect, selectedLocation, isGlobalInventoryOpen, isNoteOpen, showApAdModal, onBack]);
 
   useEffect(() => {
-    const gameState = {
-      activeTab,
-      actionPoints,
-      inventory,
-      viewedClues,
-      deductionLife
-    };
+    const gameState = { activeTab, actionPoints, inventory, viewedClues, deductionLife };
     localStorage.setItem(SAVE_KEY, JSON.stringify(gameState));
   }, [activeTab, actionPoints, inventory, viewedClues, deductionLife, SAVE_KEY]);
 
   useEffect(() => {
-    // 💡 5. scenarioId가 바뀔 때 올바른 데이터를 다시 세팅
     const newData = scenarioDB[scenarioId];
     setData(newData);
-    
     const saved = localStorage.getItem(SAVE_KEY);
     
     if (saved) {
@@ -142,59 +228,31 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
     }
   }, [scenarioId, SAVE_KEY, changeAndPlayBgm]);
   
-  // 💡 행동력이 0이 되었을 때 모달을 띄우는 로직으로 수정
   useEffect(() => {
-    if (data && actionPoints <= 0 && activeTab !== 'deduction' && !showApAdModal &&
-      !selectedSuspect &&
-      !selectedLocation) {
-      setShowApAdModal(true); // 💡 강제 이동 대신 모달 오픈
+    if (data && actionPoints <= 0 && activeTab !== 'deduction' && !showApAdModal && !selectedSuspect && !selectedLocation) {
+      setShowApAdModal(true);
     }
   }, [actionPoints, activeTab, data, showApAdModal, selectedSuspect, selectedLocation]);
 
-  // 💡 진입 시 전면 광고 로딩 및 송출 로직
   useEffect(() => {
     const playIntroAd = async () => {
       try {
-        const adId = 'ca-app-pub-3940256099942544/1033173712'; // 💡 전면 광고 테스트 ID
-        
-        // 1. 광고 장전 대기
+        const adId = 'ca-app-pub-3940256099942544/1033173712';
         await AdMob.prepareInterstitial({ adId });
-        
-        // 2. 장전 완료되면 쏘기
         await AdMob.showInterstitial();
-        
       } catch (error) {
-        console.log("전면 광고 호출 실패 (웹 환경이거나 로드 에러):", error);
+        console.log("전면 광고 호출 실패:", error);
       } finally {
-        // 3. 광고를 다 봤거나 에러가 났거나, 무조건 로딩 화면을 치워줌!
         setIsAdLoading(false); 
       }
     };
-    
     playIntroAd();
   }, [scenarioId]); 
 
-  // 💡 행동력 광고 모달 뜰 때 사전 장전
-  useEffect(() => {
-    if (showApAdModal) {
-      AdMob.prepareRewardVideoAd({ adId: 'ca-app-pub-3940256099942544/5224354917' })
-        .catch(e => console.error("광고 사전 로드 실패:", e));
-    }
-  }, [showApAdModal]);
-
-  // 💡 행동력 충전 완료 로직
   const handleApAdConfirm = async () => {
     setShowApAdModal(false);
-    
-    try {
-      console.log("📺 [개발용 치트키] 광고 시청 스킵");
-      alert("📺 [테스트] 행동력이 가득 충전되었습니다!");
-      setActionPoints(data.maxActionPoints || 3);
-
-    } catch (error) {
-      console.error("광고 재생 실패:", error);
-      alert("광고를 불러오는 데 실패했습니다. 잠시 후 다시 시도해주세요.");
-    }
+    alert("⚡ 행동력이 가득 충전되었습니다!");
+    setActionPoints(data.maxActionPoints || 3);
   };
 
   const handleApAdCancel = () => {
@@ -211,35 +269,14 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
     onBack(); 
   };
 
-  const handlePresentEvidence = () => {
-    setActionPoints((prev) => Math.max(0, prev - 1));
-  };
-
-  const handleScanArea = () => {
-    setActionPoints(prev => Math.max(0, prev - 1));
-  };
-
-  const handleAddClue = (clueId) => {
-    setInventory((prev) => {
-      if (prev.includes(clueId)) return prev;
-      return [...prev, clueId];
-    });
-  };
-
-  const handleRemoveClue = (clueId) => {
-    setInventory((prev) => prev.filter(id => id !== clueId));
-  };
-
-  const markClueAsViewed = (clueId) => {
-    setViewedClues(prev => {
-      if (prev.includes(clueId)) return prev;
-      return [...prev, clueId];
-    });
-  };
+  const handlePresentEvidence = () => setActionPoints((prev) => Math.max(0, prev - 1));
+  const handleScanArea = () => setActionPoints(prev => Math.max(0, prev - 1));
+  const handleAddClue = (clueId) => setInventory((prev) => prev.includes(clueId) ? prev : [...prev, clueId]);
+  const handleRemoveClue = (clueId) => setInventory((prev) => prev.filter(id => id !== clueId));
+  const markClueAsViewed = (clueId) => setViewedClues(prev => prev.includes(clueId) ? prev : [...prev, clueId]);
 
   if (!data) return <div className="text-white p-10 text-center">Loading...</div>;
 
-  // 💡 진입 시 보여줄 커스텀 탐정 로딩 스피너 UI
   if (isAdLoading) {
     return (
       <div className="min-h-screen bg-neutral-950 flex flex-col items-center justify-center p-6 space-y-8">
@@ -259,119 +296,83 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
   return (
     <div className="min-h-screen bg-neutral-900 text-gray-100 flex flex-col font-sans">
       
-      {/* 글로벌 단서함 플로팅 버튼 */}
+      <Joyride
+        steps={tourSteps}
+        run={tourRun}
+        continuous={true}
+        showSkipButton={true}
+        disableOverlayClose={true}
+        disableScrolling={true} 
+        floaterProps={{ disableAnimation: true }}
+        callback={handleJoyrideCallback}
+        hideBackButton={true}
+        tooltipComponent={CustomTooltip} 
+        styles={{
+          options: {
+            zIndex: 10000,
+            overlayColor: 'rgba(0, 0, 0, 0.85)',
+          }
+        }}
+      />
+
       <button 
         onClick={() => { playSfx(); setIsNoteOpen(true); }}
-        className="fixed top-[72px] right-4 z-[80] w-12 h-12 bg-neutral-800 border border-neutral-600 rounded-full flex items-center justify-center text-xl shadow-[0_4px_15px_rgba(0,0,0,0.5)] active:scale-90 transition-all hover:bg-neutral-700"
+        className="tutorial-icon-note fixed top-[72px] right-4 z-[80] w-12 h-12 bg-neutral-800 border border-neutral-600 rounded-full flex items-center justify-center text-xl shadow-[0_4px_15px_rgba(0,0,0,0.5)] active:scale-90 transition-all hover:bg-neutral-700"
       >
         📓
       </button>
 
-      <header className={`sticky top-0 z-20 border-b border-neutral-800 p-3 flex justify-between items-center gap-2 shadow-md transition-colors ${actionPoints === 0 ? 'bg-red-950' : 'bg-neutral-950'}`}>
-        <button 
-          onClick={() => { playSfx(); onBack(); }}
-          className="text-neutral-400 hover:text-white font-bold text-sm whitespace-nowrap shrink-0"
-        >
-          &lt; 철수
-        </button>
-        
-        <h1 className="text-sm font-black truncate flex-1 text-center text-white min-w-0">
-          {data.title}
-        </h1>
-        
+      <header className={`sticky top-0 z-20 border-b border-neutral-800 p-3 flex justify-between items-center gap-2 shadow-md transition-colors ${actionPoints === 0 ? 'bg-red-955' : 'bg-neutral-950'}`}>
+        <button onClick={() => { playSfx(); onBack(); }} className="text-neutral-400 hover:text-white font-bold text-sm whitespace-nowrap shrink-0">&lt; 철수</button>
+        <h1 className="text-sm font-black truncate flex-1 text-center text-white min-w-0">{data.title}</h1>
         <div className="flex items-center gap-2 shrink-0">
-          <button 
-            onClick={() => { playSfx(); onOpenSettings(); }}
-            className="w-8 h-8 bg-neutral-800 rounded-full border border-neutral-600 flex items-center justify-center hover:bg-neutral-700 active:scale-95 transition-all"
-          >
-            <span className="text-sm">⚙️</span>
-          </button>
-
-          <button 
-            onClick={() => { playSfx(); setIsGlobalInventoryOpen(true); }}
-            className="relative w-8 h-8 bg-neutral-800 rounded-full border border-neutral-600 flex items-center justify-center hover:bg-neutral-700 active:scale-95 transition-all"
-          >
+          <button onClick={() => { playSfx(); onOpenSettings(); }} className="w-8 h-8 bg-neutral-800 rounded-full border border-neutral-600 flex items-center justify-center hover:bg-neutral-700"><span className="text-sm">⚙️</span></button>
+          
+          <button onClick={() => { playSfx(); setIsGlobalInventoryOpen(true); }} className="tutorial-icon-inventory relative w-8 h-8 bg-neutral-800 rounded-full border border-neutral-600 flex items-center justify-center">
             <span className="text-sm">💼</span>
-            {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-red-600 text-white text-[9px] font-black w-3.5 h-3.5 rounded-full flex items-center justify-center shadow-md animate-bounce">
-                {unreadCount}
-              </span>
-            )}
+            {unreadCount > 0 && <span className="absolute -top-1 -right-1 bg-red-600 text-white text-[9px] font-black w-3.5 h-3.5 rounded-full flex items-center justify-center animate-bounce">{unreadCount}</span>}
           </button>
-
-          <div className={`flex items-center gap-1 px-2 py-1 rounded-full border transition-colors ${
-            actionPoints <= 1 ? 'bg-red-900/50 border-red-500 animate-pulse text-red-400' : 'bg-neutral-800 border-neutral-700 text-neutral-300'
-          }`}>
+          
+          <div className={`flex items-center gap-1 px-2 py-1 rounded-full border ${actionPoints <= 1 ? 'bg-red-900/50 border-red-500 text-red-400' : 'bg-neutral-800 border-neutral-700 text-neutral-300'}`}>
             <span className="text-xs">⚡</span>
-            <span className="text-[11px] font-black tracking-widest mt-px">
-              {actionPoints} <span className="text-neutral-500 mx-0.5">/</span> {data.maxActionPoints || 3}
-            </span>
+            <span className="text-[11px] font-black tracking-widest">{actionPoints} / {data.maxActionPoints || 3}</span>
           </div>
         </div>
       </header>
 
       <main className="flex-1 overflow-y-auto p-4 pb-24">
-        
         {activeTab === 'briefing' && (
           <div className="animate-fadeIn space-y-6">
             <div className="w-full h-48 bg-neutral-800 rounded-xl overflow-hidden border border-neutral-700 relative">
-              {data.briefingImageUrl ? (
-                <img src={data.briefingImageUrl} alt="사건 현장" className="w-full h-full object-cover opacity-80" />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-neutral-600 font-bold">이미지 준비 중</div>
-              )}
+              {data.briefingImageUrl ? <img src={data.briefingImageUrl} alt="사건 현장" className="w-full h-full object-cover opacity-80" /> : <div className="w-full h-full flex items-center justify-center text-neutral-600 font-bold">이미지 준비 중</div>}
             </div>
-
             <div>
               <h2 className="text-2xl font-black text-white mb-2">{data.title}</h2>
-              <p className="text-red-400 font-bold text-sm mb-4 leading-relaxed">{data.summary}</p>
+              <p className="text-red-400 font-bold text-sm mb-4">{data.summary}</p>
             </div>
-
             <div className="bg-neutral-800 p-5 rounded-xl border border-neutral-700">
-              <h3 className="text-sm font-bold text-neutral-400 mb-3 flex items-center gap-2">
-                <span>📋</span> 사건 보고서
-              </h3>
-              <p className="text-sm text-neutral-200 leading-loose whitespace-pre-wrap">
-                {data.desc}
-              </p>
+              <h3 className="text-sm font-bold text-neutral-400 mb-3">📋 사건 보고서</h3>
+              <p className="text-sm text-neutral-200 leading-loose whitespace-pre-wrap">{data.desc}</p>
             </div>
-
-            <button 
-              onClick={() => { playSfx(); setActiveTab('interrogation'); }}
-              className="w-full py-4 bg-neutral-200 text-black font-black rounded-xl hover:bg-white active:scale-95 transition-all shadow-lg mt-4"
-            >
-              용의자 심문 시작하기
-            </button>
+            <button onClick={() => { playSfx(); setActiveTab('interrogation'); }} className="w-full py-4 bg-neutral-200 text-black font-black rounded-xl shadow-lg mt-4">용의자 심문 시작하기</button>
           </div>
         )}
 
         {activeTab === 'interrogation' && (
           <div className="animate-fadeIn">
-            <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
-              <span className="text-amber-500">💬</span> 용의자 심문
-            </h2>
+            <h2 className="text-xl font-bold mb-6">💬 용의자 심문</h2>
             <div className="grid grid-cols-1 gap-3">
               {data.suspects.map((suspect, index) => (
-                <button 
-                  key={suspect.id} 
-                  onClick={() => { playSfx(); setSelectedSuspect(suspect); }}
-                  className="w-full bg-neutral-800 p-4 rounded-xl flex items-center gap-4 border border-neutral-700 hover:bg-neutral-700 active:scale-[0.98] transition-all"
-                >
-                  <div className="w-14 h-14 shrink-0 bg-neutral-900 rounded-lg border border-neutral-600 flex flex-col items-center justify-center shadow-[inset_0_2px_8px_rgba(0,0,0,0.5)] relative overflow-hidden">
-                    <div className="absolute top-0 w-full h-1 bg-amber-600/60" />
-                    <span className="text-[7px] text-neutral-500 font-black tracking-widest mt-1 opacity-80">SUSPECT</span>
-                    <span className="text-xl text-red-600/90 font-black tracking-tighter leading-none mt-0.5">
-                      {String(index + 1).padStart(2, '0')}
-                    </span>
+                <button key={suspect.id} onClick={() => { playSfx(); setSelectedSuspect(suspect); }} className="w-full bg-neutral-800 p-4 rounded-xl flex items-center gap-4 border border-neutral-700">
+                  <div className="w-14 h-14 shrink-0 bg-neutral-900 rounded-lg border border-neutral-600 flex flex-col items-center justify-center relative overflow-hidden">
+                    <span className="text-[7px] text-neutral-500 font-black mt-1">SUSPECT</span>
+                    <span className="text-xl text-red-600/90 font-black mt-0.5">{String(index + 1).padStart(2, '0')}</span>
                   </div>
-                  
                   <div className="text-left flex-1">
                     <div className="font-bold text-white text-lg">{suspect.name}</div>
                     <div className="text-xs text-amber-500 font-bold mb-1">{suspect.role}</div>
                     <div className="text-xs text-neutral-400 line-clamp-2">{suspect.desc}</div>
                   </div>
-                  
-                  <div className="text-neutral-600 text-lg pr-1 opacity-50">&gt;</div>
                 </button>
               ))}
             </div>
@@ -380,21 +381,14 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
 
         {activeTab === 'investigation' && (
           <div className="animate-fadeIn">
-            <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
-              <span className="text-blue-400">🔍</span> 현장 조사
-            </h2>
+            <h2 className="text-xl font-bold mb-6">🔍 현장 조사</h2>
             <div className="space-y-3">
               {data.locations.map(loc => (
-                <button 
-                  key={loc.id} 
-                  onClick={() => { playSfx(); setSelectedLocation(loc); }}
-                  className="w-full bg-neutral-800 p-4 rounded-xl text-left border border-neutral-700 hover:bg-neutral-700 active:scale-[0.98] transition-all flex justify-between items-center"
-                >
+                <button key={loc.id} onClick={() => { playSfx(); setSelectedLocation(loc); }} className="w-full bg-neutral-800 p-4 rounded-xl text-left border border-neutral-700 flex justify-between items-center">
                   <div>
                     <div className="font-bold text-white mb-1">{loc.name}</div>
                     <div className="text-xs text-neutral-400">조사 가능한 단서: {loc.clues.length}개</div>
                   </div>
-                  <div className="text-neutral-500">&gt;</div>
                 </button>
               ))}
             </div>
@@ -402,93 +396,33 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
         )}
 
         {activeTab === 'deduction' && (
-          <DeductionView 
-            scenarioData={data} 
-            inventory={inventory}
-            actionPoints={actionPoints}
-            deductionLife={deductionLife} 
-            onFail={() => setDeductionLife(prev => Math.max(0, prev - 1))} 
-            onReset={clearProgress} 
-            onAdRevive={() => setDeductionLife(1)} 
-            onSuccess={() => setIsCaseSolved(true)} // 💡 추리 성공 시 하단 탭바를 잠그는 신호!
-          />
+          <DeductionView scenarioData={data} inventory={inventory} actionPoints={actionPoints} deductionLife={deductionLife} onFail={() => setDeductionLife(prev => Math.max(0, prev - 1))} onReset={clearProgress} onAdRevive={() => setDeductionLife(1)} onSuccess={() => setIsCaseSolved(true)} />
         )}
       </main>
 
-      {/* 하단 고정 탭 바 (💡 사건이 해결되지 않았을 때만 표시) */}
       {actionPoints > 0 && !isCaseSolved && (
         <nav className="fixed bottom-0 w-full bg-neutral-950 border-t border-neutral-800 flex pb-safe z-10">
-          <button onClick={() => { playSfx(); setActiveTab('briefing'); }} className={`flex-1 py-4 flex flex-col items-center justify-center gap-1 transition-colors ${activeTab === 'briefing' ? 'text-white bg-neutral-900' : 'text-neutral-500 hover:text-neutral-300'}`}>
-              <span className="text-2xl mb-1">📋</span>
-              <span className="text-[11px] font-bold tracking-wider">사건 개요</span>
+          <button onClick={() => { playSfx(); setActiveTab('briefing'); }} className={`flex-1 py-4 flex flex-col items-center justify-center transition-colors ${activeTab === 'briefing' ? 'text-white bg-neutral-900' : 'text-neutral-500'}`}>
+              <span className="text-2xl mb-1">📋</span><span className="text-[11px] font-bold">사건 개요</span>
           </button>
-          <button onClick={() => { playSfx(); setActiveTab('interrogation'); }} className={`flex-1 py-4 flex flex-col items-center justify-center gap-1 transition-colors ${activeTab === 'interrogation' ? 'text-amber-400 bg-neutral-900' : 'text-neutral-500 hover:text-neutral-300'}`}>
-              <span className="text-2xl mb-1">💬</span>
-              <span className="text-[11px] font-bold tracking-wider">용의자 심문</span>
+          
+          <button onClick={() => { playSfx(); setActiveTab('interrogation'); }} className={`tutorial-tab-interrogation flex-1 py-4 flex flex-col items-center justify-center transition-colors ${activeTab === 'interrogation' ? 'text-amber-400 bg-neutral-900' : 'text-neutral-500'}`}>
+              <span className="text-2xl mb-1">💬</span><span className="text-[11px] font-bold">용의자 심문</span>
           </button>
-          <button onClick={() => { playSfx(); setActiveTab('investigation'); }} className={`flex-1 py-4 flex flex-col items-center justify-center gap-1 transition-colors ${activeTab === 'investigation' ? 'text-blue-400 bg-neutral-900' : 'text-neutral-500 hover:text-neutral-300'}`}>
-              <span className="text-2xl mb-1">🔍</span>
-              <span className="text-[11px] font-bold tracking-wider">현장 조사</span>
+          <button onClick={() => { playSfx(); setActiveTab('investigation'); }} className={`tutorial-tab-investigation flex-1 py-4 flex flex-col items-center justify-center transition-colors ${activeTab === 'investigation' ? 'text-blue-400 bg-neutral-900' : 'text-neutral-500'}`}>
+              <span className="text-2xl mb-1">🔍</span><span className="text-[11px] font-bold">현장 조사</span>
           </button>
-          <button onClick={() => { playSfx(); setActiveTab('deduction'); }} className={`flex-1 py-4 flex flex-col items-center justify-center gap-1 transition-colors ${activeTab === 'deduction' ? 'text-red-500 bg-neutral-900' : 'text-neutral-500 hover:text-neutral-300'}`}>
-              <span className="text-2xl mb-1">⚖️</span>
-              <span className="text-[11px] font-bold tracking-wider">사건 종결</span>
+          <button onClick={() => { playSfx(); setActiveTab('deduction'); }} className={`tutorial-tab-deduction flex-1 py-4 flex flex-col items-center justify-center transition-colors ${activeTab === 'deduction' ? 'text-red-500 bg-neutral-900' : 'text-neutral-500'}`}>
+              <span className="text-2xl mb-1">⚖️</span><span className="text-[11px] font-bold">사건 종결</span>
           </button>
         </nav>
       )}
 
-      {selectedSuspect && (
-        <InterrogationView 
-          suspect={selectedSuspect} 
-          scenarioData={data}
-          inventory={inventory}          
-          viewedClues={viewedClues}
-          actionPoints={actionPoints}
-          onClueFound={handleAddClue}    
-          onMarkAsViewed={markClueAsViewed}
-          onRemoveClue={handleRemoveClue}
-          onClose={() => setSelectedSuspect(null)} 
-          onPresent={handlePresentEvidence} 
-        />
-      )}
-
-      {isGlobalInventoryOpen && (
-        <InventoryModal 
-          inventory={inventory} 
-          viewedClues={viewedClues}
-          onMarkAsViewed={markClueAsViewed}
-          scenarioData={data}
-          onRemoveClue={handleRemoveClue}
-          onClose={() => setIsGlobalInventoryOpen(false)} 
-        />
-      )}
-
-      {selectedLocation && (
-        <LocationModal
-          location={selectedLocation}
-          inventory={inventory}
-          maxActionPoints={data.maxActionPoints}
-          actionPoints={actionPoints}
-          onClueFound={handleAddClue}
-          onScan={handleScanArea}
-          onClose={() => setSelectedLocation(null)}
-        />
-      )}
-
-      {isNoteOpen && (
-        <div className="relative z-[110]">
-          <ReasoningNoteModal onClose={() => setIsNoteOpen(false)} />
-        </div>
-      )}
-
-      {/* 💡 행동력 소진 시 나타나는 광고 확인 모달 */}
-      {showApAdModal && (
-        <AdConfirmModal 
-          type="ap" 
-          onConfirm={handleApAdConfirm} 
-          onCancel={handleApAdCancel} 
-        />
-      )}
+      {selectedSuspect && <InterrogationView suspect={selectedSuspect} scenarioData={data} inventory={inventory} viewedClues={viewedClues} actionPoints={actionPoints} onClueFound={handleAddClue} onMarkAsViewed={markClueAsViewed} onRemoveClue={handleRemoveClue} onClose={() => setSelectedSuspect(null)} onPresent={handlePresentEvidence} />}
+      {isGlobalInventoryOpen && <InventoryModal inventory={inventory} viewedClues={viewedClues} onMarkAsViewed={markClueAsViewed} scenarioData={data} onRemoveClue={handleRemoveClue} onClose={() => setIsGlobalInventoryOpen(false)} />}
+      {selectedLocation && <LocationModal location={selectedLocation} inventory={inventory} maxActionPoints={data.maxActionPoints} actionPoints={actionPoints} onClueFound={handleAddClue} onScan={handleScanArea} onClose={() => setSelectedLocation(null)} />}
+      {isNoteOpen && <div className="relative z-[110]"><ReasoningNoteModal onClose={() => setIsNoteOpen(false)} /></div>}
+      {showApAdModal && <AdConfirmModal type="ap" onConfirm={handleApAdConfirm} onCancel={handleApAdCancel} />}
     </div>
   );
 };

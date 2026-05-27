@@ -1,7 +1,30 @@
-import React, { useState, useEffect, useRef } from 'react'; // 💡 useRef 임포트 추가!
+import React, { useState, useEffect, useRef } from 'react';
 import { useAudio } from '../contexts/AudioContext';
 import { AdMob, RewardAdPluginEvents } from '@capacitor-community/admob';
 import AdConfirmModal from './AdConfirmModal';
+import { Joyride } from 'react-joyride'; 
+
+const CustomTooltip = ({ index, step, backProps, closeProps, primaryProps, tooltipProps, isLastStep, size }) => (
+  <div {...tooltipProps} className="bg-neutral-900 border border-neutral-700 rounded-xl shadow-[0_10px_30px_rgba(0,0,0,0.8)] p-5 max-w-[320px] w-full font-sans z-[100000]">
+    <div className="flex items-center justify-between mb-4 border-b border-neutral-800 pb-3">
+      <span className="text-amber-500 font-black text-[11px] tracking-widest">[ 추리 가이드 {index + 1} / {size} ]</span>
+      <button {...closeProps} className="text-neutral-500 hover:text-red-500 text-lg leading-none active:scale-90 transition-all">&times;</button>
+    </div>
+    <div className="text-gray-200 text-sm leading-loose mb-6 break-keep">{step.content}</div>
+    <div className="flex justify-between items-center">
+      <div>
+        {index > 0 && (
+          <button {...backProps} className="px-3 py-2 text-xs font-bold text-neutral-400 hover:text-white bg-neutral-800 hover:bg-neutral-700 rounded-lg transition-colors border border-neutral-700 active:scale-95">
+            &lt; 이전
+          </button>
+        )}
+      </div>
+      <button {...primaryProps} className="px-5 py-2 text-xs font-black text-black bg-amber-500 hover:bg-amber-400 rounded-lg transition-all active:scale-95 shadow-[0_0_15px_rgba(245,158,11,0.2)]">
+        {isLastStep ? '범인 추리하기' : '다음 단계 >'}
+      </button>
+    </div>
+  </div>
+);
 
 const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, onFail, onReset, onAdRevive, onSuccess }) => {
   const [answers, setAnswers] = useState({});
@@ -12,11 +35,35 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
   const [hasUsedAdRevive, setHasUsedAdRevive] = useState(false); 
 
   const { playSfx } = useAudio();
-  
-  // 💡 화면 최상단 포커스를 맞추기 위한 Ref 추가
   const topRef = useRef(null);
 
-  // 💡 결과(result) 화면이 바뀔 때마다 스크롤을 맨 위로 부드럽게 끌어올림!
+  // 💡 가이드 다시 띄우게 키값 v12로 변경
+  const TUTORIAL_KEY = 'crime_game_deduction_tutorial_cleared';
+  const [tourRun, setTourRun] = useState(false);
+  const [tourSteps] = useState([
+    { target: 'body', content: '🕵️‍♂️ 사건 종결 탭입니다. 모든 단서를 모았다면 정확한 범인을 지목하세요.', placement: 'center', disableBeacon: true },
+    { target: '.tutorial-step-lives', content: '남은 수사 기회입니다. 3번 모두 소모하면 사건은 미궁속으로 빠집니다.', placement: 'bottom', disableBeacon: true },
+    { target: '.tutorial-step-question', content: '질문 항목들을 꼼꼼히 읽고 용의자와 단서를 선택하세요.', placement: 'top', disableBeacon: true },
+    { target: '.tutorial-step-submit', content: '최종 제출하여 사건을 종결하세요.', placement: 'top', disableBeacon: true }
+  ]);
+
+  useEffect(() => {
+    const isTutorialCleared = localStorage.getItem(TUTORIAL_KEY) === 'true';
+    if (!isTutorialCleared) {
+      setTimeout(() => {
+        setTourRun(true); 
+        localStorage.setItem(TUTORIAL_KEY, 'true'); 
+      }, 800); 
+    }
+  }, []);
+
+  const handleJoyrideCallback = (data) => {
+    const { status, action } = data;
+    if (['finished', 'skipped'].includes(status) || action === 'close') {
+      setTourRun(false); 
+    } 
+  };
+
   useEffect(() => {
     if (result !== 'none' && topRef.current) {
       topRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -81,7 +128,6 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
 
   const handleFailNextStep = () => {
     playSfx();
-    
     if (deductionLife <= 0) {
       if (!hasUsedAdRevive) {
         setShowLifeAdModal(true);
@@ -102,15 +148,12 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
 
   const handleLifeAdConfirm = async () => {
     setShowLifeAdModal(false);
-    
     try {
       console.log("📺 [개발용 치트키] 추리 부활 광고 시청 스킵");
       alert("📺 [테스트] 마지막 추리 기회가 주어집니다!");
       setHasUsedAdRevive(true); 
-      
       if (onAdRevive) onAdRevive(); 
       setResult('none'); 
-
     } catch (error) {
       console.error("광고 재생 실패:", error);
       alert("광고를 불러오는 데 실패했습니다. 잠시 후 다시 시도해주세요.");
@@ -125,11 +168,8 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
   if (result === 'fail') {
     return (
       <>
-        {/* 💡 최상단 div에 ref={topRef} 연결 */}
         <div ref={topRef} className="animate-fadeIn flex flex-col items-center justify-center p-10 text-center bg-neutral-900 rounded-3xl border border-red-900/30 relative overflow-hidden">
-          
           {deductionLife <= 0 && <div className="absolute inset-0 bg-red-900/10 animate-pulse pointer-events-none" />}
-
           <div className="text-5xl mb-4 relative z-10">⚠️</div>
           <h2 className="text-2xl font-black text-white mb-2 relative z-10">추리 실패!</h2>
 
@@ -161,11 +201,7 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
         </div>
 
         {showLifeAdModal && (
-          <AdConfirmModal 
-            type="life" 
-            onConfirm={handleLifeAdConfirm} 
-            onCancel={handleLifeAdCancel} 
-          />
+          <AdConfirmModal type="life" onConfirm={handleLifeAdConfirm} onCancel={handleLifeAdCancel} />
         )}
       </>
     );
@@ -173,7 +209,6 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
 
   if (result === 'gameover') {
     return (
-      // 💡 최상단 div에 ref={topRef} 연결
       <div ref={topRef} className="animate-fadeIn fixed inset-0 z-[100] bg-black flex flex-col items-center justify-center p-10 text-center">
         <div className="text-7xl mb-8 opacity-50">🕵️‍♂️💨</div>
         <h2 className="text-4xl font-black text-red-600 mb-4">사건 미궁 봉착</h2>
@@ -193,7 +228,6 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
 
   if (result === 'success') {
     return (
-      // 💡 최상단 div에 ref={topRef} 연결
       <div ref={topRef} className="animate-fadeIn flex flex-col bg-neutral-900 rounded-3xl overflow-hidden border border-emerald-500/30 shadow-[0_0_50px_rgba(16,185,129,0.1)]">
         <div className="w-full h-56 bg-neutral-800 relative">
           {truth.illustrationUrl ? (
@@ -237,24 +271,45 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
   return (
     <>
       <div className="animate-fadeIn pb-10">
+        <Joyride
+          steps={tourSteps}
+          run={tourRun}
+          continuous={true}
+          showSkipButton={true}
+          disableOverlayClose={true}
+          // 💡 스크롤을 방해하던 옵션들을 싹 날렸어!
+          spotlightClicks={true}
+          floaterProps={{ disableAnimation: true }}
+          callback={handleJoyrideCallback}
+          hideBackButton={true}
+          tooltipComponent={CustomTooltip} 
+          styles={{
+            options: {
+              zIndex: 100000,
+              overlayColor: 'rgba(0, 0, 0, 0.85)',
+            }
+          }}
+        />
+
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-bold flex items-center gap-2">
             <span className="text-red-500">⚖️</span> 사건 종결.
           </h2>
-          <div className="flex gap-1 bg-black/30 px-3 py-1.5 rounded-full border border-neutral-800 mr-14">
-          {[...Array(3)].map((_, i) => (
-            <span 
-              key={i} 
-              className={`text-base transition-all ${
-                i < deductionLife 
-                  ? 'grayscale-0 drop-shadow-[0_0_8px_rgba(96,165,250,0.8)]' 
-                  : 'grayscale opacity-20 scale-75' 
-              }`}
-            >
-              🔍
-            </span>
-          ))}
-        </div>
+          {/* 💡 여기에 scroll-mt-28을 줘서 헤더(약 112px)만큼 여유를 두고 멈추게 함! */}
+          <div className="tutorial-step-lives scroll-mt-28 flex gap-1 bg-black/30 px-3 py-1.5 rounded-full border border-neutral-800 mr-14">
+            {[...Array(3)].map((_, i) => (
+              <span 
+                key={i} 
+                className={`text-base transition-all ${
+                  i < deductionLife 
+                    ? 'grayscale-0 drop-shadow-[0_0_8px_rgba(96,165,250,0.8)]' 
+                    : 'grayscale opacity-20 scale-75' 
+                }`}
+              >
+                🔍
+              </span>
+            ))}
+          </div>
         </div>
         
         {actionPoints > 0 && (
@@ -265,7 +320,7 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
         )}
 
         {questions.map((q) => (
-          <section key={q.id} className="mb-10 animate-slideUp">
+          <section key={q.id} className="tutorial-step-question scroll-mt-28 mb-10 animate-slideUp">
             <h3 className="text-sm font-bold text-neutral-400 mb-4 flex items-center gap-2">
                <div className="w-1 h-4 bg-red-600 rounded-full"/> {q.title}
             </h3>
@@ -290,32 +345,43 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
             )}
 
             {q.type === 'clue' && (
-              <div className="grid grid-cols-3 gap-2">
-                {myClues.map(clue => (
-                  <button
-                    key={clue.id}
-                    onClick={() => { playSfx(); handleSelectAnswer(q.id, clue.id); }} 
-                    className={`p-2 rounded-xl border-2 flex flex-col items-center justify-center min-h-[5.5rem] transition-all active:scale-95 ${
-                      answers[q.id] === clue.id ? 'bg-red-600/10 border-red-600 shadow-[0_0_15px_rgba(220,38,38,0.2)]' : 'bg-neutral-800/50 border-neutral-700 hover:bg-neutral-700/50'
-                    }`}
-                  >
-                    <span className={`text-[8px] mb-1 font-bold truncate w-full text-center ${answers[q.id] === clue.id ? 'text-red-400/80' : 'text-neutral-500'}`}>
-                      [{clue.sourceName}]
-                    </span>
-                    <span className={`text-[11px] font-bold text-center break-keep leading-tight ${answers[q.id] === clue.id ? 'text-red-400' : 'text-neutral-300'}`}>
-                      {clue.name}
-                    </span>
-                  </button>
-                ))}
-              </div>
+              myClues.length > 0 ? (
+                <div className="grid grid-cols-3 gap-2">
+                  {myClues.map(clue => (
+                    <button
+                      key={clue.id}
+                      onClick={() => { playSfx(); handleSelectAnswer(q.id, clue.id); }} 
+                      className={`p-2 rounded-xl border-2 flex flex-col items-center justify-center min-h-[5.5rem] transition-all active:scale-95 ${
+                        answers[q.id] === clue.id ? 'bg-red-600/10 border-red-600 shadow-[0_0_15px_rgba(220,38,38,0.2)]' : 'bg-neutral-800/50 border-neutral-700 hover:bg-neutral-700/50'
+                      }`}
+                    >
+                      <span className={`text-[8px] mb-1 font-bold truncate w-full text-center ${answers[q.id] === clue.id ? 'text-red-400/80' : 'text-neutral-500'}`}>
+                        [{clue.sourceName}]
+                      </span>
+                      <span className={`text-[11px] font-bold text-center break-keep leading-tight ${answers[q.id] === clue.id ? 'text-red-400' : 'text-neutral-300'}`}>
+                        {clue.name}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <div className="bg-neutral-800/50 border border-neutral-700 p-6 rounded-2xl flex flex-col items-center text-center gap-3 animate-pulse">
+                  <span className="text-3xl">🕵️‍♂️</span>
+                  <p className="text-neutral-400 text-sm font-bold">
+                    아직 수집된 단서가 없습니다.<br/>
+                    현장 조사나 외형관찰을 통해<br/>결정적인 증거를 찾아보세요!
+                  </p>
+                </div>
+              )
             )}
           </section>
         ))}
 
+        {/* 💡 마지막 버튼도 안전하게! */}
         <button 
           onClick={() => { playSfx(); handleAccuse(); }} 
           disabled={Object.keys(answers).length < questions.length}
-          className={`w-full py-5 rounded-2xl font-black text-lg transition-all flex items-center justify-center gap-2 ${
+          className={`tutorial-step-submit scroll-mt-28 w-full py-5 rounded-2xl font-black text-lg transition-all flex items-center justify-center gap-2 ${
             Object.keys(answers).length === questions.length
               ? 'bg-red-600 hover:bg-red-500 text-white shadow-[0_0_20px_rgba(220,38,38,0.4)] active:scale-[0.98]' 
               : 'bg-neutral-800 text-neutral-600 border border-neutral-700 cursor-not-allowed'
@@ -326,11 +392,7 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
       </div>
       
       {showLifeAdModal && (
-        <AdConfirmModal 
-          type="life" 
-          onConfirm={handleLifeAdConfirm} 
-          onCancel={handleLifeAdCancel} 
-        />
+        <AdConfirmModal type="life" onConfirm={handleLifeAdConfirm} onCancel={handleLifeAdCancel} />
       )}
     </>
   );

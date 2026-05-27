@@ -14,11 +14,11 @@
     "isLocked": false
   },
   {
-    "id": "",
-    "title": "",
-    "briefingImageUrl": "",
-    "maxActionPoints": 0,
-    "isLocked": true
+    "id": "camping_murder",
+    "title": "투명한 살의",
+    "briefingImageUrl": "/images/camping_murder/thumbnail.webp",
+    "maxActionPoints": 30,
+    "isLocked": false
   }
   
 ]
