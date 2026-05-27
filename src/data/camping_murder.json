@@ -15,7 +15,7 @@
       "selfIntro": "저는 이 글램핑장의 총괄 매니저 이매니저입니다. 사건 당시엔 관리동 서버실에 있었습니다.\n외부 인터넷이 끊기는 바람에 시설 상태를 계속 확인하고 있었죠. 그 이상 드릴 말씀은 없습니다.",
       "wrongEvidenceResponse": "…그 단서가 저와 어떤 관련이 있는지 설명해 주시겠습니까?",
       "illustration": {
-        "interrogationUrl": "/images/camping_murder/s1_interrogation.png",
+        "interrogationUrl": "/images/camping_murder/s1_interrogation.webp",
         "frontFullUrl": "/images/camping_murder/s1_front_full.webp",
         "backFullUrl": "/images/camping_murder/s1_back_full.webp"
       },
@@ -53,7 +53,7 @@
       "selfIntro": "……저는 김약혼이에요. 오늘 그 사람이랑 크게 다퉜어요. 하지만 죽이려고 했던 건 아니에요. 전 그냥… 여기서 도망치고 싶었을 뿐이에요.",
       "wrongEvidenceResponse": "…그걸 왜 저한테 보여주세요? 전 정말 아무것도 몰라요….",
       "illustration": {
-        "interrogationUrl": "/images/camping_murder/s2_interrogation.png",
+        "interrogationUrl": "/images/camping_murder/s2_interrogation.webp",
         "frontFullUrl": "/images/camping_murder/s2_front_full.webp",
         "backFullUrl": "/images/camping_murder/s2_back_full.webp"
       },
@@ -89,7 +89,7 @@
       "selfIntro": "저는 야간 스태프 정알바입니다… 그냥 시키는 일만 했어요. 전 정말 아무것도 못 봤습니다. 그러니까 괜히 저 같은 사람한테 신경 쓰지 마세요…",
       "wrongEvidenceResponse": "죄송합니다… 그건 저도 잘 모르겠습니다.",
       "illustration": {
-        "interrogationUrl": "/images/camping_murder/s3_interrogation.png",
+        "interrogationUrl": "/images/camping_murder/s3_interrogation.webp",
         "frontFullUrl": "/images/camping_murder/s3_front_full.webp",
         "backFullUrl": "/images/camping_murder/s3_back_full.webp"
       },
@@ -125,7 +125,7 @@
       "selfIntro": "……강경비다. 난 밤새 밖만 돌았다. 사람 죽은 건 나랑 상관없어. 그러니까 괜히 떠보려 들지 마라.",
       "wrongEvidenceResponse": "…그래서, 하고 싶은 말이 뭔데.",
       "illustration": {
-        "interrogationUrl": "/images/camping_murder/s4_interrogation.png",
+        "interrogationUrl": "/images/camping_murder/s4_interrogation.webp",
         "frontFullUrl": "/images/camping_murder/s4_front_full.webp",
         "backFullUrl": "/images/camping_murder/s4_back_full.webp"
       },
@@ -162,7 +162,7 @@
       "selfIntro": "아니, 사람이 죽었다는데 나부터 의심하는 겁니까? 나도 피해자랑 언성 좀 높인 건 인정합니다.\n 하지만 그 인간 성격이 원래 사람 열받게 만드는 스타일이었어요. 괜히 나한테 뒤집어씌우려 하지 마쇼.",
       "wrongEvidenceResponse": "탐정 양반, 지금 날 범인으로 정해놓고 떠보는 거요?",
       "illustration": {
-        "interrogationUrl": "/images/camping_murder/s5_interrogation.png",
+        "interrogationUrl": "/images/camping_murder/s5_interrogation.webp",
         "frontFullUrl": "/images/camping_murder/s5_front_full.webp",
         "backFullUrl": "/images/camping_murder/s5_back_full.webp"
       },
@@ -198,7 +198,7 @@
     {
       "id": "loc_victim",
       "name": "VIP 텐트 내부 (현장)",
-      "backgroundUrl": "/images/camping_murder/bg_victim.png",
+      "backgroundUrl": "/images/camping_murder/bg_victim.webp",
       "clues": [
         { "id": "clue_footbath", "name": "건식 족욕기", "desc": "하판 덮개가 억지로 뜯긴 듯 살짝 어긋나 있다. 틈 사이로 들여다보면 내부 부품 한쪽이 거칠게 훼손된 흔적이 보인다.",
           "top": "64%",
