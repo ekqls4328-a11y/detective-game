@@ -73,23 +73,68 @@ const MainScreen = ({ onSelectScenario, onBack, onOpenSettings }) => {
           return (
             <div key={seasonNumber} className="border border-neutral-700 rounded-3xl overflow-hidden bg-neutral-800/50 shadow-xl">
               
-              {/* 아코디언 헤더 (버튼) */}
+              {/* 아코디언 헤더 (버튼) 업그레이드 버전 */}
               <button 
                 onClick={() => toggleSeason(seasonNumber)}
-                className="w-full p-5 flex items-center justify-between bg-neutral-800 hover:bg-neutral-700 transition-colors"
+                className="w-full relative overflow-hidden p-5 flex items-center justify-between bg-gradient-to-r from-neutral-900 to-neutral-800 hover:from-neutral-800 hover:to-neutral-700 transition-all border-l-4 border-amber-500 group shadow-md"
               >
-                <div className="flex flex-col items-start gap-1 min-w-0 pr-4 text-left">
-                  <span className="text-amber-500 font-black text-[11px] tracking-widest">SEASON {seasonNumber}</span>
-                  {/* 💡 JSON에서 받아온 시즌 이름을 여기에 매핑! */}
-                  <span className="text-white font-bold text-lg truncate w-full">{seasonTitle}</span>
+                {/* 배경 장식 (서류 폴더 느낌의 사선 빗금 텍스처) */}
+                <div 
+                  className="absolute inset-0 opacity-5 pointer-events-none" 
+                  style={{ backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 10px, #ffffff 10px, #ffffff 11px)' }}
+                />
+                
+                {/* 좌측: 타이틀 및 라벨 영역 */}
+                <div className="relative z-10 flex flex-col items-start gap-1.5 min-w-0 pr-4 text-left">
+                  <div className="flex items-center gap-2">
+                    <span className="text-amber-500 font-black text-[10px] tracking-[0.2em] bg-amber-950/40 px-2 py-0.5 rounded border border-amber-900/50 shadow-inner">
+                      CASE FILE {String(seasonNumber).padStart(2, '0')}
+                    </span>
+                    {/* 💡 올클리어 시 황금색 뱃지 노출 */}
+                    {completedCount === seasonScenarios.length && (
+                      <span className="text-yellow-400 text-[10px] font-black tracking-wider px-1.5 py-0.5 border border-yellow-500/50 rounded bg-yellow-900/30">
+                        CLEARED
+                      </span>
+                    )}
+                  </div>
+                  <span className="text-white font-black text-xl truncate w-full tracking-tight drop-shadow-md group-hover:text-amber-50 transition-colors">
+                    {seasonTitle}
+                  </span>
                 </div>
-                <div className="flex items-center gap-3 shrink-0">
-                  <span className="text-xs text-neutral-400 font-bold bg-neutral-900 px-2 py-1 rounded-md border border-neutral-700">
-                    {completedCount} / {seasonScenarios.length} 완료
-                  </span>
-                  <span className={`text-neutral-400 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}>
-                    ▼
-                  </span>
+
+                {/* 우측: 진행도 및 화살표 영역 */}
+                <div className="relative z-10 flex flex-col items-end gap-2 shrink-0">
+                  <div className="flex items-center gap-3">
+                    {/* 텍스트 진행도 */}
+                    <div className="flex flex-col items-end">
+                      <span className="text-[9px] text-neutral-500 font-black tracking-widest mb-0.5">PROGRESS</span>
+                      <span className="text-xs text-neutral-300 font-black bg-black/60 px-2.5 py-1 rounded-md border border-neutral-700 shadow-inner">
+                        <span className={completedCount === seasonScenarios.length ? 'text-amber-400' : 'text-white'}>
+                          {completedCount}
+                        </span> 
+                        <span className="text-neutral-600 mx-1">/</span> 
+                        {seasonScenarios.length}
+                      </span>
+                    </div>
+                    {/* 확장/축소 화살표 아이콘 */}
+                    <span 
+                      className={`w-8 h-8 flex items-center justify-center rounded-full border transition-all duration-300 ${
+                        isExpanded 
+                          ? 'rotate-180 bg-amber-900/20 text-amber-500 border-amber-500/30' 
+                          : 'bg-neutral-950/50 text-neutral-500 border-neutral-700/50 group-hover:bg-neutral-800'
+                      }`}
+                    >
+                      ▼
+                    </span>
+                  </div>
+                  
+                  {/* 💡 하단 미니 게이지 바 (Progress Bar) */}
+                  <div className="w-full h-1.5 bg-neutral-950 rounded-full overflow-hidden mt-0.5 border border-neutral-800 shadow-inner">
+                    <div 
+                      className="h-full bg-amber-500 transition-all duration-700 ease-out" 
+                      style={{ width: `${(completedCount / seasonScenarios.length) * 100}%` }}
+                    />
+                  </div>
                 </div>
               </button>
 
