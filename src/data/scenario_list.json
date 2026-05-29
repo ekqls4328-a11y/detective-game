@@ -1,24 +1,36 @@
 [
   {
-    "id": "apartment_murder",
-    "title": "조용해진 502호",
-    "briefingImageUrl": "/images/apartment_murder/thumbnail.webp",
-    "maxActionPoints": 15,
-    "isLocked": false
-  },
-  {
-    "id": "wedding_murder",
-    "title": "창백한 부케",
-    "briefingImageUrl": "/images/wedding_murder/thumbnail.webp",
-    "maxActionPoints": 30,
-    "isLocked": false
-  },
-  {
-    "id": "camping_murder",
-    "title": "투명한 살의",
-    "briefingImageUrl": "/images/camping_murder/thumbnail.webp",
-    "maxActionPoints": 24,
-    "isLocked": false
+    "season": 1,
+    "seasonTitle": "일상의 균열",
+    "scenarios": [
+      {
+        "id": "apartment_murder",
+        "title": "조용해진 502호",
+        "maxActionPoints": 15,
+        "briefingImageUrl": "/images/apartment_murder/briefingImage.webp",
+        "isLocked": false
+      },
+      {
+        "id": "wedding_murder",
+        "title": "창백한 부케",
+        "maxActionPoints": 20,
+        "briefingImageUrl": "/images/wedding_murder/briefingImage.webp",
+        "isLocked": false
+      },
+      {
+        "id": "camping_murder",
+        "title": "투명한 살의",
+        "maxActionPoints": 20,
+        "briefingImageUrl": "/images/camping_murder/briefingImage.webp",
+        "isLocked": false
+      },
+      {
+        "id": "broadcast_murder",
+        "title": "꺼지지 않는 ON AIR",
+        "maxActionPoints": 28,
+        "briefingImageUrl": "/images/broadcast_murder/briefingImage.webp",
+        "isLocked": true
+      }
+    ]
   }
-  
 ]

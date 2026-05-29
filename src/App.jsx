@@ -18,13 +18,16 @@ const AppContent = () => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [hasAnySaveData, setHasAnySaveData] = useState(false);
 
-  // 💡 애드몹 엔진 초기화 로직 추가
+  // 💡 [핵심] 계층형 JSON 데이터를 1차원 배열로 평탄화(Flat)해서 세이브 체크용으로 사용
+  const allScenarios = scenarioDataList.flatMap(seasonItem => seasonItem.scenarios || []);
+
+  // 애드몹 엔진 초기화 로직
   useEffect(() => {
     const initAdMob = async () => {
       try {
         await AdMob.initialize({
-          requestTrackingAuthorization: true, // 광고 추적 권한 요청 (iOS/안드로이드 공통)
-          initializeForTesting: true,         // 💡 비공개 테스트 기간에는 무조건 true! (정식 출시 때 false로 변경)
+          requestTrackingAuthorization: true, 
+          initializeForTesting: true,        
         });
         console.log('애드몹 초기화 성공');
       } catch (error) {
@@ -57,8 +60,6 @@ const AppContent = () => {
           return;
         }
 
-        // 💡 [핵심 수정 포인트] Play 화면일 때는 App.jsx가 개입하지 않음!
-        // PlayScreen.jsx 내부의 리스너가 알아서 모달을 닫고 onBack을 호출하도록 권한 위임
         if (currentScreen === 'play') {
           return; 
         } 
@@ -87,35 +88,43 @@ const AppContent = () => {
   // 💡 앱이 켜질 때, 존재하는 모든 시나리오 중 하나라도 세이브 데이터가 있는지 확인
   useEffect(() => {
     const checkSaveData = () => {
-      const isSaved = scenarioDataList.some(scenario => 
+      // 💡 평탄화된 allScenarios 배열을 사용하여 검사
+      const isSaved = allScenarios.some(scenario => 
         localStorage.getItem(`crime_game_progress_${scenario.id}`) !== null
       );
       setHasAnySaveData(isSaved);
     };
     
-    // 타이틀이나 메인 스크린으로 진입할 때마다 세이브 존재 여부 업데이트
     if (currentScreen === 'title' || currentScreen === 'select') {
       checkSaveData();
     }
-  }, [currentScreen]);
+  }, [currentScreen, allScenarios]);
 
-  // 💡 [핵심] 타이틀 화면용 이어하기 로직 개선
+  // 타이틀 화면용 이어하기 로직
   const handleContinue = () => {
-    let lastPlayedId = null;
-    
-    for (const scenario of scenarioDataList) {
-      if (localStorage.getItem(`crime_game_progress_${scenario.id}`)) {
-        lastPlayedId = scenario.id;
-        break; 
-      }
-    }
+    const lastPlayedId = localStorage.getItem('last_played_scenario_id');
 
-    if (lastPlayedId) {
+    if (lastPlayedId && localStorage.getItem(`crime_game_progress_${lastPlayedId}`)) {
       setSelectedScenarioId(lastPlayedId);
       setCurrentScreen('play');
     } else {
-      alert("이어서 할 수사 기록을 찾을 수 없습니다.");
-      setCurrentScreen('select');
+      let fallbackId = null;
+      // 💡 평탄화된 allScenarios 배열을 사용하여 폴백 세이브 검색
+      for (const scenario of allScenarios) {
+        if (localStorage.getItem(`crime_game_progress_${scenario.id}`)) {
+          fallbackId = scenario.id;
+          break; 
+        }
+      }
+
+      if (fallbackId) {
+        localStorage.setItem('last_played_scenario_id', fallbackId);
+        setSelectedScenarioId(fallbackId);
+        setCurrentScreen('play');
+      } else {
+        alert("이어서 할 수사 기록을 찾을 수 없습니다.");
+        setCurrentScreen('select');
+      }
     }
   };
 
@@ -127,6 +136,8 @@ const AppContent = () => {
       if (!window.confirm("기존 수사 기록이 있습니다. 초기화하고 처음부터 다시 시작하시겠습니까?")) return;
       localStorage.removeItem(`crime_game_progress_${id}`);
     }
+    
+    localStorage.setItem('last_played_scenario_id', id);
     
     setSelectedScenarioId(id);
     setCurrentScreen('play');

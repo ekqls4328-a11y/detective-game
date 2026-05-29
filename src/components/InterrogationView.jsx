@@ -1,26 +1,12 @@
-import React, { useState, useEffect, useRef } from 'react'; // 💡 useRef 필수!
+import React, { useState, useEffect, useRef } from 'react'; 
 import TypewriterText from './TypewriterText';
 import InventoryModal from './InventoryModal';
 import InspectionModal from './InspectionModal';
 import { useAudio } from '../contexts/AudioContext';
-// 💡 다빈이가 확인한 중괄호 명시적 임포트 유지
 import { Joyride } from 'react-joyride'; 
 
-// 💡 추리 게임 감성에 맞춘 커스텀 툴팁 컴포넌트
-const CustomTooltip = ({
-  index,
-  step,
-  backProps,
-  closeProps,
-  primaryProps,
-  tooltipProps,
-  isLastStep,
-  size, // 💡 하드코딩 대신 전체 스텝 수를 자동으로 받아오게 추가
-}) => (
-  <div
-    {...tooltipProps}
-    className="bg-neutral-900 border border-neutral-700 rounded-xl shadow-[0_10px_30px_rgba(0,0,0,0.8)] p-5 max-w-[320px] w-full font-sans"
-  >
+const CustomTooltip = ({ index, step, backProps, closeProps, primaryProps, tooltipProps, isLastStep, size }) => (
+  <div {...tooltipProps} className="bg-neutral-900 border border-neutral-700 rounded-xl shadow-[0_10px_30px_rgba(0,0,0,0.8)] p-5 max-w-[320px] w-full font-sans">
     <div className="flex items-center justify-between mb-4 border-b border-neutral-800 pb-3">
       <span className="text-amber-500 font-black text-[11px] tracking-widest">
         [ 심문 가이드 {index + 1} / {size} ]
@@ -35,18 +21,12 @@ const CustomTooltip = ({
     <div className="flex justify-between items-center">
       <div>
         {index > 0 && (
-          <button
-            {...backProps}
-            className="px-3 py-2 text-xs font-bold text-neutral-400 hover:text-white bg-neutral-800 hover:bg-neutral-700 rounded-lg transition-colors border border-neutral-700 active:scale-95"
-          >
+          <button {...backProps} className="px-3 py-2 text-xs font-bold text-neutral-400 hover:text-white bg-neutral-800 hover:bg-neutral-700 rounded-lg transition-colors border border-neutral-700 active:scale-95">
             &lt; 이전
           </button>
         )}
       </div>
-      <button
-        {...primaryProps}
-        className="px-5 py-2 text-xs font-black text-black bg-amber-500 hover:bg-amber-400 rounded-lg transition-all shadow-[0_0_15px_rgba(245,158,11,0.2)] active:scale-95"
-      >
+      <button {...primaryProps} className="px-5 py-2 text-xs font-black text-black bg-amber-500 hover:bg-amber-400 rounded-lg transition-all shadow-[0_0_15px_rgba(245,158,11,0.2)] active:scale-95">
         {isLastStep ? '심문 시작하기' : '다음 단계 >'}
       </button>
     </div>
@@ -71,11 +51,9 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, acti
   const { changeAndPlayBgm, playSfx } = useAudio();
   const scrollContainerRef = useRef(null);
 
-  // 💡 중복 실행 방지를 위한 로컬스토리지 키값 v5 업데이트
   const TUTORIAL_KEY = 'crime_game_interrogation_tutorial_cleared';
   const [tourRun, setTourRun] = useState(false);
   const [tourSteps] = useState([
-    // 💡 [핵심] PlayScreen과 똑같이 첫 타겟을 'body'로 설정해서 비콘을 강제 스킵하고 즉시 팝업!
     {
       target: 'body',
       content: '🕵️‍♂️ 탐정님, 심문실에 오신 것을 환영합니다!\n상대의 진술을 듣고 모순을 꿰뚫어보세요.',
@@ -108,7 +86,6 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, acti
     }
   ]);
 
-  // 💡 화면 진입 시 PlayScreen과 동일하게 선불 도장 날인 후 가이드 실행
   useEffect(() => {
     const isTutorialCleared = localStorage.getItem(TUTORIAL_KEY) === 'true';
     if (!isTutorialCleared) {
@@ -196,10 +173,11 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, acti
     if (onPresent) onPresent(); 
   };
 
+  // 💡 [핵심] 진술 단서 기록 시 행동력 소모 로직 적용
   const handleSaveToInventory = () => {
     if (currentStatement && onClueFound) {
       onClueFound(currentStatement.id); 
-      setDiscoveryText(`[${currentStatement.title}] 진술이 단서함에 추가되었습니다.`);
+      setDiscoveryText(`[${currentStatement.title}] 진술이 단서함에 추가되었습니다. (⚡ -1)`);
     }
   };
 
@@ -237,7 +215,6 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, acti
         }}
       />
 
-      {/* 배경 이미지 영역 */}
       <div className="absolute inset-0 z-0">
         <div 
           className="w-full h-full transition-opacity duration-500 ease-in-out"
@@ -344,7 +321,7 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, acti
             </div>
             
             <div ref={scrollContainerRef} className="overflow-y-auto h-[90px] pr-2 mt-1 scrollbar-hide">
-              <p className="text-gray-100 leading-relaxed text-sm select-none break-keep whitespace-pre-wrap text-shadow-sm">
+              <div className="text-gray-100 leading-relaxed text-sm select-none break-keep whitespace-pre-wrap text-shadow-sm">
                 <TypewriterText 
                   key={dialogKey} 
                   text={currentDialog} 
@@ -352,18 +329,24 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, acti
                   forceSkip={isSkipping} 
                   onComplete={() => setIsTypingDone(true)} 
                 />
-              </p>
+              </div>
             </div>
             
             {isTypingDone && <div className="absolute bottom-3 right-4 text-amber-500 animate-bounce">▼</div>}
           </div>
 
+          {/* 💡 [핵심수정] 행동력이 부족할 때 버튼 스타일 변경 또는 얼럿 처리 유연화 가능 */}
           {isTypingDone && currentStatement && !inventory.includes(currentStatement.id) && (
             <button 
+              disabled={actionPoints <= 0}
               onClick={() => { playSfx(); handleSaveToInventory(); }} 
-              className="w-full py-3.5 bg-emerald-600/90 backdrop-blur-sm hover:bg-emerald-500 text-white font-black rounded-xl shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2 shrink-0 border border-emerald-500/50 animate-fadeIn"
+              className={`w-full py-3.5 text-white font-black rounded-xl shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2 shrink-0 border animate-fadeIn ${
+                actionPoints <= 0 
+                  ? 'bg-neutral-800 border-neutral-700 opacity-50 cursor-not-allowed text-neutral-500' 
+                  : 'bg-emerald-600/90 backdrop-blur-sm hover:bg-emerald-500 border-emerald-500/50'
+              }`}
             >
-              <span>📌</span> 이 진술을 단서함에 추가하기
+              <span>📌</span> 이 진술을 단서함에 추가하기 {actionPoints <= 0 ? '(⚡ 부족)' : '(⚡ -1)'}
             </button>
           )}
 
@@ -399,7 +382,7 @@ const InterrogationView = ({ suspect, scenarioData, inventory, viewedClues, acti
       </div>
 
       {isInventoryOpen && <InventoryModal inventory={inventory} viewedClues={viewedClues} onMarkAsViewed={onMarkAsViewed} scenarioData={scenarioData} onRemoveClue={onRemoveClue} onClose={() => setIsInventoryOpen(false)} onPresent={handlePresentEvidence} />}
-      {isInspectionOpen && <InspectionModal suspect={suspect} inventory={inventory} onClueFound={onClueFound} onClose={() => setIsInspectionOpen(false)} />}
+      {isInspectionOpen && <InspectionModal suspect={suspect} inventory={inventory} onClueFound={onClueFound} actionPoints={actionPoints} onClose={() => setIsInspectionOpen(false)} />}
       
     </div>
   );

@@ -11,12 +11,14 @@ import { App as CapacitorApp } from '@capacitor/app';
 import wedding_murder from '../data/wedding_murder.json';
 import apartment_murder from '../data/apartment_murder.json';
 import camping_murder from '../data/camping_murder.json';
+import broadcast_murder from '../data/broadcast_murder.json';
 import AdConfirmModal from './AdConfirmModal';
 
 const scenarioDB = {
   "wedding_murder": wedding_murder,
   "apartment_murder": apartment_murder,
-  "camping_murder": camping_murder
+  "camping_murder": camping_murder,
+  "broadcast_murder": broadcast_murder
 };
 
 // 💡 추리 게임 감성에 맞춘 커스텀 툴팁 컴포넌트
@@ -153,6 +155,21 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
   const { changeAndPlayBgm, playSfx } = useAudio(); 
   const unreadCount = inventory.filter(id => !viewedClues.includes(id)).length;
 
+  // 💡 하루 광고 시청 제한 로직
+  const AD_LIMIT_KEY = 'crime_game_ad_watch_data';
+  const MAX_AD_PER_DAY = 3;
+
+  const checkAdLimit = () => {
+    // 한국 시간 기준 날짜 문자열 (예: "2026. 5. 30.")
+    const today = new Date().toLocaleDateString('ko-KR'); 
+    const savedData = JSON.parse(localStorage.getItem(AD_LIMIT_KEY) || '{"date": "", "count": 0}');
+
+    if (savedData.date !== today) {
+      return { date: today, count: 0, canWatch: true };
+    }
+    return { ...savedData, canWatch: savedData.count < MAX_AD_PER_DAY };
+  };
+
   // 💡 [핵심 로직] 라이브러리 콜백을 믿지 않고, 가이드가 시작되는 즉시 "선불"로 도장 쾅!
   useEffect(() => {
     const isTutorialCleared = localStorage.getItem(TUTORIAL_KEY) === 'true';
@@ -228,9 +245,18 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
     }
   }, [scenarioId, SAVE_KEY, changeAndPlayBgm]);
   
+  // 💡 행동력 0 도달 시 광고 모달 호출 or 강제 사건 종결 유도
   useEffect(() => {
     if (data && actionPoints <= 0 && activeTab !== 'deduction' && !showApAdModal && !selectedSuspect && !selectedLocation) {
-      setShowApAdModal(true);
+      const adStatus = checkAdLimit();
+      
+      if (adStatus.canWatch) {
+        setShowApAdModal(true); // 3번 미만이면 광고 모달 띄움
+      } else {
+        // 하루 3번 다 본 경우 방어 로직
+        alert("오늘의 수사 지원(행동력 충전)을 모두 소진했습니다. 현재까지 수집한 단서만으로 사건을 종결해야 합니다.");
+        setActiveTab('deduction'); // 사건 종결 탭으로 강제 이동
+      }
     }
   }, [actionPoints, activeTab, data, showApAdModal, selectedSuspect, selectedLocation]);
 
@@ -249,10 +275,22 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
     playIntroAd();
   }, [scenarioId]); 
 
+  // 💡 광고 시청 완료 시 실행되는 함수
   const handleApAdConfirm = async () => {
     setShowApAdModal(false);
-    alert("⚡ 행동력이 가득 충전되었습니다!");
-    setActionPoints(data.maxActionPoints || 3);
+    
+    // 1. 광고 시청 횟수 증가 및 로컬 스토리지 업데이트
+    const adStatus = checkAdLimit();
+    localStorage.setItem(AD_LIMIT_KEY, JSON.stringify({ 
+      date: adStatus.date, 
+      count: adStatus.count + 1 
+    }));
+
+    // 2. 최대 행동력의 50%만 충전 (소수점 올림)
+    const rechargeAmount = Math.ceil((data.maxActionPoints || 3) / 2); 
+    
+    alert(`⚡ 행동력이 ${rechargeAmount} 충전되었습니다! (오늘 충전 ${adStatus.count + 1}/${MAX_AD_PER_DAY}회)`);
+    setActionPoints(rechargeAmount);
   };
 
   const handleApAdCancel = () => {
@@ -270,8 +308,14 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings }) => {
   };
 
   const handlePresentEvidence = () => setActionPoints((prev) => Math.max(0, prev - 1));
-  const handleScanArea = () => setActionPoints(prev => Math.max(0, prev - 1));
-  const handleAddClue = (clueId) => setInventory((prev) => prev.includes(clueId) ? prev : [...prev, clueId]);
+  const handleScanArea = () => setActionPoints(prev => Math.max(0, prev - 3));
+  const handleAddClue = (clueId) => {
+    // 💡 이미 인벤토리에 있는 단서인지 먼저 바깥에서 안전하게 체크!
+    if (!inventory.includes(clueId)) {
+      setInventory(prev => [...prev, clueId]);        // 단서 추가
+      setActionPoints(ap => Math.max(0, ap - 1));     // 행동력 1 차감
+    }
+  };
   const handleRemoveClue = (clueId) => setInventory((prev) => prev.filter(id => id !== clueId));
   const markClueAsViewed = (clueId) => setViewedClues(prev => prev.includes(clueId) ? prev : [...prev, clueId]);
 

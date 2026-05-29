@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
-// 💡 AudioContext 임포트 추가
 import { useAudio } from '../contexts/AudioContext';
 import { Joyride } from 'react-joyride';
 
-// 💡 현장 조사 전용 다크 모드 툴팁 (기존 구조 재활용)
 const CustomTooltip = ({ index, step, backProps, closeProps, primaryProps, tooltipProps, isLastStep }) => (
   <div {...tooltipProps} className="bg-neutral-900 border border-neutral-700 rounded-xl shadow-[0_10px_30px_rgba(0,0,0,0.8)] p-5 max-w-[320px] w-full font-sans z-[100000]">
     <div className="flex items-center justify-between mb-4 border-b border-neutral-800 pb-3">
@@ -27,18 +25,16 @@ const LocationModal = ({
   const [focusedPoint, setFocusedPoint] = useState(null);
   
   const [isScanning, setIsScanning] = useState(false);
-
-  // 💡 [핵심] 배경 이미지 페이드 인 효과를 위한 상태 추가
   const [isImageLoaded, setIsImageLoaded] = useState(false);
 
-  // 💡 효과음 함수 가져오기
   const { playSfx } = useAudio();
   const TUTORIAL_KEY = 'crime_game_investigation_tutorial_cleared';
   const [tourRun, setTourRun] = useState(false);
 
-  const IS_DEV_MODE = false; 
+  const IS_DEV_MODE = true; 
+  // 💡 1. 마우스 위치를 저장할 상태 추가
+  const [cursorPos, setCursorPos] = useState(null);
 
-  // 장소가 바뀔 때마다 이미지 로드 상태 초기화
   useEffect(() => {
     setIsImageLoaded(false);
   }, [location?.backgroundUrl]);
@@ -52,22 +48,25 @@ const LocationModal = ({
 
   const handlePointClick = (e, clue) => {
     e.stopPropagation(); 
-    playSfx(); // 💡 단서(히트박스) 터치 시 클릭음 추가
+    playSfx(); 
     setFocusedPoint(clue);
     setDiscoveryText(`[${clue.name}]\n\n${clue.desc}`);
   };
 
   const handleSaveToInventory = () => {
-    playSfx(); // 💡 기록하기 버튼 터치 시 클릭음 추가
+    // 💡 방어 로직 (버튼이 잠기지만 혹시 모를 버그 대비)
+    if (actionPoints <= 0) return;
+
+    playSfx(); 
     if (focusedPoint && onClueFound) {
       onClueFound(focusedPoint.id);
-      setDiscoveryText(`[${focusedPoint.name}] 단서를 단서함에 추가하였습니다.`);
+      setDiscoveryText(`[${focusedPoint.name}] 단서를 단서함에 추가하였습니다. (⚡ -1)`);
     }
   };
 
   const handleScanClick = () => {
-    // 💡 탐색 버튼 터치 시 클릭음 추가 (disabled 상태가 아닐 때만 재생)
-    if (actionPoints > 0 && !isScanning) {
+    // 💡 스캔 비용이 3이므로, 3 이상일 때만 작동하도록 조건 변경!
+    if (actionPoints >= 3 && !isScanning) {
       playSfx(); 
       onScan(); 
       setIsScanning(true); 
@@ -75,6 +74,19 @@ const LocationModal = ({
       setFocusedPoint(null);
     }
   };
+
+  const handleMouseMove = (e) => {
+    if (!IS_DEV_MODE) return;
+    
+    // 현재 이미지 컨테이너의 실제 화면상 크기와 위치를 가져옴 (확대/축소 비율 완벽 대응)
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    
+    // 소수점 1자리까지만 잘라서 저장
+    setCursorPos({ x: x.toFixed(1), y: y.toFixed(1) });
+  };
+
   const [tourSteps] = useState([
   {
     target: '.react-transform-component', 
@@ -96,7 +108,6 @@ const LocationModal = ({
   }
 ]);
 
-  
   useEffect(() => {
     if (localStorage.getItem(TUTORIAL_KEY) !== 'true') {
       setTimeout(() => {
@@ -128,10 +139,9 @@ const LocationModal = ({
         }}
       />
 
-      {/* 1. 상단 헤더 */}
       <header className="shrink-0 w-full z-[80] p-3 flex justify-between items-center gap-2 bg-neutral-950 border-b border-neutral-800 shadow-md">
         <button 
-          onClick={() => { playSfx(); onClose(); }} // 💡 클릭음 추가
+          onClick={() => { playSfx(); onClose(); }} 
           className="text-white text-xs font-bold px-4 py-2 bg-neutral-800 rounded-full border border-neutral-600 active:scale-95 whitespace-nowrap shrink-0 hover:bg-neutral-700 transition-all"
         >
           &lt; 현장 이탈
@@ -156,7 +166,6 @@ const LocationModal = ({
         </div>
       </header>
 
-      {/* 2. 중앙 배경 이미지 */}
       <div className="flex-1 min-h-0 flex items-center justify-center bg-black overflow-hidden relative">
         <TransformWrapper
           initialScale={1}
@@ -168,9 +177,7 @@ const LocationModal = ({
         >
           {({ zoomIn, zoomOut, resetTransform }) => (
             <>
-              {/* 줌 컨트롤러 */}
               <div className="absolute top-4 left-4 z-[90] flex flex-col gap-2 opacity-60 hover:opacity-100 transition-opacity">
-                {/* 💡 줌 버튼에도 클릭음 추가 */}
                 <button onClick={() => { playSfx(); zoomIn(); }} className="w-8 h-8 bg-neutral-900/80 text-white rounded-full border border-neutral-600 backdrop-blur-sm shadow-lg font-bold">+</button>
                 <button onClick={() => { playSfx(); zoomOut(); }} className="w-8 h-8 bg-neutral-900/80 text-white rounded-full border border-neutral-600 backdrop-blur-sm shadow-lg font-bold">-</button>
                 <button onClick={() => { playSfx(); resetTransform(); }} className="w-8 h-8 bg-neutral-900/80 text-white rounded-full border border-neutral-600 backdrop-blur-sm shadow-lg text-[10px] font-black">R</button>
@@ -180,16 +187,17 @@ const LocationModal = ({
                 wrapperStyle={{ width: "100%", height: "100%", position: "absolute", top: 0, left: 0 }}
                 contentStyle={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}
               >
-                {/* 💡 isImageLoaded 상태에 따라 opacity를 조절하여 부드러운 페이드인 효과 적용! */}
                 <div 
                   className="relative max-w-full max-h-full aspect-square flex items-center justify-center transition-opacity duration-500 ease-in-out"
                   style={{ opacity: isImageLoaded ? 1 : 0 }}
+                  onMouseMove={handleMouseMove}
+                  onMouseLeave={() => setCursorPos(null)} 
                 >
                   {location.backgroundUrl ? (
                     <img 
                       src={location.backgroundUrl} 
                       alt={location.name} 
-                      onLoad={() => setIsImageLoaded(true)} // 💡 로드 완료 시 페이드 인 트리거
+                      onLoad={() => setIsImageLoaded(true)} 
                       className="w-full h-full object-cover pointer-events-none select-none opacity-80" 
                     />
                   ) : (
@@ -198,7 +206,16 @@ const LocationModal = ({
                     </div>
                   )}
 
-                  {/* 💡 히트박스도 이미지가 로드된 후에만 스르륵 나타나게 처리 */}
+                  {/* 💡 [수정됨] 레이더 UI를 map 반복문 밖으로 빼서 딱 1번만 띄움! */}
+                  {IS_DEV_MODE && cursorPos && (
+                    <div className="absolute top-2 left-2 bg-black/90 text-emerald-400 font-mono text-[12px] font-black px-3 py-1.5 rounded-lg border border-emerald-500/50 z-[100] pointer-events-none shadow-2xl flex items-center gap-3">
+                      <span>🎯 레이더 가동 중</span>
+                      <span className="text-white bg-neutral-800 px-2 py-0.5 rounded border border-neutral-600">
+                        top: "{cursorPos.y}%", left: "{cursorPos.x}%"
+                      </span>
+                    </div>
+                  )}
+
                   {isImageLoaded && (
                     <div className="absolute inset-0 z-[75]">
                       {location.clues?.map(clue => {
@@ -219,6 +236,7 @@ const LocationModal = ({
                                 : (isFocused ? 'border-2 border-blue-400 bg-blue-400/30 shadow-[0_0_15px_rgba(96,165,250,0.5)]' : 'bg-transparent border-none')
                             }`}
                           >
+                            {/* 💡 여기에 있던 레이더 코드를 지웠음 (위로 옮김) */}
                             {IS_DEV_MODE && (
                               <span className="absolute -top-5 left-1/2 -translate-x-1/2 whitespace-nowrap text-[8px] font-bold bg-black/80 text-white px-1.5 py-0.5 rounded border border-neutral-700 opacity-80 z-10 pointer-events-none">
                                 {clue.id}
@@ -245,7 +263,6 @@ const LocationModal = ({
         {isScanning && <div className="absolute inset-0 bg-blue-500/10 pointer-events-none animate-pulse mix-blend-overlay z-[80]" />}
       </div>
 
-      {/* 3. 하단 패널 및 컨트롤러 */}
       <div className="shrink-0 w-full z-[80] bg-neutral-950 border-t border-neutral-800 p-3 pb-6 flex flex-col gap-2.5 shadow-2xl">
         <div className="bg-neutral-900 border border-neutral-700 px-3 py-2.5 rounded-xl shadow-inner relative flex flex-col h-[80px]">
           <div className="overflow-y-auto h-full pr-1 pb-1">
@@ -259,11 +276,17 @@ const LocationModal = ({
         <div className="h-[48px] w-full flex items-center justify-center shrink-0">
           {focusedPoint ? (
             !inventory?.includes(focusedPoint.id) ? (
+              // 💡 1. 기록하기 버튼 비활성화 로직 장착!
               <button 
+                disabled={actionPoints <= 0}
                 onClick={handleSaveToInventory}
-                className="w-full h-full bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-lg shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2 text-sm"
+                className={`w-full h-full text-white font-black rounded-lg shadow-lg transition-all flex items-center justify-center gap-2 text-sm ${
+                  actionPoints <= 0 
+                    ? 'bg-neutral-800 border border-neutral-700 opacity-50 cursor-not-allowed text-neutral-500' 
+                    : 'bg-emerald-600 hover:bg-emerald-500 active:scale-95'
+                }`}
               >
-                <span>📌</span> 기록하기
+                <span>📌</span> 기록하기 {actionPoints <= 0 ? '(⚡ 부족)' : '(⚡ -1)'}
               </button>
             ) : (
               <div className="w-full h-full flex items-center justify-center text-xs text-emerald-400 font-bold bg-emerald-950/30 rounded-lg border border-emerald-900/50">
@@ -277,19 +300,20 @@ const LocationModal = ({
           )}
         </div>
 
+        {/* 💡 2. 스캔 버튼 비활성화 조건 강화 (3 미만일 때 잠금) */}
         <button 
           onClick={handleScanClick}
-          disabled={actionPoints <= 0 || isScanning}
+          disabled={actionPoints < 3 || isScanning}
           className={`tutorial-scan-btn w-full py-3.5 rounded-xl font-black text-base flex items-center justify-center gap-2 transition-all shadow-xl shrink-0 ${
-            actionPoints > 0 && !isScanning
+            actionPoints >= 3 && !isScanning
               ? 'bg-blue-600 hover:bg-blue-500 text-white active:scale-[0.98]'
               : 'bg-neutral-800 text-neutral-500 border border-neutral-700 cursor-not-allowed'
           }`}
         >
           {isScanning ? (
             '탐색 중...'
-          ) : actionPoints > 0 ? (
-            <><span>🔍</span> 주변 탐색 (⚡ -1)</>
+          ) : actionPoints >= 3 ? (
+            <><span>🔍</span> 주변 탐색 (⚡ -3)</>
           ) : (
             '탐색 불가 (⚡ 부족)'
           )}

@@ -42,8 +42,8 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
   const [tourRun, setTourRun] = useState(false);
   const [tourSteps] = useState([
     { target: 'body', content: '🕵️‍♂️ 사건 종결 탭입니다. 모든 단서를 모았다면 정확한 범인을 지목하세요.', placement: 'center', disableBeacon: true },
-    { target: '.tutorial-step-lives', content: '남은 수사 기회입니다. 3번 모두 소모하면 사건은 미궁속으로 빠집니다.', placement: 'bottom', disableBeacon: true },
-    { target: '.tutorial-step-question', content: '질문 항목들을 꼼꼼히 읽고 용의자와 단서를 선택하세요.', placement: 'top', disableBeacon: true },
+    { target: '.tutorial-step-lives', content: '남은 수사 기회입니다. 2번 모두 소모하면 사건은 미궁속으로 빠집니다.', placement: 'bottom', disableBeacon: true },
+    { target: '.tutorial-step-question', content: '질문 항목들을 꼼꼼히 읽고 용의자와 단서를 선택하세요.', placement: 'bottom', disableBeacon: true },
     { target: '.tutorial-step-submit', content: '최종 제출하여 사건을 종결하세요.', placement: 'top', disableBeacon: true }
   ]);
 
@@ -297,7 +297,7 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
           </h2>
           {/* 💡 여기에 scroll-mt-28을 줘서 헤더(약 112px)만큼 여유를 두고 멈추게 함! */}
           <div className="tutorial-step-lives scroll-mt-28 flex gap-1 bg-black/30 px-3 py-1.5 rounded-full border border-neutral-800 mr-14">
-            {[...Array(3)].map((_, i) => (
+            {[...Array(2)].map((_, i) => (
               <span 
                 key={i} 
                 className={`text-base transition-all ${
@@ -320,8 +320,8 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
         )}
 
         {questions.map((q) => (
-          <section key={q.id} className="tutorial-step-question scroll-mt-28 mb-10 animate-slideUp">
-            <h3 className="text-sm font-bold text-neutral-400 mb-4 flex items-center gap-2">
+          <section key={q.id} className="scroll-mt-28 mb-10 animate-slideUp">
+            <h3 className="tutorial-step-question text-sm font-bold text-neutral-400 mb-4 flex items-center gap-2">
                <div className="w-1 h-4 bg-red-600 rounded-full"/> {q.title}
             </h3>
             
