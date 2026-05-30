@@ -29,7 +29,7 @@
         "title": "꺼지지 않는 ON AIR",
         "maxActionPoints": 28,
         "briefingImageUrl": "/images/broadcast_murder/briefingImage.webp",
-        "isLocked": true
+        "isLocked": false
       }
     ]
   }

@@ -7,9 +7,9 @@ import MainScreen from './components/MainScreen';
 import PlayScreen from './components/PlayScreen';
 import SplashScreen from './components/SplashScreen'; 
 import SettingsModal from './components/SettingsModal';
+import AdConfirmModal from './components/AdConfirmModal';
 import { AudioProvider } from './contexts/AudioContext';
-import { AdMob } from '@capacitor-community/admob';
-// 💡 시나리오 리스트에서 ID 목록을 가져오기 위해 임포트
+import { AdMob, RewardAdPluginEvents } from '@capacitor-community/admob';
 import scenarioDataList from './data/scenario_list.json';
 
 const AppContent = () => {
@@ -18,10 +18,12 @@ const AppContent = () => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [hasAnySaveData, setHasAnySaveData] = useState(false);
 
-  // 💡 [핵심] 계층형 JSON 데이터를 1차원 배열로 평탄화(Flat)해서 세이브 체크용으로 사용
+  const [truthAdModalOpen, setTruthAdModalOpen] = useState(false);
+  const [truthScenarioId, setTruthScenarioId] = useState(null);
+  const [isTruthMode, setIsTruthMode] = useState(false); 
+
   const allScenarios = scenarioDataList.flatMap(seasonItem => seasonItem.scenarios || []);
 
-  // 애드몹 엔진 초기화 로직
   useEffect(() => {
     const initAdMob = async () => {
       try {
@@ -37,28 +39,22 @@ const AppContent = () => {
     initAdMob();
   }, []);
 
-  // 화면 꺼짐 방지 로직
   useEffect(() => {
     const preventScreenSleep = async () => {
       try {
         await KeepAwake.keepAwake();
-      } catch (error) {
-        // console.error('화면 꺼짐 방지 실패:', error);
-      }
+      } catch (error) {}
     };
     preventScreenSleep();
     return () => { KeepAwake.allowSleep().catch(console.error); };
   }, []);
 
-  // 하드웨어 뒤로 가기 버튼 제어 로직
   useEffect(() => {
     let lastBackPressTime = 0;
     const setupBackButton = async () => {
       const listener = await CapacitorApp.addListener('backButton', () => {
-        if (isSettingsOpen) {
-          setIsSettingsOpen(false);
-          return;
-        }
+        if (truthAdModalOpen) { setTruthAdModalOpen(false); return; }
+        if (isSettingsOpen) { setIsSettingsOpen(false); return; }
 
         if (currentScreen === 'play') {
           return; 
@@ -83,12 +79,10 @@ const AppContent = () => {
     };
     const listenerPromise = setupBackButton();
     return () => { listenerPromise.then(listener => listener.remove()); };
-  }, [currentScreen, isSettingsOpen]);
+  }, [currentScreen, isSettingsOpen, truthAdModalOpen]);
 
-  // 💡 앱이 켜질 때, 존재하는 모든 시나리오 중 하나라도 세이브 데이터가 있는지 확인
   useEffect(() => {
     const checkSaveData = () => {
-      // 💡 평탄화된 allScenarios 배열을 사용하여 검사
       const isSaved = allScenarios.some(scenario => 
         localStorage.getItem(`crime_game_progress_${scenario.id}`) !== null
       );
@@ -100,16 +94,15 @@ const AppContent = () => {
     }
   }, [currentScreen, allScenarios]);
 
-  // 타이틀 화면용 이어하기 로직
   const handleContinue = () => {
     const lastPlayedId = localStorage.getItem('last_played_scenario_id');
+    setIsTruthMode(false);
 
     if (lastPlayedId && localStorage.getItem(`crime_game_progress_${lastPlayedId}`)) {
       setSelectedScenarioId(lastPlayedId);
       setCurrentScreen('play');
     } else {
       let fallbackId = null;
-      // 💡 평탄화된 allScenarios 배열을 사용하여 폴백 세이브 검색
       for (const scenario of allScenarios) {
         if (localStorage.getItem(`crime_game_progress_${scenario.id}`)) {
           fallbackId = scenario.id;
@@ -128,7 +121,6 @@ const AppContent = () => {
     }
   };
 
-  // MainScreen에서 사건을 골랐을 때
   const handleScenarioSelect = (id, isResume = false) => {
     const saved = localStorage.getItem(`crime_game_progress_${id}`);
     
@@ -137,15 +129,88 @@ const AppContent = () => {
       localStorage.removeItem(`crime_game_progress_${id}`);
     }
     
-    localStorage.setItem('last_played_scenario_id', id);
+    setIsTruthMode(false);
     
+    localStorage.setItem('last_played_scenario_id', id);
     setSelectedScenarioId(id);
     setCurrentScreen('play');
   };
 
+  const handleViewTruthRequest = (id) => {
+    setTruthScenarioId(id);
+    setTruthAdModalOpen(true);
+  };
+
+  // 💡 사건의 전말 2단계: 광고 재생 스킵 & 강제 보상 처리 (테스트용)
+  const handleTruthAdConfirm = async () => {
+    setTruthAdModalOpen(false);
+    
+    // 🚨 [테스트용 치트키] 광고 호출 안 하고 무조건 통과!
+    console.log("📺 [개발용 치트키] 사건의 전말 광고 시청 스킵");
+    // (얼럿이 거슬리면 아래 alert 줄은 지워도 돼!)
+    alert("📺 [테스트 모드] 광고 시청을 스킵하고 사건의 전말을 바로 확인합니다.");
+
+    // 원래는 광고를 다 봐야 실행되는 로직을 바로 실행시켜버림
+    setIsTruthMode(true);
+    setSelectedScenarioId(truthScenarioId);
+    setCurrentScreen('play');
+
+    /* -------------------------------------------------------------
+       ⛔ 정식 출시 전에는 위에 있는 '치트키 로직'을 지우고 
+       아래 주석 처리된 진짜 애드몹 로직의 주석(/*)을 풀어서 써야 해!
+       -------------------------------------------------------------
+    try {
+      await AdMob.prepareRewardVideoAd({
+        adId: 'ca-app-pub-3940256099942544/5224354917', 
+        isTesting: true
+      });
+
+      const rewardListener = await AdMob.addListener(RewardAdPluginEvents.Rewarded, () => {
+        setIsTruthMode(true);
+        setSelectedScenarioId(truthScenarioId);
+        setCurrentScreen('play');
+      });
+
+      const dismissListener = await AdMob.addListener(RewardAdPluginEvents.Dismissed, () => {
+        rewardListener.remove();
+        dismissListener.remove();
+      });
+
+      await AdMob.showRewardVideoAd();
+
+    } catch (error) {
+      console.error('보상형 광고 로드 실패:', error);
+      alert("광고를 불러올 수 없습니다. 인터넷 연결을 확인해 주세요.");
+    }
+    ------------------------------------------------------------- */
+  };
+
+  useEffect(() => {
+    const CURRENT_VERSION = "1.0.0"; 
+    const savedVersion = localStorage.getItem('app_version');
+
+    if (!savedVersion) {
+      localStorage.clear(); 
+      localStorage.setItem('app_version', CURRENT_VERSION); 
+      console.log(`[Version Check] 베타 데이터를 초기화하고 v${CURRENT_VERSION} 환경을 세팅했습니다.`);
+    } 
+    else if (savedVersion !== CURRENT_VERSION) {
+      localStorage.setItem('app_version', CURRENT_VERSION);
+      console.log(`[Version Check] 앱이 v${savedVersion}에서 v${CURRENT_VERSION}으로 업데이트 되었습니다. (데이터 보존)`);
+    }
+  }, []);
+
   return (
     <>
       {isSettingsOpen && <SettingsModal onClose={() => setIsSettingsOpen(false)} />}
+
+      {truthAdModalOpen && (
+        <AdConfirmModal 
+          type="truth" 
+          onConfirm={handleTruthAdConfirm} 
+          onCancel={() => setTruthAdModalOpen(false)} 
+        />
+      )}
 
       {currentScreen === 'splash' && (
         <SplashScreen onFinish={() => setCurrentScreen('title')} />
@@ -162,7 +227,8 @@ const AppContent = () => {
 
       {currentScreen === 'select' && (
         <MainScreen 
-          onSelectScenario={handleScenarioSelect} 
+          onSelectScenario={handleScenarioSelect}
+          onViewTruth={handleViewTruthRequest} 
           onBack={() => setCurrentScreen('title')} 
           onOpenSettings={() => setIsSettingsOpen(true)} 
         />
@@ -171,6 +237,7 @@ const AppContent = () => {
       {currentScreen === 'play' && selectedScenarioId && (
         <PlayScreen 
           scenarioId={selectedScenarioId} 
+          isTruthMode={isTruthMode} 
           onBack={() => setCurrentScreen('select')} 
           onOpenSettings={() => setIsSettingsOpen(true)} 
         />

@@ -3,15 +3,13 @@ import scenarioData from '../data/scenario_list.json';
 // AudioContext 임포트
 import { useAudio } from '../contexts/AudioContext';
 
-const MainScreen = ({ onSelectScenario, onBack, onOpenSettings }) => {
-  // 💡 JSON 구조가 바뀌었으므로 초기 상태를 바로 데이터로 세팅 가능
+// 💡 onViewTruth 프롭스 추가 (사건의 전말 보기 클릭 시 App.jsx로 이벤트 전달)
+const MainScreen = ({ onSelectScenario, onBack, onOpenSettings, onViewTruth }) => {
   const [seasons, setSeasons] = useState(scenarioData);
   const [clearedScenarios, setClearedScenarios] = useState([]);
   
-  // 💡 아코디언 열림 상태 관리 (기본적으로 1시즌이 열려있도록 세팅)
   const [expandedSeason, setExpandedSeason] = useState(1);
 
-  // BGM 변경 및 효과음 함수 가져오기
   const { changeAndPlayBgm, playSfx } = useAudio();
 
   useEffect(() => {
@@ -20,11 +18,9 @@ const MainScreen = ({ onSelectScenario, onBack, onOpenSettings }) => {
       setClearedScenarios(JSON.parse(savedData));
     }
 
-    // 화면 진입 시 메인 로비용 BGM 재생
     changeAndPlayBgm('/audio/main_bgm.mp3');
   }, [changeAndPlayBgm]);
 
-  // 아코디언 토글 함수
   const toggleSeason = (season) => {
     playSfx();
     setExpandedSeason(prev => (prev === season ? null : season));
@@ -59,7 +55,7 @@ const MainScreen = ({ onSelectScenario, onBack, onOpenSettings }) => {
         </div>
       </header>
 
-      {/* 💡 JSON 루프: 시즌별 아코디언 리스트 렌더링 */}
+      {/* JSON 루프: 시즌별 아코디언 리스트 렌더링 */}
       <div className="flex flex-col gap-6">
         {seasons.map((seasonItem) => {
           const seasonNumber = seasonItem.season;
@@ -67,30 +63,25 @@ const MainScreen = ({ onSelectScenario, onBack, onOpenSettings }) => {
           const seasonScenarios = seasonItem.scenarios || [];
           const isExpanded = expandedSeason === seasonNumber;
 
-          // 해당 시즌에서 유저가 클리어한 사건 개수 계산
           const completedCount = seasonScenarios.filter(s => clearedScenarios.includes(s.id)).length;
 
           return (
             <div key={seasonNumber} className="border border-neutral-700 rounded-3xl overflow-hidden bg-neutral-800/50 shadow-xl">
               
-              {/* 아코디언 헤더 (버튼) 업그레이드 버전 */}
               <button 
                 onClick={() => toggleSeason(seasonNumber)}
                 className="w-full relative overflow-hidden p-5 flex items-center justify-between bg-gradient-to-r from-neutral-900 to-neutral-800 hover:from-neutral-800 hover:to-neutral-700 transition-all border-l-4 border-amber-500 group shadow-md"
               >
-                {/* 배경 장식 (서류 폴더 느낌의 사선 빗금 텍스처) */}
                 <div 
                   className="absolute inset-0 opacity-5 pointer-events-none" 
                   style={{ backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 10px, #ffffff 10px, #ffffff 11px)' }}
                 />
                 
-                {/* 좌측: 타이틀 및 라벨 영역 */}
                 <div className="relative z-10 flex flex-col items-start gap-1.5 min-w-0 pr-4 text-left">
                   <div className="flex items-center gap-2">
                     <span className="text-amber-500 font-black text-[10px] tracking-[0.2em] bg-amber-950/40 px-2 py-0.5 rounded border border-amber-900/50 shadow-inner">
                       CASE FILE {String(seasonNumber).padStart(2, '0')}
                     </span>
-                    {/* 💡 올클리어 시 황금색 뱃지 노출 */}
                     {completedCount === seasonScenarios.length && (
                       <span className="text-yellow-400 text-[10px] font-black tracking-wider px-1.5 py-0.5 border border-yellow-500/50 rounded bg-yellow-900/30">
                         CLEARED
@@ -102,10 +93,8 @@ const MainScreen = ({ onSelectScenario, onBack, onOpenSettings }) => {
                   </span>
                 </div>
 
-                {/* 우측: 진행도 및 화살표 영역 */}
                 <div className="relative z-10 flex flex-col items-end gap-2 shrink-0">
                   <div className="flex items-center gap-3">
-                    {/* 텍스트 진행도 */}
                     <div className="flex flex-col items-end">
                       <span className="text-[9px] text-neutral-500 font-black tracking-widest mb-0.5">PROGRESS</span>
                       <span className="text-xs text-neutral-300 font-black bg-black/60 px-2.5 py-1 rounded-md border border-neutral-700 shadow-inner">
@@ -116,7 +105,6 @@ const MainScreen = ({ onSelectScenario, onBack, onOpenSettings }) => {
                         {seasonScenarios.length}
                       </span>
                     </div>
-                    {/* 확장/축소 화살표 아이콘 */}
                     <span 
                       className={`w-8 h-8 flex items-center justify-center rounded-full border transition-all duration-300 ${
                         isExpanded 
@@ -128,7 +116,6 @@ const MainScreen = ({ onSelectScenario, onBack, onOpenSettings }) => {
                     </span>
                   </div>
                   
-                  {/* 💡 하단 미니 게이지 바 (Progress Bar) */}
                   <div className="w-full h-1.5 bg-neutral-950 rounded-full overflow-hidden mt-0.5 border border-neutral-800 shadow-inner">
                     <div 
                       className="h-full bg-amber-500 transition-all duration-700 ease-out" 
@@ -138,7 +125,6 @@ const MainScreen = ({ onSelectScenario, onBack, onOpenSettings }) => {
                 </div>
               </button>
 
-              {/* 아코디언 내용 (펼쳐지는 영역) */}
               <div 
                 className={`transition-all duration-500 ease-in-out ${isExpanded ? 'max-h-[5000px] opacity-100' : 'max-h-0 opacity-0 overflow-hidden'}`}
               >
@@ -157,7 +143,6 @@ const MainScreen = ({ onSelectScenario, onBack, onOpenSettings }) => {
                         `}
                       >
                         
-                        {/* 타이틀 및 적정 행동력 표시 영역 */}
                         <div className="flex justify-between items-start mb-4 gap-2">
                           <h2 className="text-lg font-bold leading-snug text-white">
                             {scenario.title}
@@ -173,10 +158,8 @@ const MainScreen = ({ onSelectScenario, onBack, onOpenSettings }) => {
                           )}
                         </div>
                         
-                        {/* 썸네일 이미지 영역 */}
                         <div className="h-44 w-full bg-neutral-950 rounded-xl overflow-hidden border border-neutral-700 mb-5 relative flex items-center justify-center">
                           
-                          {/* 해결됨 뱃지 */}
                           {isCleared && (
                             <div 
                               className="absolute top-2 right-2 bg-neutral-950/80 text-red-500 text-[11px] font-black px-2 py-1 rounded shadow-lg border border-red-900 tracking-wider z-20 
@@ -201,7 +184,6 @@ const MainScreen = ({ onSelectScenario, onBack, onOpenSettings }) => {
                             </span>
                           )}
 
-                          {/* 잠금 오버레이 */}
                           {scenario.isLocked && (
                             <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center backdrop-blur-[2px]">
                               <span className="text-3xl mb-2">🔒</span>
@@ -221,7 +203,7 @@ const MainScreen = ({ onSelectScenario, onBack, onOpenSettings }) => {
                           )}
                         </div>
 
-                        {/* 하단 버튼 액션 영역 분기 처리 */}
+                        {/* 💡 하단 버튼 액션 영역 (클리어 상태 최우선 분기) */}
                         <div className="w-full z-10">
                           {scenario.isLocked ? (
                             <button 
@@ -230,6 +212,22 @@ const MainScreen = ({ onSelectScenario, onBack, onOpenSettings }) => {
                             >
                               COMING SOON
                             </button>
+                          ) : isCleared ? (
+                            // 💡 클리어한 사건일 경우 (전말 보기 버튼 활성화)
+                            <div className="flex flex-col gap-2">
+                              <button
+                                onClick={() => { playSfx(); onViewTruth(scenario.id); }}
+                                className="w-full py-3.5 bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-black rounded-xl text-sm tracking-wide shadow-md flex items-center justify-center gap-2 transition-colors active:scale-[0.98]"
+                              >
+                                <span>🎬</span> 사건의 전말 확인
+                              </button>
+                              <button
+                                onClick={() => { playSfx(); onSelectScenario(scenario.id, false); }}
+                                className="w-full py-3 bg-neutral-800 hover:bg-neutral-700 active:bg-neutral-900 text-neutral-400 font-bold rounded-xl text-xs tracking-wide border border-neutral-700 flex items-center justify-center transition-colors active:scale-[0.98]"
+                              >
+                                처음부터 다시 수사하기
+                              </button>
+                            </div>
                           ) : hasSavedData ? (
                             <div className="flex gap-3">
                               <button

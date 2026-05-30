@@ -80,9 +80,9 @@ const TitleScreen = ({ onStartGame, hasSaveData, onContinue, onOpenSettings }) =
         </p>
       </footer>
 
-      {/* 💡 앱 버전 표시 (우측 하단 고정) */}
+      {/* 앱 버전 표시 (우측 하단 고정) */}
       <div className="absolute bottom-4 right-4 text-[10px] text-neutral-500 font-mono opacity-60 pointer-events-none">
-        v1.1.0
+        v1.2.0
       </div>
 
       {/* 수사 가이드 모달 */}
@@ -114,12 +114,13 @@ const TitleScreen = ({ onStartGame, hasSaveData, onContinue, onOpenSettings }) =
                 </div>
               </div>
 
+              {/* 💡 수정된 2번 가이드 (행동력 소모 내용 추가) */}
               <div className="flex gap-4">
                 <div className="shrink-0 w-8 h-8 rounded-full bg-amber-900/50 flex items-center justify-center text-amber-400 font-black text-xs border border-amber-500/30">2</div>
                 <div>
-                  <p className="text-sm font-bold text-white mb-1">현장 조사 & 외형 관찰</p>
+                  <p className="text-sm font-bold text-white mb-1">현장 조사 & 외형 관찰 <span className="text-amber-500 text-xs tracking-tight">(⚡ 행동력 소모)</span></p>
                   <p className="text-xs text-neutral-400 leading-relaxed break-keep">
-                    의심스러운 곳을 터치해 결정적 <span className="text-amber-400 font-bold">물증</span>을 수집하세요. 조사가 막힐 땐 <span className="text-white font-bold">주변 탐색</span>을 쓰면 1.5초간 단서 위치가 드러납니다.
+                    의심스러운 곳을 터치해 결정적 <span className="text-amber-400 font-bold">물증</span>을 수집하세요. 단서를 획득할 때마다 <span className="text-white font-bold">행동력(⚡)이 1씩 감소</span>합니다. 조사가 막힐 땐 주변 탐색을 활용하세요.
                   </p>
                 </div>
               </div>
@@ -127,7 +128,7 @@ const TitleScreen = ({ onStartGame, hasSaveData, onContinue, onOpenSettings }) =
               <div className="flex gap-4">
                 <div className="shrink-0 w-8 h-8 rounded-full bg-emerald-900/50 flex items-center justify-center text-emerald-400 font-black text-xs border border-emerald-500/30">3</div>
                 <div>
-                  <p className="text-sm font-bold text-white mb-1">추궁하기 (⚡ 행동력 소모)</p>
+                  <p className="text-sm font-bold text-white mb-1">추궁하기 <span className="text-emerald-500 text-xs tracking-tight">(⚡ 행동력 소모)</span></p>
                   <p className="text-xs text-neutral-400 leading-relaxed break-keep">
                     수집한 단서나 진술을 용의자에게 제시하여 새로운 <span className="text-emerald-400 font-bold">진술을 확보</span>하세요. 제시할 때마다 <span className="text-white font-bold">행동력(⚡)이 1씩 감소</span>합니다.
                   </p>
@@ -139,7 +140,7 @@ const TitleScreen = ({ onStartGame, hasSaveData, onContinue, onOpenSettings }) =
                 <div>
                   <p className="text-sm font-bold text-red-400 mb-1">사건 종결</p>
                   <p className="text-xs text-neutral-400 leading-relaxed break-keep">
-                    행동력(⚡)이 0이 되면 강제로 추리가 시작됩니다. <span className="text-red-400 font-bold">단 3번의 기회</span> 안에 엇갈리는 진술들을 파악해 진짜 범인을 지목하세요.
+                    행동력(⚡)이 0이 되면 강제로 추리가 시작됩니다. <span className="text-red-400 font-bold">단 2번의 기회</span> 안에 엇갈리는 진술들을 파악해 진짜 범인을 지목하세요.
                   </p>
                 </div>
               </div>
