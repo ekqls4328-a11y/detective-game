@@ -238,6 +238,13 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings, isTruthMode }) => {
   // 처음 진입 시 전면 광고(Interstitial) 송출 및 로딩 화면 해제
   useEffect(() => {
     const playIntroAd = async () => {
+
+      // 💡 [핵심 방어 로직] 사건의 전말(Truth) 모드로 진입했다면 이미 보상형 광고를 본 직후이므로 전면 광고 스킵!
+      if (isTruthMode) {
+        setIsAdLoading(false);
+        return; 
+      }
+
       try {
         const adId = 'ca-app-pub-3940256099942544/1033173712'; // 전면 광고 테스트 ID
         await AdMob.prepareInterstitial({ adId });
@@ -249,7 +256,7 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings, isTruthMode }) => {
       }
     };
     playIntroAd();
-  }, [scenarioId]); 
+  }, [scenarioId, isTruthMode]); 
 
   // 💡 8. 이벤트 핸들러 모음 (광고, 단서, AP 처리 등)
   
