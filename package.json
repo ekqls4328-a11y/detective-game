@@ -16,6 +16,7 @@
     "@capacitor/app": "^8.1.0",
     "@capacitor/core": "^8.3.4",
     "@capacitor/toast": "^8.0.1",
+    "@capawesome/capacitor-app-update": "^8.0.3",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "react-joyride": "^3.1.0",

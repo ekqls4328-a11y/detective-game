@@ -11,6 +11,8 @@ import AdConfirmModal from './components/AdConfirmModal';
 import { AudioProvider } from './contexts/AudioContext';
 import { AdMob, RewardAdPluginEvents } from '@capacitor-community/admob';
 import scenarioDataList from './data/scenario_list.json';
+import { Capacitor } from '@capacitor/core';
+import { AppUpdate } from '@capawesome/capacitor-app-update';
 
 const AppContent = () => {
   const [currentScreen, setCurrentScreen] = useState('splash');
@@ -198,6 +200,30 @@ const AppContent = () => {
       localStorage.setItem('app_version', CURRENT_VERSION);
       console.log(`[Version Check] 앱이 v${savedVersion}에서 v${CURRENT_VERSION}으로 업데이트 되었습니다. (데이터 보존)`);
     }
+  }, []);
+
+  useEffect(() => {
+    const checkForUpdate = async () => {
+      // 안드로이드 환경이 아니면(웹 등) 작동하지 않도록 방어
+      if (Capacitor.getPlatform() !== 'android') return;
+
+      try {
+        const result = await AppUpdate.getAppUpdateInfo();
+        
+        // 💡 2 = UPDATE_AVAILABLE (새 버전이 존재함)
+        if (result.updateAvailability === 2) {
+          
+          // 🚨 무조건 강제 업데이트 (유저가 취소하면 앱 종료됨)
+          if (result.immediateUpdateAllowed) {
+            await AppUpdate.performImmediateUpdate();
+          }
+        }
+      } catch (error) {
+        console.error('업데이트 체크 실패:', error);
+      }
+    };
+
+    checkForUpdate();
   }, []);
 
   return (
