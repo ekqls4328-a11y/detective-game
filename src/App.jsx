@@ -148,23 +148,23 @@ const AppContent = () => {
     setTruthAdModalOpen(false);
     
     // 🚨 [테스트용 치트키] 광고 호출 안 하고 무조건 통과!
-    console.log("📺 [개발용 치트키] 사건의 전말 광고 시청 스킵");
-    // (얼럿이 거슬리면 아래 alert 줄은 지워도 돼!)
-    alert("📺 [테스트 모드] 광고 시청을 스킵하고 사건의 전말을 바로 확인합니다.");
+    // console.log("📺 [개발용 치트키] 사건의 전말 광고 시청 스킵");
+    // // (얼럿이 거슬리면 아래 alert 줄은 지워도 돼!)
+    // alert("📺 [테스트 모드] 광고 시청을 스킵하고 사건의 전말을 바로 확인합니다.");
 
-    // 원래는 광고를 다 봐야 실행되는 로직을 바로 실행시켜버림
-    setIsTruthMode(true);
-    setSelectedScenarioId(truthScenarioId);
-    setCurrentScreen('play');
+    // // 원래는 광고를 다 봐야 실행되는 로직을 바로 실행시켜버림
+    // setIsTruthMode(true);
+    // setSelectedScenarioId(truthScenarioId);
+    // setCurrentScreen('play');
 
     /* -------------------------------------------------------------
        ⛔ 정식 출시 전에는 위에 있는 '치트키 로직'을 지우고 
        아래 주석 처리된 진짜 애드몹 로직의 주석(/*)을 풀어서 써야 해!
-       -------------------------------------------------------------
+       -------------------------------------------------------------*/
     try {
       await AdMob.prepareRewardVideoAd({
-        adId: 'ca-app-pub-3940256099942544/5224354917', 
-        isTesting: true
+        adId: 'ca-app-pub-2340338162252761/3517458239', 
+        isTesting: false
       });
 
       const rewardListener = await AdMob.addListener(RewardAdPluginEvents.Rewarded, () => {
@@ -184,7 +184,7 @@ const AppContent = () => {
       console.error('보상형 광고 로드 실패:', error);
       alert("광고를 불러올 수 없습니다. 인터넷 연결을 확인해 주세요.");
     }
-    ------------------------------------------------------------- */
+    /*------------------------------------------------------------- */
   };
 
   useEffect(() => {

@@ -1,7 +1,7 @@
 [
   {
     "season": "01.",
-    "seasonTitle": "일상의 균열",
+    "seasonTitle": "익숙한 공간, 낯선 살의",
     "scenarios": [
       {
         "id": "apartment_murder",
@@ -30,6 +30,26 @@
         "maxActionPoints": 28,
         "briefingImageUrl": "/images/broadcast_murder/briefingImage.webp",
         "isLocked": false
+      },
+      {
+        "id": "themepark_murder",
+        "title": "마지막 손인사",
+        "maxActionPoints": 28,
+        "briefingImageUrl": "/images/themepark_murder/briefingImage.webp",
+        "isLocked": true
+      }
+    ]
+  },
+  {
+    "season": "02.",
+    "seasonTitle": "업데이트 준비 중",
+    "scenarios": [
+      {
+        "id": "Locked",
+        "title": "기밀 문서 (Classified)",
+        "maxActionPoints": 17,
+        "briefingImageUrl": "",
+        "isLocked": true
       }
     ]
   }

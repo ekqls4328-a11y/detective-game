@@ -158,20 +158,20 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
 
     // 🚨 [테스트용 치트키] 광고 호출 안 하고 무조건 통과!
     /* -------- 👇 여기서부터 치트키 -------- */
-    console.log("📺 [개발용 치트키] 추리 부활 광고 시청 스킵");
-    alert("📺 [테스트 모드] 광고 시청을 스킵하고 마지막 추리 기회를 얻습니다!");
-    setHasUsedAdRevive(true); 
-    if (onAdRevive) onAdRevive(); 
-    setResult('none'); 
+    // console.log("📺 [개발용 치트키] 추리 부활 광고 시청 스킵");
+    // alert("📺 [테스트 모드] 광고 시청을 스킵하고 마지막 추리 기회를 얻습니다!");
+    // setHasUsedAdRevive(true); 
+    // if (onAdRevive) onAdRevive(); 
+    // setResult('none'); 
     /* -------- 👆 여기까지 치트키 -------- */
 
     /* -------- 👇 정식 출시(또는 광고 띄워볼 때)용 진짜 애드몹 로직 --------
        출시 전에는 위의 '치트키' 구역을 지우고, 아래 주석을 풀어서 사용해!
-
+*/
     try {
       await AdMob.prepareRewardVideoAd({
-        adId: 'ca-app-pub-3940256099942544/5224354917', // 정식 출시 땐 진짜 ID로 교체!
-        isTesting: true // 정식 출시 땐 false로 교체!
+        adId: 'ca-app-pub-2340338162252761/7968857068', // 정식 출시 땐 진짜 ID로 교체!
+        isTesting: false // 정식 출시 땐 false로 교체!
       });
 
       const rewardListener = await AdMob.addListener(RewardAdPluginEvents.Rewarded, () => {
@@ -192,7 +192,7 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
       console.error("광고 재생 실패:", error);
       alert("광고를 불러오는 데 실패했습니다. 잠시 후 다시 시도해주세요.");
     }
-    ------------------------------------------------------------------ */
+    /*------------------------------------------------------------------ */
   };
 
   const handleLifeAdCancel = () => {

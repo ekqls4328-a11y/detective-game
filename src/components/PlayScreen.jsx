@@ -246,7 +246,7 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings, isTruthMode }) => {
       }
 
       try {
-        const adId = 'ca-app-pub-3940256099942544/1033173712'; // 전면 광고 테스트 ID
+        const adId = 'ca-app-pub-2340338162252761/9054708020'; // 전면 광고 테스트 ID
         await AdMob.prepareInterstitial({ adId });
         await AdMob.showInterstitial();
       } catch (error) {
@@ -266,25 +266,25 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings, isTruthMode }) => {
 
     // 🚨 [테스트용 치트키] 광고 호출 안 하고 무조건 통과!
     /* -------- 👇 여기서부터 치트키 -------- */
-    const adStatus = checkAdLimit();
-    localStorage.setItem(AD_LIMIT_KEY, JSON.stringify({ 
-      date: adStatus.date, 
-      count: adStatus.count + 1 
-    }));
-    const rechargeAmount = Math.ceil((data.maxActionPoints || 3) / 2); 
-    alert(`⚡ 행동력이 ${rechargeAmount} 충전되었습니다! (오늘 충전 ${adStatus.count + 1}/${MAX_AD_PER_DAY}회)`);
-    setActionPoints(rechargeAmount);
+    // const adStatus = checkAdLimit();
+    // localStorage.setItem(AD_LIMIT_KEY, JSON.stringify({ 
+    //   date: adStatus.date, 
+    //   count: adStatus.count + 1 
+    // }));
+    // const rechargeAmount = Math.ceil((data.maxActionPoints || 3) / 2); 
+    // alert(`⚡ 행동력이 ${rechargeAmount} 충전되었습니다! (오늘 충전 ${adStatus.count + 1}/${MAX_AD_PER_DAY}회)`);
+    // setActionPoints(rechargeAmount);
     /* -------- 👆 여기까지 치트키 -------- */
 
 
     /* -------- 👇 정식 출시(또는 광고 띄워볼 때)용 진짜 애드몹 로직 --------
        출시 전에는 위의 '치트키' 구역을 지우고, 아래 주석을 풀어서 사용해!
-    
+    */
     try {
       // 💡 바로 여기에 보상형 광고 ID를 집어넣어! (현재는 테스트 ID)
       await AdMob.prepareRewardVideoAd({
-        adId: 'ca-app-pub-3940256099942544/5224354917', // 정식 출시 땐 발급받은 찐 ID로 교체!
-        isTesting: true // 정식 출시 땐 false로 교체 필수!
+        adId: 'ca-app-pub-2340338162252761/7588593433', // 정식 출시 땐 발급받은 찐 ID로 교체!
+        isTesting: false // 정식 출시 땐 false로 교체 필수!
       });
 
       const rewardListener = await AdMob.addListener(RewardAdPluginEvents.Rewarded, () => {
@@ -310,7 +310,7 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings, isTruthMode }) => {
       console.error('광고 호출 실패:', error);
       alert("광고를 불러올 수 없습니다. 인터넷 연결을 확인해 주세요.");
     }
-    ------------------------------------------------------------------ */
+    /*------------------------------------------------------------------ */
   };
 
   // 행동력 충전 취소 시 강제 사건 종결로 쫓겨남
