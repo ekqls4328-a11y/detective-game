@@ -6,7 +6,7 @@ import InventoryModal from './InventoryModal';
 import LocationModal from './LocationModal';
 import ReasoningNoteModal from './ReasoningNoteModal'; 
 import { useAudio } from '../contexts/AudioContext'; 
-import { AdMob } from '@capacitor-community/admob';
+import { AdMob, RewardAdPluginEvents } from '@capacitor-community/admob';
 import { App as CapacitorApp } from '@capacitor/app';
 
 // 💡 1. 시나리오 데이터 임포트 및 매핑 객체
@@ -295,7 +295,7 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings, isTruthMode }) => {
           count: adStatus.count + 1 
         }));
         const rechargeAmount = Math.ceil((data.maxActionPoints || 3) / 2); 
-        alert(`⚡ 행동력이 ${rechargeAmount} 충전되었습니다!`);
+        // alert(`⚡ 행동력이 ${rechargeAmount} 충전되었습니다!`);
         setActionPoints(rechargeAmount);
       });
 

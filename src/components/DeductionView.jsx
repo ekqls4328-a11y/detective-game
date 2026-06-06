@@ -100,6 +100,7 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
 
   // 최종 추리 제출 버튼 클릭 시 로직
   const handleAccuse = () => {
+    setTourRun(false);
     const questions = scenarioData.solution.questions;
     if (Object.keys(answers).length < questions.length) {
       alert("모든 추리 항목을 선택해주세요.");
