@@ -13,7 +13,7 @@ const InspectionModal = ({ suspect, inventory, actionPoints, onClueFound, onClos
 
   const { playSfx } = useAudio();
 
-  const IS_DEV_MODE = true; 
+  const IS_DEV_MODE = false; 
   const [cursorPos, setCursorPos] = useState(null);
 
   const currentImageUrl = inspectionSide === 'front' ? suspect.illustration?.frontFullUrl : suspect.illustration?.backFullUrl;
