@@ -1,7 +1,7 @@
 {
   "id": "camping_murder",
   "title": "투명한 살의",
-  "maxActionPoints": 24,
+  "maxActionPoints": 44,
   "briefingImageUrl": "/images/camping_murder/briefingImage.webp",
   "bgmUrl": "/audio/camping_bgm.mp3",
   "summary": "폭우로 고립된 글램핑장, 안에서 잠긴 VIP 텐트에서 오너가 감전사로 발견되었다. 현장은 외부 침입 흔적이 없는 완벽한 밀실이었다. (사망 추정 시간: 22:15 ~ 22:30)",
@@ -14,6 +14,28 @@
       "desc": "감정 변화가 거의 없는 글램핑장 총괄 매니저. 모두가 당황한 와중에도 차가운 표정으로 상황을 관망하고 있다.",
       "selfIntro": "저는 이 글램핑장의 총괄 매니저 이매니저입니다. 사건 당시엔 관리동 서버실에 있었습니다.\n외부 인터넷이 끊기는 바람에 시설 상태를 계속 확인하고 있었죠. 그 이상 드릴 말씀은 없습니다.",
       "wrongEvidenceResponse": "…그 단서가 저와 어떤 관련이 있는지 설명해 주시겠습니까?",
+      "relations": [
+        {
+          "targetId": "suspect2",
+          "summary": "VIP 손님으로 머무는 약혼녀",
+          "desc": "VIP 텐트에 머무는 주요 손님이다. 숙박 관리, 요청 사항, 안전 문제를 챙겨야 하는 관리 대상이다."
+        },
+        {
+          "targetId": "suspect3",
+          "summary": "현장 정리를 맡은 야간 스태프",
+          "desc": "야간 정리와 보조 업무를 맡은 아르바이트생이다. 근무 동선과 업무 보고를 관리해야 하는 하급 스태프다."
+        },
+        {
+          "targetId": "suspect4",
+          "summary": "야간 순찰을 맡은 경비원",
+          "desc": "글램핑장 야간 순찰과 초소 관리를 맡은 경비원이다. 폐장 후 현장 상태나 순찰 기록을 확인할 때 자주 연결되는 직원이다."
+        },
+        {
+          "targetId": "suspect5",
+          "summary": "사업 초기부터 얽힌 납품업자",
+          "desc": "글램핑장 운영 초기부터 투자와 납품 문제로 엮인 사업 관계자다. 시설 운영과 장비 납품 과정에서 여러 차례 마주친 사이다."
+        }
+      ],
       "illustration": {
         "interrogationUrl": "/images/camping_murder/s1_interrogation.webp",
         "frontFullUrl": "/images/camping_murder/s1_front_full.webp",
@@ -53,6 +75,28 @@
       "desc": "화려한 차림새와 달리 극도로 불안해 보이는 약혼녀. 작은 소리에도 어깨를 움츠리며 신경질적으로 반응한다.",
       "selfIntro": "……저는 김약혼이에요. 오늘 그 사람이랑 크게 다퉜어요. 하지만 죽이려고 했던 건 아니에요. 전 그냥… 여기서 도망치고 싶었을 뿐이에요.",
       "wrongEvidenceResponse": "…그걸 왜 저한테 보여주세요? 전 정말 아무것도 몰라요….",
+      "relation": [
+        {
+          "targetId": "suspect1",
+          "summary": "VIP 구역을 관리하는 매니저",
+          "desc": "VIP 텐트와 글램핑장 운영을 관리하는 총괄 매니저다. 숙박 중 필요한 요청이나 시설 문제를 전달하게 되는 현장 책임자다."
+        },
+        {
+          "targetId": "suspect3",
+          "summary": "주변 정리를 맡은 야간 스태프",
+          "desc": "글램핑장 야간 정리 업무를 맡은 직원이다. VIP 구역 주변을 오가며 청소나 정리 업무를 하는 스태프다."
+        },
+        {
+          "targetId": "suspect4",
+          "summary": "밤 시간대를 지키는 경비원",
+          "desc": "야간 순찰과 초소 근무를 맡은 경비원이다. 늦은 시간 글램핑장 안에서 문제가 생기면 마주칠 수 있는 관리 인력이다."
+        },
+        {
+          "targetId": "suspect5",
+          "summary": "피해자와 사업으로 얽힌 투자자",
+          "desc": "최오너와 사업 문제로 오래 얽힌 납품업체 대표다. 약혼녀 입장에서는 최오너의 일과 돈 문제로 자주 이름을 듣게 되는 인물이다."
+        }
+      ],
       "illustration": {
         "interrogationUrl": "/images/camping_murder/s2_interrogation.webp",
         "frontFullUrl": "/images/camping_murder/s2_front_full.webp",
@@ -89,6 +133,28 @@
       "desc": "눈에 잘 띄지 않는 조용한 야간 아르바이트생. 사람들과 시선을 마주치지 않고 주변의 눈치를 살피며 경계하고 있다.",
       "selfIntro": "저는 야간 스태프 정알바입니다… 그냥 시키는 일만 했어요. 전 정말 아무것도 못 봤습니다. 그러니까 괜히 저 같은 사람한테 신경 쓰지 마세요…",
       "wrongEvidenceResponse": "죄송합니다… 그건 저도 잘 모르겠습니다.",
+      "relations": [
+        {
+          "targetId": "suspect1",
+          "summary": "근무를 관리하는 총괄 매니저",
+          "desc": "야간 스태프의 근무 동선과 업무를 관리하는 상급자다. 업무 지시나 보고 문제로 마주치는 현장 책임자다."
+        },
+        {
+          "targetId": "suspect2",
+          "summary": "VIP 텐트의 주요 손님",
+          "desc": "VIP 구역에 머무는 손님이다. 야간 정리 업무를 하며 주변을 오갈 때 신경 써야 하는 투숙객이다."
+        },
+        {
+          "targetId": "suspect4",
+          "summary": "개인적으로도 신경 써주는 경비원",
+          "desc": "야간 순찰을 맡은 경비원이자, 아버지와의 인연 때문에 평소에도 자신을 챙겨주는 어른이다. 다른 직원들보다 편하게 의지할 수 있는 상대다."
+        },
+        {
+          "targetId": "suspect5",
+          "summary": "VIP 구역을 오가는 사업 관계자",
+          "desc": "글램핑장 납품과 투자 문제로 드나드는 외부 사업 관계자다. 야간 스태프 입장에서는 손님처럼 대해야 하지만 쉽게 말을 붙이기 어려운 인물이다."
+        }
+      ],
       "illustration": {
         "interrogationUrl": "/images/camping_murder/s3_interrogation.webp",
         "frontFullUrl": "/images/camping_murder/s3_front_full.webp",
@@ -126,6 +192,28 @@
       "desc": "체격이 크고 무뚝뚝한 야간 경비원. 굳게 다문 입술과 서늘한 눈빛에서 어딘가 억눌린 감정이 느껴진다.",
       "selfIntro": "……강경비다. 난 밤새 밖만 돌았다. 사람 죽은 건 나랑 상관없어. 그러니까 괜히 떠보려 들지 마라.",
       "wrongEvidenceResponse": "…그래서, 하고 싶은 말이 뭔데.",
+      "relations": [
+        {
+          "targetId": "suspect1",
+          "summary": "현장 운영을 맡은 총괄 매니저",
+          "desc": "글램핑장 운영과 시설 관리를 맡은 총괄 매니저다. 야간 순찰 기록이나 현장 문제를 보고해야 하는 상급 관리 인력이다."
+        },
+        {
+          "targetId": "suspect2",
+          "summary": "VIP 텐트에 머무는 손님",
+          "desc": "VIP 구역에 머무는 주요 손님이다. 야간 순찰 중 안전이나 출입 문제를 확인해야 하는 투숙객이다."
+        },
+        {
+          "targetId": "suspect3",
+          "summary": "아버지와 인연이 있는 야간 알바",
+          "desc": "야간 정리 업무를 맡은 아르바이트생이다. 과거 아버지와의 인연 때문에 다른 직원보다 더 신경 쓰게 되는 상대다."
+        },
+        {
+          "targetId": "suspect5",
+          "summary": "과거 사업 문제로 얽힌 인물",
+          "desc": "최오너와 함께 과거 사업 문제로 이름이 얽힌 납품업체 대표다. 단순한 외부 손님이라기보다 오래된 악연이 남아 있는 인물이다."
+        }
+      ],
       "illustration": {
         "interrogationUrl": "/images/camping_murder/s4_interrogation.webp",
         "frontFullUrl": "/images/camping_murder/s4_front_full.webp",
@@ -163,6 +251,28 @@
       "desc": "목소리가 크고 다혈질적인 중년 사업가. 겉보기엔 호탕해 보이지만 작은 질문에도 핏대를 세우며 과민 반응한다.",
       "selfIntro": "아니, 사람이 죽었다는데 나부터 의심하는 겁니까? 나도 피해자랑 언성 좀 높인 건 인정합니다.\n 하지만 그 인간 성격이 원래 사람 열받게 만드는 스타일이었어요. 괜히 나한테 뒤집어씌우려 하지 마쇼.",
       "wrongEvidenceResponse": "탐정 양반, 지금 날 범인으로 정해놓고 떠보는 거요?",
+      "relations": [
+        {
+          "targetId": "suspect1",
+          "summary": "시설 운영을 맡은 매니저",
+          "desc": "글램핑장 운영과 시설 관리를 맡은 총괄 매니저다. 납품이나 장비 문제를 논의할 때 마주치는 현장 담당자다."
+        },
+        {
+          "targetId": "suspect2",
+          "summary": "최오너의 약혼녀",
+          "desc": "최오너와 결혼을 앞둔 약혼녀다. 사업 관계자 입장에서는 최오너의 사적인 영역과 가장 가까운 인물이다."
+        },
+        {
+          "targetId": "suspect3",
+          "summary": "현장에서 마주치는 야간 스태프",
+          "desc": "글램핑장 야간 정리 업무를 맡은 아르바이트생이다. 라운지나 VIP 구역 주변을 오갈 때 마주칠 수 있는 현장 직원이다."
+        },
+        {
+          "targetId": "suspect4",
+          "summary": "과거부터 악연이 있는 경비원",
+          "desc": "현재는 글램핑장 야간 경비원이지만, 과거 사업 문제로 연결된 인물이다. 단순한 직원이라기보다 오래된 감정이 남아 있는 상대다."
+        }
+      ],
       "illustration": {
         "interrogationUrl": "/images/camping_murder/s5_interrogation.webp",
         "frontFullUrl": "/images/camping_murder/s5_front_full.webp",

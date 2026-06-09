@@ -82,7 +82,7 @@ const TitleScreen = ({ onStartGame, hasSaveData, onContinue, onOpenSettings }) =
 
       {/* 앱 버전 표시 (우측 하단 고정) */}
       <div className="absolute bottom-4 right-4 text-[10px] text-neutral-500 font-mono opacity-60 pointer-events-none">
-        v1.2.0
+        v1.2.3
       </div>
 
       {/* 수사 가이드 모달 */}

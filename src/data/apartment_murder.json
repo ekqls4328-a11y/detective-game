@@ -1,7 +1,7 @@
 {
   "id": "apartment_murder",
   "title": "조용해진 502호",
-  "maxActionPoints": 17,
+  "maxActionPoints": 30,
   "briefingImageUrl": "/images/apartment_murder/briefingImage.webp",
   "bgmUrl": "/audio/apartment_bgm.mp3",
   "summary": "끊임없는 소음과 고성이 오가던 밤, 아파트 최고의 진상 거주자가 거실 바닥에서 둔기에 맞아 사망했다. 반쯤 열린 현관문 너머로는 살의를 품은 이웃들의 흔적이 어지럽게 얽혀 있었다. (사건 신고 시간: 23:30)",
@@ -14,6 +14,23 @@
       "desc": "층간소음에 예민한 아랫집 주민.",
       "selfIntro": "아... 또 502호 일 때문에 오신 거예요? 저는 402호 사는 김아래입니다.\n솔직히 언젠가 큰일 날 줄은 알았어요. 밤마다 그렇게 시끄럽게 굴었으니까요...",
       "wrongEvidenceResponse": "그걸 왜 저한테 말하는 거죠...? 전 모르는 얘기예요. 괜히 사람 피곤하게 하지 마세요.",
+      "relations": [
+        {
+          "targetId": "suspect2",
+          "summary": "민원을 받아주는 야간 경비원",
+          "desc": "윗집 소음 문제를 신고할 때마다 마주치는 야간 경비원이다. 생활 불편을 호소할 때 가장 먼저 연락하게 되는 관리 인력이다."
+        },
+        {
+          "targetId": "suspect3",
+          "summary": "주민 문제에 관여하는 부녀회장",
+          "desc": "아파트 주민 문제에 자주 관여하는 부녀회장이다. 민원이나 이웃 갈등이 생기면 자연스럽게 이름이 오르내리는 주민 대표다."
+        },
+        {
+          "targetId": "suspect4",
+          "summary": "같은 라인에 사는 윗층 이웃",
+          "desc": "같은 동, 가까운 층에 사는 이웃이다. 친한 사이는 아니지만 복도, 엘리베이터, 생활 소음 문제로 서로 존재를 알고 지내는 관계다."
+        }
+      ],
       "illustration": {
         "interrogationUrl": "/images/apartment_murder/s1_interrogation.webp",
         "frontFullUrl": "/images/apartment_murder/s1_front_full.webp",
@@ -50,6 +67,23 @@
       "desc": "해고 위협에 시달리던 야간 경비원.",
       "selfIntro": "아이고... 502호에서 결국 사달이 났구먼. 저는 이 아파트 야간 경비 맡고 있는 박경비라고 합니다.\n 순찰 돌다가 문이 열려 있어서 가봤더니... 에휴.",
       "wrongEvidenceResponse": "저랑은 상관없는 이야기 같습니다요... 저는 정말 아는 게 없습니다.",
+      "relations": [
+        {
+          "targetId": "suspect1",
+          "summary": "민원을 자주 넣는 주민",
+          "desc": "경비실에 생활 민원을 자주 넣는 주민이다. 특히 층간소음 같은 문제로 자주 연락해 오는 입주민이다."
+        },
+        {
+          "targetId": "suspect3",
+          "summary": "관리 업무에 영향력 있는 부녀회장",
+          "desc": "아파트 관리 문제에 목소리를 내는 부녀회장이다. 경비 업무나 주민 민원 처리 과정에서 쉽게 무시하기 어려운 상대다."
+        },
+        {
+          "targetId": "suspect5",
+          "summary": "출입과 주차 문제로 마주치는 배달 기사",
+          "desc": "야간에 아파트를 드나드는 외부 배달 기사다. 오토바이 주차, 출입 확인, 배달 동선 문제로 종종 마주치는 관계다."
+        }
+      ],
       "illustration": {
         "interrogationUrl": "/images/apartment_murder/s2_interrogation.webp",
         "frontFullUrl": "/images/apartment_murder/s2_front_full.webp",
@@ -88,6 +122,28 @@
       "desc": "아파트 권력을 쥔 부녀회장.",
       "selfIntro": "어머, 오셨군요. 이런 흉흉한 일로 보게 돼서 참 유감이네요.\n제가 이 아파트 부녀회장을 맡고 있는데... 주민들이 많이 불안해하고 있어요.",
       "wrongEvidenceResponse": "그래서 어쩌라는 거죠? 그런 이야기까지 제가 일일이 알아야 하나요?",
+      "relations": [
+        {
+          "targetId": "suspect2",
+          "summary": "아파트 현장을 맡는 경비원",
+          "desc": "아파트 현장 관리를 맡는 야간 경비원이다. 주민 민원이나 단지 관리 문제를 전달하고 처리 상황을 확인하게 되는 상대다."
+        },
+        {
+          "targetId": "suspect1",
+          "summary": "민원이 잦은 아랫집 주민",
+          "desc": "층간소음 문제로 자주 민원을 제기하는 주민이다. 부녀회장 입장에서는 주민 갈등이 생길 때 신경 써야 하는 입주민 중 하나다."
+        },
+        {
+          "targetId": "suspect4",
+          "summary": "같은 층에 사는 이웃 주민",
+          "desc": "같은 5층에 사는 이웃이다. 가까운 사이는 아니어도 복도나 엘리베이터에서 자주 마주칠 수밖에 없는 같은 층 주민이다."
+        },
+        {
+          "targetId": "suspect5",
+          "summary": "단지에 드나드는 외부 배달 기사",
+          "desc": "아파트에 음식을 배달하러 드나드는 외부 기사다. 단지 질서나 주민 불편 문제와 연결될 수 있는 외부인이다."
+        }
+      ],
       "illustration": {
         "interrogationUrl": "/images/apartment_murder/s3_interrogation.webp",
         "frontFullUrl": "/images/apartment_murder/s3_front_full.webp",
@@ -125,6 +181,23 @@
       "desc": "인터넷 선이 끊겨 폭락장을 놓친 옆집 주민.",
       "selfIntro": "...아, 당신이 조사 맡은 분입니까?\n저는 501호 사는 정대리입니다. 솔직히 오늘은 누구랑도 말 섞고 싶지 않네요.",
       "wrongEvidenceResponse": "아니, 그걸 왜 저한테 따집니까? 전 그런 거 모릅니다.",
+      "relations": [
+        {
+          "targetId": "suspect3",
+          "summary": "같은 층의 부녀회장",
+          "desc": "같은 층에 사는 부녀회장이다. 아파트 일에 자주 관여하는 사람이라 평소 얼굴과 이름을 알고 지내는 이웃이다."
+        },
+        {
+          "targetId": "suspect1",
+          "summary": "같은 라인에 사는 아랫집 주민",
+          "desc": "같은 동 아래층에 사는 주민이다. 친하게 지내는 사이는 아니지만 같은 라인의 생활 문제로 서로 존재를 알고 있는 이웃이다."
+        },
+        {
+          "targetId": "suspect2",
+          "summary": "민원 때 마주치는 야간 경비원",
+          "desc": "아파트 야간 경비원이다. 출입, 시설 문제, 주민 민원 같은 일이 생기면 마주치게 되는 관리 인력이다."
+        }
+      ],
       "illustration": {
         "interrogationUrl": "/images/apartment_murder/s4_interrogation.webp",
         "frontFullUrl": "/images/apartment_murder/s4_front_full.webp",
@@ -160,6 +233,23 @@
       "desc": "502호와 크게 다툰 배달 기사.",
       "selfIntro": "아 놔, 배달 콜 다 밀리는데 왜 붙잡고 그러십니까?\n502호 그 진상 새끼 죽은 게 저랑 무슨 상관인데요?",
       "wrongEvidenceResponse": "뭔 소린지 모르겠는데요. 저한테 그런 얘기 해봐야 답 안 나옵니다.",
+      "relations": [
+        {
+          "targetId": "suspect2",
+          "summary": "배달 출입 때 마주치는 경비원",
+          "desc": "아파트 출입과 주차 문제로 마주치는 야간 경비원이다. 배달 업무 중 단지 안으로 들어갈 때 신경 써야 하는 관리 인력이다."
+        },
+        {
+          "targetId": "suspect4",
+          "summary": "배달 동선에서 마주칠 수 있는 주민",
+          "desc": "아파트 안에서 배달 중 마주칠 수 있는 입주민이다. 복도나 엘리베이터를 오가며 스쳐 지나갈 수 있는 주민 관계다."
+        },
+        {
+          "targetId": "suspect3",
+          "summary": "단지 질서에 예민한 주민 대표",
+          "desc": "아파트 관리와 주민 질서에 관심이 많은 부녀회장이다. 외부 배달 기사 입장에서는 출입이나 주차 문제로 신경 쓰일 수 있는 주민 대표다."
+        }
+      ],
       "illustration": {
         "interrogationUrl": "/images/apartment_murder/s5_interrogation.webp",
         "frontFullUrl": "/images/apartment_murder/s5_front_full.webp",

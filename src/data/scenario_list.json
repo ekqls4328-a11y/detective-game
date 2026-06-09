@@ -6,37 +6,37 @@
       {
         "id": "apartment_murder",
         "title": "조용해진 502호",
-        "maxActionPoints": 17,
+        "maxActionPoints": 30,
         "briefingImageUrl": "/images/apartment_murder/briefingImage.webp",
         "isLocked": false
       },
       {
         "id": "wedding_murder",
         "title": "창백한 부케",
-        "maxActionPoints": 22,
+        "maxActionPoints": 37,
         "briefingImageUrl": "/images/wedding_murder/briefingImage.webp",
         "isLocked": false
       },
       {
         "id": "camping_murder",
         "title": "투명한 살의",
-        "maxActionPoints": 24,
+        "maxActionPoints": 44,
         "briefingImageUrl": "/images/camping_murder/briefingImage.webp",
         "isLocked": false
       },
       {
         "id": "broadcast_murder",
         "title": "꺼지지 않는 ON AIR",
-        "maxActionPoints": 28,
+        "maxActionPoints": 46,
         "briefingImageUrl": "/images/broadcast_murder/briefingImage.webp",
         "isLocked": false
       },
       {
         "id": "themepark_murder",
         "title": "마지막 손인사",
-        "maxActionPoints": 28,
+        "maxActionPoints": 40,
         "briefingImageUrl": "/images/themepark_murder/briefingImage.webp",
-        "isLocked": true
+        "isLocked": false
       }
     ]
   },

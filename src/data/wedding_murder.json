@@ -1,7 +1,7 @@
 {
   "id": "wedding_murder",
   "title": "창백한 부케",
-  "maxActionPoints": 22,
+  "maxActionPoints": 40,
   "briefingImageUrl": "/images/wedding_murder/briefingImage.webp",
   "bgmUrl": "/audio/wedding_bgm.mp3",
   "summary": "본식을 30분 앞두고 잠긴 대기실에서 신부가 사망했다. 현장은 외부 침입이 불가능한 완벽한 밀실이었다. (사망 추정 시간: 11:05 ~ 11:15)",
@@ -14,6 +14,28 @@
       "desc": "완벽해 보이는 벤처 사업가. 본식을 앞두고 극도로 초조해 보인다.",
       "selfIntro": "안녕하세요... 하늘이의 예비 남편 김신랑입니다.\n솔직히 아직 상황이 실감이 안 납니다. 조금 전까지 멀쩡히 웃고 있었는데... 갑자기 이런 일이 벌어질 줄 누가 알았겠습니까.\n경찰 조사든 뭐든 협조하겠습니다. 범인은 꼭 잡아야죠.",
       "wrongEvidenceResponse": "그걸 왜 저한테 보여주시는 겁니까?\n전혀 관련 없어 보이는데요.",
+      "relations": [
+        {
+          "targetId": "suspect2",
+          "summary": "예식을 맡은 웨딩 플래너",
+          "desc": "이번 결혼식의 진행과 신부 대기실 준비를 맡은 실무 담당자다. 예식 일정, 하객 동선, 신부 입장 준비를 조율하는 관계다."
+        },
+        {
+          "targetId": "suspect3",
+          "summary": "신부의 절친이자 동업자",
+          "desc": "신부와 오래 알고 지낸 친구이자 쇼핑몰을 함께 운영한 동업자다. 결혼 이후에도 신부 곁에 남을 가까운 지인이다."
+        },
+        {
+          "targetId": "suspect4",
+          "summary": "신부의 전 남친",
+          "desc": "신부가 과거에 만났던 사람이다. 결혼식 자리에서는 불편할 수밖에 없는 과거 관계의 인물이다."
+        },
+        {
+          "targetId": "suspect5",
+          "summary": "신부의 남동생",
+          "desc": "신부의 친동생이자 결혼을 통해 가족으로 엮이게 될 예비 처남이다. 신부 쪽 가족으로서 예식에 참석한 인물이다."
+        }
+      ],
       "illustration": {
         "interrogationUrl": "/images/wedding_murder/s1_interrogation.webp",
         "frontFullUrl": "/images/wedding_murder/s1_front_full.webp",
@@ -56,6 +78,28 @@
       "desc": "예식 전체를 총괄하는 웨딩 플래너. 냉정할 만큼 침착하다.",
       "selfIntro": "진정하세요. 이번 예식 총괄 박플래너입니다.\n커리어에 이런 끔찍한 오점이 남다니... 저는 밖에서 드레스 이모님이랑 동선 체크하느라 정신이 없었습니다.",
       "wrongEvidenceResponse": "탐정님, 전 지금 수습해야 할 일이 산더미입니다. 확실한 증거가 아니면 시간 뺏지 말아주시죠.",
+      "relations": [
+        {
+          "targetId": "suspect1",
+          "summary": "예식 당사자인 신랑",
+          "desc": "이번 결혼식의 주인공 중 한 명이다. 예식 진행을 위해 로비 인사, 입장 순서, 대기실 동선을 계속 맞춰야 하는 상대다."
+        },
+        {
+          "targetId": "suspect3",
+          "summary": "신부와 가까운 주요 하객",
+          "desc": "신부의 가장 가까운 친구이자 결혼식에서 신부 곁을 자주 오가는 주요 하객이다. 신부 쪽 분위기와 요청 사항을 전달받을 수 있는 인물이다."
+        },
+        {
+          "targetId": "suspect4",
+          "summary": "명단 밖의 방문자",
+          "desc": "정식 하객이나 예식 관계자로 보기 어려운 방문자다. 현장 진행을 맡은 입장에서는 예식장 주변에 머무는 것만으로도 신경 쓰이는 인물이다."
+        },
+        {
+          "targetId": "suspect5",
+          "summary": "신부 쪽 가족 하객",
+          "desc": "신부의 친동생이자 가족 하객이다. 가족석, 대기실 주변 동선, 예식 전 준비 과정에서 챙겨야 하는 신부 측 인물이다."
+        }
+      ],
       "illustration": {
         "interrogationUrl": "/images/wedding_murder/s2_interrogation.webp",
         "frontFullUrl": "/images/wedding_murder/s2_front_full.webp",
@@ -96,7 +140,29 @@
       "role": "신부의 베프",
       "desc": "눈물로 화장이 번진 신부의 가장 친한 친구. 감정 기복이 심해 보인다.",
       "selfIntro": "우리 하늘이가... (오열) 저는 하늘이랑 10년 지기 베프이자 쇼핑몰 공동 대표인 최베프예요.\n대체 누가 우리 불쌍한 하늘이한테 이런 짓을 한 거예요?!",
-      "wrongEvidenceResponse": "네? 그게 대체 무슨 소용인데요... 지금 저를 의심하시는 건가요? (훌쩍)",
+      "wrongEvidenceResponse": "네? 그게 대체 무슨 소용인데요... 지금 저를 의심하시는 건가요...?",
+      "relations": [
+        {
+          "targetId": "suspect1",
+          "summary": "친구의 예비 남편",
+          "desc": "오랜 친구인 신부와 결혼을 앞둔 사람이다. 친구의 인생에 깊게 들어오게 될 예비 배우자다."
+        },
+        {
+          "targetId": "suspect2",
+          "summary": "신부의 동창 플래너",
+          "desc": "신부와 학창 시절부터 알고 지낸 동창이자 이번 결혼식을 맡은 웨딩 플래너다. 친구의 결혼식 준비를 진행하는 실무 담당자다."
+        },
+        {
+          "targetId": "suspect4",
+          "summary": "친구의 전 남친",
+          "desc": "신부가 과거에 만났던 사람이다. 친구의 과거 연애사와 연결된 불편한 인물이다."
+        },
+        {
+          "targetId": "suspect5",
+          "summary": "친구의 남동생",
+          "desc": "신부의 친동생이다. 신부와 오래 가까이 지낸 만큼 예전부터 알고 지낸 가족 관계자다."
+        }
+      ],
       "illustration": {
         "interrogationUrl": "/images/wedding_murder/s3_interrogation.webp",
         "frontFullUrl": "/images/wedding_murder/s3_front_full.webp",
@@ -133,6 +199,28 @@
       "desc": "초췌한 모습으로 하객들 틈에 섞여 있는 불청객.",
       "selfIntro": "...정전남친입니다. 1년 전까지 하늘이랑 만났었습니다. \n초대받은 건 아니고... 할 말이 있어서 왔습니다. 하늘이가 절 피해서 숨어다녔거든요. 근데 제가 아주 수상한 놈을 봤습니다.",
       "wrongEvidenceResponse": "...그런 걸 저한테 왜 보여주시는 겁니까.\n전 처음 봅니다.",
+      "relations": [
+        {
+          "targetId": "suspect1",
+          "summary": "전 연인의 예비 남편",
+          "desc": "과거 연인이었던 신부와 결혼을 앞둔 사람이다. 신부의 현재 관계를 상징하는 인물이다."
+        },
+        {
+          "targetId": "suspect2",
+          "summary": "예식 현장 담당자",
+          "desc": "결혼식 현장과 하객 동선을 관리하는 웨딩 플래너다. 예식장 안에 머무는 동안 마주칠 수밖에 없는 현장 담당자다."
+        },
+        {
+          "targetId": "suspect3",
+          "summary": "전 연인의 절친한 친구",
+          "desc": "신부의 오랜 친구다. 신부의 과거와 현재를 잘 알고 있을 가까운 주변인이다."
+        },
+        {
+          "targetId": "suspect5",
+          "summary": "전 연인의 남동생",
+          "desc": "신부의 친동생이다. 과거 신부와 만날 때부터 얼굴을 알고 있었을 가족 관계자다."
+        }
+      ],
       "illustration": {
         "interrogationUrl": "/images/wedding_murder/s4_interrogation.webp",
         "frontFullUrl": "/images/wedding_murder/s4_front_full.webp",
@@ -167,6 +255,28 @@
       "desc": "불안한 눈빛으로 주변을 두리번거리는 철부지 동생.",
       "selfIntro": "누나가... 우리 누나가 죽다니요! 저 어떡합니까 이제...\n저는 하늘이 누나 친동생 이동생입니다. 누가 감히 우리 가족한테 이런 짓을 한 겁니다!",
       "wrongEvidenceResponse": "아니, 그건 진짜 저랑 상관없습니다!\n왜 자꾸 저만 의심하세요...",
+      "relations": [
+        {
+          "targetId": "suspect1",
+          "summary": "누나의 예비 남편",
+          "desc": "누나와 결혼을 앞둔 사람이다. 결혼이 성사되면 가족으로 엮이게 될 예비 매형이다."
+        },
+        {
+          "targetId": "suspect2",
+          "summary": "결혼식 담당 플래너",
+          "desc": "누나의 결혼식 진행을 맡은 웨딩 플래너다. 가족 하객의 동선과 예식 절차를 안내하는 현장 담당자다."
+        },
+        {
+          "targetId": "suspect3",
+          "summary": "누나의 오래된 친구",
+          "desc": "누나와 오랫동안 가깝게 지낸 친구다. 누나를 통해 예전부터 알고 지낸 가까운 지인이다."
+        },
+        {
+          "targetId": "suspect4",
+          "summary": "누나의 전 남친",
+          "desc": "누나가 과거에 만났던 사람이다. 가족 입장에서는 편하게 대하기 어려운 과거 관계의 인물이다."
+        }
+      ],
       "illustration": {
         "interrogationUrl": "/images/wedding_murder/s5_interrogation.webp",
         "frontFullUrl": "/images/wedding_murder/s5_front_full.webp",

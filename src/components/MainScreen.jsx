@@ -77,7 +77,7 @@ const MainScreen = ({ onSelectScenario, onBack, onOpenSettings, onViewTruth }) =
                   style={{ backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 10px, #ffffff 10px, #ffffff 11px)' }}
                 />
                 
-                <div className="relative z-10 flex flex-col items-start gap-1.5 min-w-0 pr-4 text-left">
+                <div className="relative z-10 flex-1 flex flex-col items-start gap-1.5 min-w-0 pr-2 text-left">
                   <div className="flex items-center gap-2">
                     <span className="text-amber-500 font-black text-[10px] tracking-[0.2em] bg-amber-950/40 px-2 py-0.5 rounded border border-amber-900/50 shadow-inner">
                       CASE FILE {String(seasonNumber).padStart(2, '0')}
@@ -88,9 +88,12 @@ const MainScreen = ({ onSelectScenario, onBack, onOpenSettings, onViewTruth }) =
                       </span>
                     )}
                   </div>
-                  <span className="text-white font-black text-xl truncate w-full tracking-tight drop-shadow-md group-hover:text-amber-50 transition-colors">
+                  
+                  {/* 2. 폰트를 text-xl -> text-lg로 살짝 줄이고, 다시 truncate 추가 */}
+                  <span className="text-white font-black text-lg truncate w-full tracking-tight drop-shadow-md group-hover:text-amber-50 transition-colors">
                     {seasonTitle}
                   </span>
+
                 </div>
 
                 <div className="relative z-10 flex flex-col items-end gap-2 shrink-0">
