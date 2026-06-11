@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Joyride } from 'react-joyride'; 
 import InterrogationView from './InterrogationView';
 import DeductionView from './DeductionView';
@@ -106,11 +106,13 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings, isTruthMode }) => {
   // ⭐ [새로 추가된 관계도 로직] 어떤 인물이 선택되었는지 기억하는 State
   const [selectedRelationId, setSelectedRelationId] = useState(null);
 
+  const scrollRef = useRef(null);
+
   const [tourRun, setTourRun] = useState(false);
   const [tourSteps] = useState([
     { target: 'body', content: '🕵️‍♂️ 탐정님, 사건 현장에 오신 것을 환영합니다! [다음]을 눌러 기본 사용법을 숙지하세요.', placement: 'center', disableBeacon: true },
-    { target: '.tutorial-tab-relationship', content: '🕸️ 인물 관계망 탭입니다. 용의자들이 서로를 어떻게 생각하는지 파악하여 범행 동기를 추론하세요.', placement: 'top', disableBeacon: true },
     { target: '.tutorial-tab-interrogation', content: '💬 용의자 심문 탭입니다. 사건 관계자들의 알리바이를 캐내고 진술 단서를 획득하세요.', placement: 'top', disableBeacon: true },
+    { target: '.tutorial-tab-relationship', content: '🕸️ 인물 관계망 탭입니다. 용의자들이 서로를 어떻게 생각하는지 파악하여 범행 동기를 추론하세요.', placement: 'top', disableBeacon: true },
     { target: '.tutorial-tab-investigation', content: '🔍 현장 조사 탭입니다. 사건 현장을 수색하여 물증과 증거를 찾아낼 수 있습니다.', placement: 'top', disableBeacon: true },
     { target: '.tutorial-tab-deduction', content: '⚖️ 사건 종결 탭입니다. 단서가 모두 모였다면 정확한 범인과 흉기를 지목하세요.', placement: 'top', disableBeacon: true },
     { target: '.tutorial-icon-inventory', content: '💼 단서함 가방입니다. 수집한 모든 진술과 물증 리스트를 한눈에 모아볼 수 있습니다.', placement: 'bottom', disableBeacon: true },
@@ -143,6 +145,23 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings, isTruthMode }) => {
       }, 600); 
     }
   }, []);
+
+  useEffect(() => {
+    // 새로운 탭의 화면(DOM)이 그려질 시간을 아주 잠깐(0.01초) 벌어줌
+    setTimeout(() => {
+      // 1. <main> 태그가 스크롤 주체일 경우 강제 초기화
+      if (scrollRef.current) {
+        scrollRef.current.scrollTop = 0;
+      }
+      
+      // 2. 앱(브라우저) 전체 화면이 스크롤 주체일 경우 강제 초기화
+      window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: 'instant' // 부드럽게 올라가는 애니메이션 없이 즉시 팍! 올림
+      });
+    }, 10); 
+  }, [activeTab]);
 
   const handleJoyrideCallback = (data) => {
     const { status, action } = data;
@@ -365,7 +384,7 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings, isTruthMode }) => {
         </div>
       </header>
 
-      <main className="flex-1 overflow-y-auto p-4 pb-24">
+      <main ref={scrollRef} className="flex-1 overflow-y-auto p-4 pb-24">
         {/* 기존 탭 1, 2, 3은 그대로 유지 */}
         {activeTab === 'briefing' && (
           <div className="animate-fadeIn space-y-6">
@@ -381,6 +400,27 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings, isTruthMode }) => {
               <p className="text-sm text-neutral-200 leading-loose whitespace-pre-wrap">{data.desc}</p>
             </div>
             <button onClick={() => { playSfx(); setActiveTab('interrogation'); }} className="w-full py-4 bg-neutral-200 text-black font-black rounded-xl shadow-lg mt-4">용의자 심문 시작하기</button>
+          </div>
+        )}
+
+        {activeTab === 'interrogation' && (
+          <div className="animate-fadeIn">
+            <h2 className="text-xl font-bold mb-6">💬 용의자 심문</h2>
+            <div className="grid grid-cols-1 gap-3">
+              {data.suspects.map((suspect, index) => (
+                <button key={suspect.id} onClick={() => { playSfx(); setSelectedSuspect(suspect); }} className="w-full bg-neutral-800 p-4 rounded-xl flex items-center gap-4 border border-neutral-700">
+                  <div className="w-14 h-14 shrink-0 bg-neutral-900 rounded-lg border border-neutral-600 flex flex-col items-center justify-center relative overflow-hidden">
+                    <span className="text-[7px] text-neutral-500 font-black mt-1">SUSPECT</span>
+                    <span className="text-xl text-red-600/90 font-black mt-0.5">{String(index + 1).padStart(2, '0')}</span>
+                  </div>
+                  <div className="text-left flex-1">
+                    <div className="font-bold text-white text-lg">{suspect.name}</div>
+                    <div className="text-xs text-amber-500 font-bold mb-1">{suspect.role}</div>
+                    <div className="text-xs text-neutral-400 line-clamp-2">{suspect.desc}</div>
+                  </div>
+                </button>
+              ))}
+            </div>
           </div>
         )}
 
@@ -452,27 +492,6 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings, isTruthMode }) => {
           </div>
         )}
 
-        {activeTab === 'interrogation' && (
-          <div className="animate-fadeIn">
-            <h2 className="text-xl font-bold mb-6">💬 용의자 심문</h2>
-            <div className="grid grid-cols-1 gap-3">
-              {data.suspects.map((suspect, index) => (
-                <button key={suspect.id} onClick={() => { playSfx(); setSelectedSuspect(suspect); }} className="w-full bg-neutral-800 p-4 rounded-xl flex items-center gap-4 border border-neutral-700">
-                  <div className="w-14 h-14 shrink-0 bg-neutral-900 rounded-lg border border-neutral-600 flex flex-col items-center justify-center relative overflow-hidden">
-                    <span className="text-[7px] text-neutral-500 font-black mt-1">SUSPECT</span>
-                    <span className="text-xl text-red-600/90 font-black mt-0.5">{String(index + 1).padStart(2, '0')}</span>
-                  </div>
-                  <div className="text-left flex-1">
-                    <div className="font-bold text-white text-lg">{suspect.name}</div>
-                    <div className="text-xs text-amber-500 font-bold mb-1">{suspect.role}</div>
-                    <div className="text-xs text-neutral-400 line-clamp-2">{suspect.desc}</div>
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
         {activeTab === 'investigation' && (
           <div className="animate-fadeIn">
             <h2 className="text-xl font-bold mb-6">🔍 현장 조사</h2>
@@ -499,15 +518,15 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings, isTruthMode }) => {
           <button onClick={() => { playSfx(); setActiveTab('briefing'); }} className={`flex-1 py-4 flex flex-col items-center justify-center transition-colors ${activeTab === 'briefing' ? 'text-white bg-neutral-900' : 'text-neutral-500'}`}>
               <span className="text-xl mb-1">📋</span><span className="text-[10px] font-bold">사건 개요</span>
           </button>
-
-          {/* ⭐ [새로 추가된 관계도 로직] 하단 네비게이션 탭 버튼 추가 (퍼플 컬러) */}
-          <button onClick={() => { playSfx(); setActiveTab('relationship'); }} className={`tutorial-tab-relationship flex-1 py-4 flex flex-col items-center justify-center transition-colors ${activeTab === 'relationship' ? 'text-purple-400 bg-neutral-900' : 'text-neutral-500'}`}>
-              <span className="text-xl mb-1">🕸️</span><span className="text-[10px] font-bold">인물 관계</span>
-          </button>
           
           <button onClick={() => { playSfx(); setActiveTab('interrogation'); }} className={`tutorial-tab-interrogation flex-1 py-4 flex flex-col items-center justify-center transition-colors ${activeTab === 'interrogation' ? 'text-amber-400 bg-neutral-900' : 'text-neutral-500'}`}>
               <span className="text-xl mb-1">💬</span><span className="text-[10px] font-bold">심문</span>
           </button>
+
+          <button onClick={() => { playSfx(); setActiveTab('relationship'); }} className={`tutorial-tab-relationship flex-1 py-4 flex flex-col items-center justify-center transition-colors ${activeTab === 'relationship' ? 'text-purple-400 bg-neutral-900' : 'text-neutral-500'}`}>
+              <span className="text-xl mb-1">🕸️</span><span className="text-[10px] font-bold">인물 관계</span>
+          </button>
+
           <button onClick={() => { playSfx(); setActiveTab('investigation'); }} className={`tutorial-tab-investigation flex-1 py-4 flex flex-col items-center justify-center transition-colors ${activeTab === 'investigation' ? 'text-blue-400 bg-neutral-900' : 'text-neutral-500'}`}>
               <span className="text-xl mb-1">🔍</span><span className="text-[10px] font-bold">조사</span>
           </button>
