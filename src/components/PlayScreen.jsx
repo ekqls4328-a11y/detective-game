@@ -438,7 +438,7 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings, isTruthMode }) => {
                   <div className="text-left flex-1">
                     <div className="font-bold text-white text-lg">{suspect.name}</div>
                     <div className="text-xs text-amber-500 font-bold mb-1">{suspect.role}</div>
-                    <div className="text-xs text-neutral-400 line-clamp-2">{suspect.desc}</div>
+                    <div className="text-xs text-neutral-400 leading-relaxed break-keep mt-1">{suspect.desc}</div>
                   </div>
                 </button>
               ))}

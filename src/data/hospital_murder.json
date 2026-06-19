@@ -1,7 +1,7 @@
 {
   "id": "hospital_murder",
   "title": "자정의 회진",
-  "maxActionPoints": 50,
+  "maxActionPoints": 55,
   "briefingImageUrl": "/images/hospital_murder/briefingImage.webp",
   "bgmUrl": "/audio/hospital_bgm.mp3",
   "summary": "철거를 하루 앞둔 폐병원에서 심령 생방송이 진행되던 밤, 307호 격리실 안에서 고발 유튜버 한고발이 숨진 채 발견되었다. 사건 직전, 병원 스피커에서는 오래전 사라진 간호사의 회진 방송이 흘러나오고 있었다. (사망 추정 시간: 00:05 ~ 00:20)",
