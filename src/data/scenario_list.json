@@ -42,14 +42,21 @@
   },
   {
     "season": "02.",
-    "seasonTitle": "업데이트 준비 중",
+    "seasonTitle": "어둠의 잔향",
     "scenarios": [
       {
-        "id": "Locked",
-        "title": "기밀 문서 (Classified)",
-        "maxActionPoints": 17,
-        "briefingImageUrl": "",
-        "isLocked": true
+        "id": "hospital_murder",
+        "title": "자정의 회진",
+        "maxActionPoints": 50,
+        "briefingImageUrl": "/images/hospital_murder/briefingImage.webp",
+        "isLocked": false
+      },
+      {
+        "id": "dormitory_murder",
+        "title": "새벽 2시의 점호",
+        "maxActionPoints": 55,
+        "briefingImageUrl": "/images/dormitory_murder/briefingImage.webp",
+        "isLocked": false
       }
     ]
   }

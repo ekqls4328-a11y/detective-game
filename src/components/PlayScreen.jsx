@@ -14,6 +14,8 @@ import apartment_murder from '../data/apartment_murder.json';
 import camping_murder from '../data/camping_murder.json';
 import broadcast_murder from '../data/broadcast_murder.json';
 import themepark_murder from '../data/themepark_murder.json';
+import hospital_murder from '../data/hospital_murder.json';
+import dormitory_murder from '../data/dormitory_murder.json';
 import AdConfirmModal from './AdConfirmModal';
 
 const scenarioDB = {
@@ -21,7 +23,9 @@ const scenarioDB = {
   "apartment_murder": apartment_murder,
   "camping_murder": camping_murder,
   "broadcast_murder": broadcast_murder,
-  "themepark_murder": themepark_murder
+  "themepark_murder": themepark_murder,
+  "hospital_murder": hospital_murder,
+  "dormitory_murder": dormitory_murder
 };
 
 // ⭐ [가이드 추가] 툴팁 전체 단계 수를 6 -> 7로 변경
@@ -100,11 +104,16 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings, isTruthMode }) => {
   const [isGlobalInventoryOpen, setIsGlobalInventoryOpen] = useState(false);
   const [isNoteOpen, setIsNoteOpen] = useState(false);
   const [showApAdModal, setShowApAdModal] = useState(false); 
-  const [isAdLoading, setIsAdLoading] = useState(true); 
   const [isCaseSolved, setIsCaseSolved] = useState(false); 
+
+  // ⭐ [수정됨] isAdLoading 불리언을 loadingType('scenario' | 'ad' | null)으로 변경
+  const [loadingType, setLoadingType] = useState('scenario');
 
   // ⭐ [새로 추가된 관계도 로직] 어떤 인물이 선택되었는지 기억하는 State
   const [selectedRelationId, setSelectedRelationId] = useState(null);
+
+  // ⭐ 철수 방어 모달 State
+  const [showExitModal, setShowExitModal] = useState(false);
 
   const scrollRef = useRef(null);
 
@@ -147,18 +156,14 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings, isTruthMode }) => {
   }, []);
 
   useEffect(() => {
-    // 새로운 탭의 화면(DOM)이 그려질 시간을 아주 잠깐(0.01초) 벌어줌
     setTimeout(() => {
-      // 1. <main> 태그가 스크롤 주체일 경우 강제 초기화
       if (scrollRef.current) {
         scrollRef.current.scrollTop = 0;
       }
-      
-      // 2. 앱(브라우저) 전체 화면이 스크롤 주체일 경우 강제 초기화
       window.scrollTo({
         top: 0,
         left: 0,
-        behavior: 'instant' // 부드럽게 올라가는 애니메이션 없이 즉시 팍! 올림
+        behavior: 'instant' 
       });
     }, 10); 
   }, [activeTab]);
@@ -184,8 +189,11 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings, isTruthMode }) => {
           setIsNoteOpen(false);
         } else if (showApAdModal) {
           setShowApAdModal(false);
+        } else if (showExitModal) {
+          setShowExitModal(false);
         } else {
-          onBack();
+          // ⭐ 바로 나가는 대신 모달을 띄움
+          setShowExitModal(true);
         }
       });
     };
@@ -193,7 +201,7 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings, isTruthMode }) => {
     return () => {
       if (backButtonListener) backButtonListener.remove();
     };
-  }, [selectedSuspect, selectedLocation, isGlobalInventoryOpen, isNoteOpen, showApAdModal, onBack]);
+  }, [selectedSuspect, selectedLocation, isGlobalInventoryOpen, isNoteOpen, showApAdModal, showExitModal, onBack]);
 
   useEffect(() => {
     const gameState = { activeTab, actionPoints, inventory, viewedClues, deductionLife };
@@ -205,7 +213,6 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings, isTruthMode }) => {
     setData(newData);
     const saved = localStorage.getItem(SAVE_KEY);
     
-    // ⭐ [새로 추가된 관계도 로직] 탭 진입 시 기본 포커스를 '피해자(victim)'로 자동 세팅
     if (newData.victim) {
       setSelectedRelationId(newData.victim.id);
     } else if (newData.suspects && newData.suspects.length > 0) {
@@ -248,7 +255,7 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings, isTruthMode }) => {
   useEffect(() => {
     const playIntroAd = async () => {
       if (isTruthMode) {
-        setIsAdLoading(false);
+        setLoadingType(null);
         return; 
       }
       try {
@@ -258,14 +265,17 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings, isTruthMode }) => {
       } catch (error) {
         console.log("전면 광고 호출 실패:", error);
       } finally {
-        setIsAdLoading(false); 
+        setLoadingType(null); 
       }
     };
     playIntroAd();
   }, [scenarioId, isTruthMode]); 
 
+  // ⭐ [수정됨] 행동력 광고 팝업 로직 완벽 분리
   const handleApAdConfirm = async () => {
-    setShowApAdModal(false);
+    // 여기서 모달 안 끔! 
+    setLoadingType('ad');
+
     try {
       await AdMob.prepareRewardVideoAd({
         adId: 'ca-app-pub-2340338162252761/7588593433', 
@@ -279,19 +289,27 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings, isTruthMode }) => {
           count: adStatus.count + 1 
         }));
         const rechargeAmount = Math.ceil((data.maxActionPoints || 3) / 2); 
+        
+        // ⭐ 보상 받을 때 행동력 채우고 팝업 끄기
         setActionPoints(rechargeAmount);
+        setShowApAdModal(false); 
       });
 
       const dismissListener = await AdMob.addListener(RewardAdPluginEvents.Dismissed, () => {
+        // ⭐ 중간에 껐을 때도 팝업 끄기
+        setShowApAdModal(false); 
         rewardListener.remove();
         dismissListener.remove();
       });
-
+      
+      setLoadingType(null); // 로딩 화면 끄기
       await AdMob.showRewardVideoAd();
 
     } catch (error) {
       console.error('광고 호출 실패:', error);
-      alert("광고를 불러올 수 없습니다. 인터넷 연결을 확인해 주세요.");
+      setLoadingType(null);
+      setShowApAdModal(false); // 에러 시에도 팝업 끄기
+      alert("외부 통신망과 연결할 수 없습니다. 잠시 후 다시 시도해 주세요.");
     }
   };
 
@@ -320,23 +338,29 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings, isTruthMode }) => {
   const handleRemoveClue = (clueId) => setInventory((prev) => prev.filter(id => id !== clueId));
   const markClueAsViewed = (clueId) => setViewedClues(prev => prev.includes(clueId) ? prev : [...prev, clueId]);
 
-  if (isAdLoading) {
+  // ⭐ [수정됨] 조건부 로딩 화면 렌더링
+  if (loadingType) {
     return (
       <div className="min-h-screen bg-neutral-950 flex flex-col items-center justify-center p-6 space-y-8">
         <div className="relative w-20 h-20 flex items-center justify-center">
           <div className="absolute inset-0 border-4 border-neutral-800 rounded-full"></div>
           <div className="absolute inset-0 border-4 border-amber-600 rounded-full border-t-transparent animate-spin"></div>
-          <span className="text-3xl relative z-10 opacity-80 animate-pulse">🕵️‍♂️</span>
+          <span className="text-3xl relative z-10 opacity-80 animate-pulse">
+            {loadingType === 'ad' ? '📡' : '🕵️‍♂️'}
+          </span>
         </div>
         <div className="text-center animate-pulse">
-          <h2 className="text-white font-black text-xl mb-2 tracking-widest text-shadow-md">사건 파일 동기화 중...</h2>
-          <p className="text-amber-600/80 text-sm font-bold tracking-widest">기밀 데이터 접근 권한 확인</p>
+          <h2 className="text-white font-black text-xl mb-2 tracking-widest text-shadow-md">
+            {loadingType === 'ad' ? '외부 통신망 연결 중...' : '사건 파일 동기화 중...'}
+          </h2>
+          <p className="text-amber-600/80 text-sm font-bold tracking-widest">
+            {loadingType === 'ad' ? '수사 지원(행동력)을 요청하고 있습니다' : '기밀 데이터 접근 권한 확인'}
+          </p>
         </div>
       </div>
     );
   }
 
-  // ⭐ [새로 추가된 관계도 로직] 피해자와 용의자를 하나로 합친 배열 생성 (그리드 렌더링용)
   const allCharacters = [data.victim, ...(data.suspects || [])].filter(Boolean);
 
   return (
@@ -345,7 +369,6 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings, isTruthMode }) => {
       <Joyride
         steps={tourSteps}
         run={tourRun}
-        // ... (생략 없이 기존과 동일)
         continuous={true}
         showSkipButton={true}
         disableOverlayClose={true}
@@ -367,7 +390,7 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings, isTruthMode }) => {
       </button>
 
       <header className={`sticky top-0 z-20 border-b border-neutral-800 p-3 flex justify-between items-center gap-2 shadow-md transition-colors ${actionPoints === 0 ? 'bg-red-955' : 'bg-neutral-950'}`}>
-        <button onClick={() => { playSfx(); onBack(); }} className="text-neutral-400 hover:text-white font-bold text-sm whitespace-nowrap shrink-0">&lt; 철수</button>
+        <button onClick={() => { playSfx(); setShowExitModal(true); }} className="text-neutral-400 hover:text-white font-bold text-sm whitespace-nowrap shrink-0">&lt; 철수</button>
         <h1 className="text-sm font-black truncate flex-1 text-center text-white min-w-0">{data.title}</h1>
         <div className="flex items-center gap-2 shrink-0">
           <button onClick={() => { playSfx(); onOpenSettings(); }} className="w-8 h-8 bg-neutral-800 rounded-full border border-neutral-600 flex items-center justify-center hover:bg-neutral-700"><span className="text-sm">⚙️</span></button>
@@ -385,7 +408,6 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings, isTruthMode }) => {
       </header>
 
       <main ref={scrollRef} className="flex-1 overflow-y-auto p-4 pb-24">
-        {/* 기존 탭 1, 2, 3은 그대로 유지 */}
         {activeTab === 'briefing' && (
           <div className="animate-fadeIn space-y-6">
             <div className="w-full h-48 bg-neutral-800 rounded-xl overflow-hidden border border-neutral-700 relative">
@@ -424,12 +446,9 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings, isTruthMode }) => {
           </div>
         )}
 
-        {/* ⭐ [새로 추가된 관계도 로직] 탭 5: 인물 관계망 */}
         {activeTab === 'relationship' && (
           <div className="animate-fadeIn">
             <h2 className="text-xl font-bold mb-6">🕸️ 인물 관계망</h2>
-            
-            {/* 알약 형태 인물 선택 그리드 (피해자 제외, 이름만 출력) */}
             <div className="flex flex-wrap gap-2 mb-8 bg-neutral-950 p-4 rounded-2xl border border-neutral-800">
               {data.suspects.map(person => (
                 <button
@@ -446,17 +465,14 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings, isTruthMode }) => {
               ))}
             </div>
 
-            {/* 선택된 인물을 향한 관계 데이터 렌더링 */}
             <div className="space-y-3">
               <div className="text-xs text-neutral-500 font-bold mb-4 px-1">
                 해당 인물이 다른 사람들을 어떻게 생각하는지 보여줍니다.
               </div>
               
               {(() => {
-                // 1. 현재 선택된 용의자 객체 찾기
                 const selectedPerson = data.suspects.find(s => s.id === selectedRelationId);
                 
-                // 2. 팩트 체크: 선택된 인물이 없거나, 기록된 관계(relations)가 없을 경우 빈 화면 표시
                 if (!selectedPerson || !selectedPerson.relations || selectedPerson.relations.length === 0) {
                   return (
                     <div className="bg-neutral-900 border border-neutral-800 p-8 rounded-xl text-center flex flex-col items-center justify-center">
@@ -466,12 +482,8 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings, isTruthMode }) => {
                   );
                 }
 
-                // 3. 선택된 인물의 relations 배열을 돌면서 렌더링
                 return selectedPerson.relations.map((rel) => {
-                  // 대상을 향한 ID(targetId)를 통해 피해자나 다른 용의자의 '이름'을 찾아옴
                   const targetPerson = allCharacters.find(p => p.id === rel.targetId);
-                  
-                  // 만약 JSON에 타겟 ID를 잘못 적었을 경우 에러 방지
                   if (!targetPerson) return null;
 
                   return (
@@ -512,6 +524,36 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings, isTruthMode }) => {
           <DeductionView isTruthMode={isTruthMode} scenarioData={data} inventory={inventory} actionPoints={actionPoints} deductionLife={deductionLife} onFail={() => setDeductionLife(prev => Math.max(0, prev - 1))} onReset={clearProgress} onAdRevive={() => setDeductionLife(1)} onSuccess={() => setIsCaseSolved(true)} />
         )}
       </main>
+      
+      {/* ⭐ 철수 확인 경고 모달 */}
+      {showExitModal && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 p-4">
+          <div className="bg-neutral-900 border border-neutral-700 rounded-2xl w-full max-w-sm p-6 shadow-2xl animate-fadeIn">
+            <div className="flex flex-col items-center text-center">
+              <span className="text-4xl mb-4">🚨</span>
+              <h3 className="text-xl font-black text-white mb-2">정말 현장에서 철수하시겠습니까?</h3>
+              <p className="text-neutral-400 text-sm leading-relaxed mb-6">
+                지금 철수하면 진행 중인 <span className="text-red-500 font-bold">수사 기록과 모은 단서가 모두 초기화</span>됩니다.
+              </p>
+              
+              <div className="flex gap-3 w-full">
+                <button 
+                  onClick={() => setShowExitModal(false)}
+                  className="flex-1 py-3 bg-neutral-800 hover:bg-neutral-700 text-white font-bold rounded-xl transition-colors border border-neutral-600"
+                >
+                  수사 계속하기
+                </button>
+                <button 
+                  onClick={() => { playSfx(); clearProgress(); onBack(); }}
+                  className="flex-1 py-3 bg-red-600/20 hover:bg-red-600/40 text-red-500 font-bold rounded-xl transition-colors border border-red-900/50"
+                >
+                  철수하기
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {actionPoints > 0 && !isCaseSolved && (
         <nav className="fixed bottom-0 w-full bg-neutral-950 border-t border-neutral-800 flex pb-safe z-10">

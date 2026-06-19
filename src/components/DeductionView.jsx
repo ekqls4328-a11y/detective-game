@@ -29,19 +29,16 @@ const CustomTooltip = ({ index, step, backProps, closeProps, primaryProps, toolt
 
 // 💡 2. 메인 DeductionView 컴포넌트
 const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, onFail, onReset, onAdRevive, onSuccess, isTruthMode }) => {
-  // 💡 상태 관리
-  const [answers, setAnswers] = useState({}); // 유저가 선택한 정답들
-  const [result, setResult] = useState(isTruthMode ? 'success' : 'none'); // 현재 뷰 상태 (none, fail, gameover, success)
-  const [accuracy, setAccuracy] = useState(0); // 추리 일치율 (%)
+  const [answers, setAnswers] = useState({}); 
+  const [result, setResult] = useState(isTruthMode ? 'success' : 'none'); 
+  const [accuracy, setAccuracy] = useState(0); 
 
-  // 광고 및 부활 관련 상태
   const [showLifeAdModal, setShowLifeAdModal] = useState(false);
   const [hasUsedAdRevive, setHasUsedAdRevive] = useState(false); 
 
   const { playSfx } = useAudio();
-  const topRef = useRef(null); // 결과 화면 전환 시 스크롤을 맨 위로 올리기 위한 Ref
+  const topRef = useRef(null); 
 
-  // 💡 3. 튜토리얼 (Joyride) 설정
   const TUTORIAL_KEY = 'crime_game_deduction_tutorial_cleared';
   const [tourRun, setTourRun] = useState(false);
   const [tourSteps] = useState([
@@ -68,18 +65,15 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
     } 
   };
 
-  // 결과 창으로 넘어갈 때 스크롤 맨 위로 자동 이동
   useEffect(() => {
     if (result !== 'none' && topRef.current) {
       topRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   }, [result]);
 
-  // 💡 4. 데이터 가공 구역
   const questions = scenarioData.solution.questions || [];
   const truth = scenarioData.solution.crimeTruth;
 
-  // 장소 단서와 인물 단서를 하나로 합쳐서 유저가 가진(inventory) 단서만 필터링
   const myClues = (() => {
     const locationClues = scenarioData.locations?.flatMap(loc => 
       (loc.clues || []).map(clue => ({ ...clue, sourceName: loc.name }))
@@ -93,12 +87,10 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
     return inventory?.map(id => allPhysicalClues.find(c => c.id === id)).filter(Boolean) || [];
   })();
 
-  // 💡 5. 이벤트 핸들러 구역
   const handleSelectAnswer = (questionId, answerId) => {
     setAnswers(prev => ({ ...prev, [questionId]: answerId }));
   };
 
-  // 최종 추리 제출 버튼 클릭 시 로직
   const handleAccuse = () => {
     setTourRun(false);
     const questions = scenarioData.solution.questions;
@@ -107,7 +99,6 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
       return;
     }
     
-    // 정답 개수 체크 및 일치율 계산
     let correctCount = 0;
     questions.forEach(q => {
       if (answers[q.id] === q.answerId) {
@@ -118,11 +109,9 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
     const calculatedAccuracy = Math.floor((correctCount / questions.length) * 100);
     setAccuracy(calculatedAccuracy);
     
-    // 모든 질문을 맞췄는지 확인
     const isAllCorrect = questions.every(q => answers[q.id] === q.answerId);
     
     if (isAllCorrect) {
-      // 💡 클리어 데이터 로컬 스토리지에 저장
       const savedData = localStorage.getItem('cleared_scenarios');
       let clearedList = savedData ? JSON.parse(savedData) : [];
       
@@ -132,51 +121,35 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
       }
       
       if (onSuccess) onSuccess();
-      setResult('success'); // 진실 화면으로 렌더링 변경
+      setResult('success'); 
     } else {
-      onFail(); // PlayScreen의 deductionLife 차감 함수 호출
-      setResult('fail'); // 실패 화면으로 렌더링 변경
+      onFail(); 
+      setResult('fail'); 
     }
   };
 
-  // 실패 창에서 '다시 검토하기' 또는 '수사 결과 확인하기' 누를 때
   const handleFailNextStep = () => {
     playSfx();
     if (deductionLife <= 0) {
       if (!hasUsedAdRevive) {
-        setShowLifeAdModal(true); // 광고로 부활할 기회 제공
+        setShowLifeAdModal(true); 
       } else {
-        setResult('gameover'); // 이미 광고 썼으면 바로 게임 오버
+        setResult('gameover'); 
       }
     } else {
-      setResult('none'); // 기회 남았으면 다시 문제 푸는 화면으로 복귀
+      setResult('none'); 
     }
   };
 
-  // 💡 6. 추리 부활 광고 로직
   const handleLifeAdConfirm = async () => {
     setShowLifeAdModal(false);
-
-    // 🚨 [테스트용 치트키] 광고 호출 안 하고 무조건 통과!
-    /* -------- 👇 여기서부터 치트키 -------- */
-    // console.log("📺 [개발용 치트키] 추리 부활 광고 시청 스킵");
-    // alert("📺 [테스트 모드] 광고 시청을 스킵하고 마지막 추리 기회를 얻습니다!");
-    // setHasUsedAdRevive(true); 
-    // if (onAdRevive) onAdRevive(); 
-    // setResult('none'); 
-    /* -------- 👆 여기까지 치트키 -------- */
-
-    /* -------- 👇 정식 출시(또는 광고 띄워볼 때)용 진짜 애드몹 로직 --------
-       출시 전에는 위의 '치트키' 구역을 지우고, 아래 주석을 풀어서 사용해!
-*/
     try {
       await AdMob.prepareRewardVideoAd({
-        adId: 'ca-app-pub-2340338162252761/7968857068', // 정식 출시 땐 진짜 ID로 교체!
-        isTesting: false // 정식 출시 땐 false로 교체!
+        adId: 'ca-app-pub-2340338162252761/7968857068', 
+        isTesting: false 
       });
 
       const rewardListener = await AdMob.addListener(RewardAdPluginEvents.Rewarded, () => {
-        // 광고 시청 완료 시 부활 처리
         setHasUsedAdRevive(true); 
         if (onAdRevive) onAdRevive(); 
         setResult('none'); 
@@ -193,17 +166,13 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
       console.error("광고 재생 실패:", error);
       alert("광고를 불러오는 데 실패했습니다. 잠시 후 다시 시도해주세요.");
     }
-    /*------------------------------------------------------------------ */
   };
 
   const handleLifeAdCancel = () => {
     setShowLifeAdModal(false);
-    setResult('gameover'); // 광고 보기 거절 시 바로 게임 오버
+    setResult('gameover'); 
   };
 
-  // 💡 7. UI 렌더링 분기 (fail, gameover, success, default)
-
-  // 추리 실패 뷰
   if (result === 'fail') {
     return (
       <>
@@ -238,8 +207,6 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
             {deductionLife <= 0 ? '수사 결과 확인하기' : '다시 검토하기'}
           </button>
         </div>
-
-        {/* 💡 실패 시 나타나는 광고 부활 모달 */}
         {showLifeAdModal && (
           <AdConfirmModal type="fail" onConfirm={handleLifeAdConfirm} onCancel={handleLifeAdCancel} />
         )}
@@ -247,7 +214,6 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
     );
   }
 
-  // 완전 게임 오버 뷰
   if (result === 'gameover') {
     return (
       <div ref={topRef} className="animate-fadeIn fixed inset-0 z-[100] bg-black flex flex-col items-center justify-center p-10 text-center">
@@ -267,7 +233,7 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
     );
   }
 
-  // 추리 성공 (사건의 전말) 뷰
+  // ⭐ 추리 성공 (사건의 전말) 뷰 - 버그 픽스 완료!
   if (result === 'success') {
     return (
       <div ref={topRef} className="animate-fadeIn flex flex-col bg-neutral-900 rounded-3xl overflow-hidden border border-emerald-500/30 shadow-[0_0_50px_rgba(16,185,129,0.1)]">
@@ -285,18 +251,42 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
         </div>
 
         <div className="p-6 space-y-4">
-          <div className="bg-emerald-950/20 border border-emerald-900/50 p-5 rounded-2xl">
-            <p className="text-emerald-400 font-bold text-sm mb-4 leading-relaxed">
+          {/* ⭐ overflow-hidden 제거: 외부 안개 효과를 쓰지 않으므로 필요 없음 */}
+          <div className="bg-emerald-950/20 border border-emerald-900/50 p-5 rounded-2xl relative">
+            <p className="text-emerald-400 font-bold text-sm mb-4 leading-relaxed border-b border-emerald-900/50 pb-4">
               ✨ {scenarioData.solution.successMessage}
             </p>
-            <div className="space-y-3">
-              {truth.story.map((line, i) => (
-                <div key={i} className="flex gap-3">
-                  <span className="text-emerald-600 font-black text-sm mt-0.5">{i + 1}.</span>
-                  <p className="text-sm text-neutral-300 leading-relaxed">{line}</p>
-                </div>
-              ))}
+            
+            {/* 넷플릭스식 스크롤 박스 (max-h)는 유지 */}
+            <div 
+              className="max-h-[35vh] overflow-y-auto pr-2 pb-2 space-y-4 relative z-10" 
+              style={{ scrollbarWidth: 'thin', scrollbarColor: '#059669 transparent' }} 
+            >
+              <div className="relative border-l-2 border-emerald-900/50 ml-2 mt-2 space-y-4 pb-2">
+                {truth.story.map((line, i) => (
+                  <div key={i} className="relative pl-5 animate-fadeIn" style={{ animationFillMode: 'both', animationDelay: `${i * 0.1}s` }}>
+                    <div className="absolute -left-[7px] top-3 w-3 h-3 bg-emerald-950 border-2 border-emerald-500 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.6)] z-20"></div>
+                    
+                    {/* ⭐ 핵심: 타임라인 카드 디자인 수정 ( image_7.png 재현 ) */}
+                    <div className="bg-neutral-900/80 border border-emerald-900/30 rounded-2xl relative overflow-hidden group transition-all hover:bg-neutral-800 hover:border-emerald-600/50 shadow-lg">
+                      {/* ⭐ 개별 카드 하단 고정 그라데이션 오버레이 (텍스트 페이드아웃 효과) */}
+                      <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-neutral-900/90 via-neutral-900/60 to-transparent pointer-events-none group-hover:from-neutral-800 group-hover:via-neutral-800/60 rounded-b-2xl transition-all"></div>
+                      
+                      {/* 카드 내부 콘텐츠 */}
+                      <div className="p-4.5 space-y-2 relative z-10">
+                        <p className="text-sm text-neutral-300 leading-relaxed break-keep">
+                          <span className="text-emerald-500 font-black mr-2 text-shadow-sm">{i + 1}.</span>
+                          {line}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
+
+            {/* ⭐ 버그 원인: 박스 전체 하단 그라데이션 오버레이 날림! */}
+            {/* 이 부분이 살아있으면 스크롤 위치 상관없이 맨 밑을 덮어버려서 이상했음 */}
           </div>
 
           <button 
@@ -310,7 +300,6 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
     );
   }
 
-  // 기본 추리 폼 뷰 (result === 'none')
   return (
     <>
       <div className="animate-fadeIn pb-10">
@@ -366,7 +355,6 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
                <div className="w-1 h-4 bg-red-600 rounded-full"/> {q.title}
             </h3>
             
-            {/* 용의자 선택 질문 */}
             {q.type === 'suspect' && (
               <div className="grid grid-cols-2 gap-3">
                 {scenarioData.suspects.map(suspect => (
@@ -386,7 +374,6 @@ const DeductionView = ({ scenarioData, inventory, actionPoints, deductionLife, o
               </div>
             )}
 
-            {/* 단서 선택 질문 */}
             {q.type === 'clue' && (
               myClues.length > 0 ? (
                 <div className="grid grid-cols-3 gap-2">
