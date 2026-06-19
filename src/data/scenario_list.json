@@ -57,6 +57,13 @@
         "maxActionPoints": 55,
         "briefingImageUrl": "/images/dormitory_murder/briefingImage.webp",
         "isLocked": false
+      },
+      {
+        "id": "",
+        "title": "업데이트 준비중",
+        "maxActionPoints": 55,
+        "briefingImageUrl": "",
+        "isLocked": true
       }
     ]
   }
