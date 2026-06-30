@@ -3,7 +3,6 @@ import scenarioData from '../data/scenario_list.json';
 // AudioContext 임포트
 import { useAudio } from '../contexts/AudioContext';
 
-// 💡 onViewTruth 프롭스 추가 (사건의 전말 보기 클릭 시 App.jsx로 이벤트 전달)
 const MainScreen = ({ onSelectScenario, onBack, onOpenSettings, onViewTruth }) => {
   const [seasons, setSeasons] = useState(scenarioData);
   const [clearedScenarios, setClearedScenarios] = useState([]);
@@ -24,6 +23,36 @@ const MainScreen = ({ onSelectScenario, onBack, onOpenSettings, onViewTruth }) =
   const toggleSeason = (season) => {
     playSfx();
     setExpandedSeason(prev => (prev === season ? null : season));
+  };
+
+  // ⭐ [핵심 로직] 시나리오의 동적 잠금 여부를 판단하는 함수
+  const checkIsLocked = (seasonNumber, scenarioIndex, scenario) => {
+    // 1. [최우선] JSON 자체에 강제로 잠금(isLocked: true) 처리된 경우 무조건 잠금!
+    if (scenario.isLocked) {
+      return true;
+    }
+
+    // 2. 시즌 1, 2는 옴니버스: JSON이 잠겨있지 않다면 모두 오픈!
+    if (seasonNumber === "01." || seasonNumber === "02.") {
+      return false;
+    }
+
+    // 3. 시즌 3 연계 로직: JSON이 잠겨있지 않더라도 이전 사건을 안 깼다면 잠금!
+    if (seasonNumber === "03.") {
+      // 3-1. 첫 번째 사건은 무조건 오픈
+      if (scenarioIndex === 0) return false;
+
+      // 3-2. 두 번째 사건부터는 '바로 앞 사건' 클리어 여부 검사
+      const currentSeason = seasons.find(s => s.season === seasonNumber);
+      if (currentSeason && currentSeason.scenarios) {
+        const previousScenarioId = currentSeason.scenarios[scenarioIndex - 1].id;
+        // 앞 사건을 안 깼다면 잠금(True), 깼다면 해제(False)
+        return !clearedScenarios.includes(previousScenarioId);
+      }
+    }
+
+    // 아직 기획 안 된 미래 시즌은 기본적으로 잠금
+    return true; 
   };
 
   return (
@@ -80,7 +109,7 @@ const MainScreen = ({ onSelectScenario, onBack, onOpenSettings, onViewTruth }) =
                 <div className="relative z-10 flex-1 flex flex-col items-start gap-1.5 min-w-0 pr-2 text-left">
                   <div className="flex items-center gap-2">
                     <span className="text-amber-500 font-black text-[10px] tracking-[0.2em] bg-amber-950/40 px-2 py-0.5 rounded border border-amber-900/50 shadow-inner">
-                      CASE FILE {String(seasonNumber).padStart(2, '0')}
+                      CASE FILE {String(seasonNumber).replace('.', '').padStart(2, '0')}
                     </span>
                     {completedCount === seasonScenarios.length && (
                       <span className="text-yellow-400 text-[10px] font-black tracking-wider px-1.5 py-0.5 border border-yellow-500/50 rounded bg-yellow-900/30">
@@ -89,7 +118,6 @@ const MainScreen = ({ onSelectScenario, onBack, onOpenSettings, onViewTruth }) =
                     )}
                   </div>
                   
-                  {/* 2. 폰트를 text-xl -> text-lg로 살짝 줄이고, 다시 truncate 추가 */}
                   <span className="text-white font-black text-lg truncate w-full tracking-tight drop-shadow-md group-hover:text-amber-50 transition-colors">
                     {seasonTitle}
                   </span>
@@ -132,7 +160,10 @@ const MainScreen = ({ onSelectScenario, onBack, onOpenSettings, onViewTruth }) =
                 className={`transition-all duration-500 ease-in-out ${isExpanded ? 'max-h-[5000px] opacity-100' : 'max-h-0 opacity-0 overflow-hidden'}`}
               >
                 <div className="p-4 flex flex-col gap-6 bg-neutral-900/50">
-                  {seasonScenarios.map((scenario) => {
+                  {seasonScenarios.map((scenario, index) => {
+                    // ⭐ JSON의 고정 값이 아니라, 위에서 만든 동적 잠금 확인 함수 사용!
+                    const isScenarioLocked = checkIsLocked(seasonNumber, index, scenario);
+                    
                     const isCleared = clearedScenarios.includes(scenario.id);
                     const hasSavedData = !!localStorage.getItem(`crime_game_progress_${scenario.id}`);
                     
@@ -142,7 +173,7 @@ const MainScreen = ({ onSelectScenario, onBack, onOpenSettings, onViewTruth }) =
                         className={`
                           relative w-full bg-neutral-800 rounded-2xl p-5 flex flex-col
                           border border-neutral-700 shadow-lg transition-all duration-300
-                          ${scenario.isLocked ? 'opacity-60' : ''}
+                          ${isScenarioLocked ? 'opacity-60' : ''}
                         `}
                       >
                         
@@ -151,7 +182,7 @@ const MainScreen = ({ onSelectScenario, onBack, onOpenSettings, onViewTruth }) =
                             {scenario.title}
                           </h2>
                           
-                          {!scenario.isLocked && (
+                          {!isScenarioLocked && (
                             <div className="flex items-center gap-1 px-2 py-1 rounded border border-neutral-600 bg-neutral-900/50 text-neutral-400 shrink-0 mt-0.5">
                               <span className="text-[10px] text-amber-500">⚡</span>
                               <span className="text-[10px] font-bold tracking-widest mt-px">
@@ -178,7 +209,7 @@ const MainScreen = ({ onSelectScenario, onBack, onOpenSettings, onViewTruth }) =
                               src={scenario.briefingImageUrl} 
                               alt={scenario.title} 
                               className={`w-full h-full object-cover transition-all duration-500 ${
-                                scenario.isLocked ? 'blur-sm grayscale' : 'opacity-80'
+                                isScenarioLocked ? 'blur-sm grayscale' : 'opacity-80'
                               }`}
                             />
                           ) : (
@@ -187,36 +218,36 @@ const MainScreen = ({ onSelectScenario, onBack, onOpenSettings, onViewTruth }) =
                             </span>
                           )}
 
-                          {scenario.isLocked && (
+                          {isScenarioLocked && (
                             <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center backdrop-blur-[2px]">
                               <span className="text-3xl mb-2">🔒</span>
                               <span className="text-red-500 text-[10px] font-black tracking-[0.2em] animate-pulse">
                                 ACCESS DENIED
                               </span>
-                              {scenario.unlockCondition && (
-                                <span className="text-neutral-500 text-[9px] mt-2 font-bold">
-                                  {scenario.unlockCondition}
+                              {/* ⭐ 시즌 3 연계 사건이 잠겨있을 때만 문구 출력 */}
+                              {seasonNumber === "03." && scenarioIndex > 0 && (
+                                <span className="text-neutral-400 text-[10px] mt-3 font-bold bg-neutral-900/80 px-3 py-1 rounded-full border border-neutral-700">
+                                  ⚠️ 이전 사건을 먼저 해결하십시오
                                 </span>
                               )}
                             </div>
                           )}
 
-                          {!scenario.isLocked && (
+                          {!isScenarioLocked && (
                             <div className="absolute inset-0 bg-gradient-to-t from-neutral-950/80 via-transparent to-transparent pointer-events-none" />
                           )}
                         </div>
 
-                        {/* 💡 하단 버튼 액션 영역 (클리어 상태 최우선 분기) */}
+                        {/* 하단 버튼 액션 영역 */}
                         <div className="w-full z-10">
-                          {scenario.isLocked ? (
+                          {isScenarioLocked ? (
                             <button 
                               disabled
-                              className="w-full py-3.5 rounded-xl text-sm font-bold tracking-wide bg-neutral-700 text-neutral-500 cursor-not-allowed flex items-center justify-center"
+                              className="w-full py-3.5 rounded-xl text-sm font-bold tracking-wide bg-neutral-800 border border-neutral-700 text-neutral-500 cursor-not-allowed flex items-center justify-center gap-2"
                             >
-                              COMING SOON
+                              <span>🔒</span> 수사 권한 없음
                             </button>
                           ) : isCleared ? (
-                            // 💡 클리어한 사건일 경우 (전말 보기 버튼 활성화)
                             <div className="flex flex-col gap-2">
                               <button
                                 onClick={() => { playSfx(); onViewTruth(scenario.id); }}

@@ -59,8 +59,15 @@
         "isLocked": false
       },
       {
+        "id": "old_cinema_murder",
+        "title": "마지막 상영회",
+        "maxActionPoints": 60,
+        "briefingImageUrl": "/images/old_cinema_murder/briefingImage.webp",
+        "isLocked": false
+      },
+      {
         "id": "",
-        "title": "업데이트 준비중",
+        "title": "",
         "maxActionPoints": 55,
         "briefingImageUrl": "",
         "isLocked": true

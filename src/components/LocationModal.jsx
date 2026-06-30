@@ -31,7 +31,7 @@ const LocationModal = ({
   const TUTORIAL_KEY = 'crime_game_investigation_tutorial_cleared';
   const [tourRun, setTourRun] = useState(false);
 
-  const IS_DEV_MODE = false; 
+  const IS_DEV_MODE = true; 
   // 💡 1. 마우스 위치를 저장할 상태 추가
   const [cursorPos, setCursorPos] = useState(null);
 

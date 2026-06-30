@@ -16,6 +16,7 @@ import broadcast_murder from '../data/broadcast_murder.json';
 import themepark_murder from '../data/themepark_murder.json';
 import hospital_murder from '../data/hospital_murder.json';
 import dormitory_murder from '../data/dormitory_murder.json';
+import old_cinema_murder from '../data/old_cinema_murder.json';
 import AdConfirmModal from './AdConfirmModal';
 
 const scenarioDB = {
@@ -25,7 +26,8 @@ const scenarioDB = {
   "broadcast_murder": broadcast_murder,
   "themepark_murder": themepark_murder,
   "hospital_murder": hospital_murder,
-  "dormitory_murder": dormitory_murder
+  "dormitory_murder": dormitory_murder,
+  "old_cinema_murder": old_cinema_murder
 };
 
 // ⭐ [가이드 추가] 툴팁 전체 단계 수를 6 -> 7로 변경
@@ -525,15 +527,15 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings, isTruthMode }) => {
         )}
       </main>
       
-      {/* ⭐ 철수 확인 경고 모달 */}
+      {/* ⭐ 철수 확인 모달 (자동 저장 안내로 수정) */}
       {showExitModal && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 p-4">
           <div className="bg-neutral-900 border border-neutral-700 rounded-2xl w-full max-w-sm p-6 shadow-2xl animate-fadeIn">
             <div className="flex flex-col items-center text-center">
               <span className="text-4xl mb-4">🚨</span>
-              <h3 className="text-xl font-black text-white mb-2">정말 현장에서 철수하시겠습니까?</h3>
+              <h3 className="text-xl font-black text-white mb-2">현장에서 철수하시겠습니까?</h3>
               <p className="text-neutral-400 text-sm leading-relaxed mb-6">
-                지금 철수하면 진행 중인 <span className="text-red-500 font-bold">수사 기록과 모은 단서가 모두 초기화</span>됩니다.
+                지금 철수하더라도 <span className="text-amber-500 font-bold">현재까지의 수사 기록은 자동으로 저장</span>됩니다.<br/>언제든 다시 이어서 수사할 수 있습니다.
               </p>
               
               <div className="flex gap-3 w-full">
@@ -544,7 +546,8 @@ const PlayScreen = ({ scenarioId, onBack, onOpenSettings, isTruthMode }) => {
                   수사 계속하기
                 </button>
                 <button 
-                  onClick={() => { playSfx(); clearProgress(); onBack(); }}
+                  // ⭐ clearProgress() 삭제! 세이브 데이터 유지하고 뒤로가기만 실행
+                  onClick={() => { playSfx(); setShowExitModal(false); onBack(); }}
                   className="flex-1 py-3 bg-red-600/20 hover:bg-red-600/40 text-red-500 font-bold rounded-xl transition-colors border border-red-900/50"
                 >
                   철수하기
